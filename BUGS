@@ -4,8 +4,20 @@ Bugs:
   client to join this channel. The problem is that user is _not_ on this
   channel.
 
+- connecting to miau may send some unexpected stuff to client
+	<snip>
+	--- Connected. Now logging in..
+	--- Welcome to the Internet Relay Network zeska!~zeska@dante
+	--- Your host is irc1.inet.fi, running version 2.10.3p6
+	--- This server was created Fri Feb 27 2004 at 13:52:40 EET
+	--- irc1.inet.fi 2.10.3p6 aoOirw abeiIklmnoOpqrstv
+	--- life!~life@foo.bar.org PRIVMSG #foobar :http://www.shipbrook.com/jeff/mozilla.html
+	--- - miau version 0.5.2 - "fluffy little fellow" -
+	</snip>
+	
 - Fails silently if cannot write into ~/.miau/log
-	- stdout is redirected into file we cannot write to!
+
+- stdout is redirected into file we cannot write to!
 
 
 Unconfirmed bugs (and those I couldn't reproduce):
