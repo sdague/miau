@@ -50,7 +50,7 @@ log_prepare_entry(
 		return NULL;
 	}
 	/* Neither do messages that are malformed. */
-	len = strlen(msg + 8);
+	len = (int) strlen(msg + 8);
 	i = len;
 	while (msg[i + 8] != '\1' && i > 0) { i--; }
 	if (i == 0) {
@@ -62,7 +62,7 @@ log_prepare_entry(
 	snprintf(buf, BUFLEN - 1, LOGM_ACTION, get_short_localtime(),
 			nick, msg + 8);
 	/* Remove trailing '\1'. */
-	len = strlen(buf);
+	len = (int) strlen(buf);
 	memmove(buf + len - rpos, buf + len - rpos + 1, rpos);
 	
 	return buf;

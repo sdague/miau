@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -260,8 +260,8 @@ channel_find(
 		node = old_channels.head;
 	}
 
-	for (;node != NULL; node = node->next) {
-		chptr = node->data;
+	for ( ; node != NULL; node = node->next) {
+		chptr = (channel_type *) node->data;
 		
 		if (xstrcasecmp(chptr->name, channel) == 0) return chptr;
 	}
@@ -338,8 +338,8 @@ channel_join_list(
 	}
 
 	if (first != NULL) {
-		chans = xcalloc(1, 1);
-		keys = xcalloc(1, 1);
+		chans = (char *) xcalloc(1, 1);
+		keys = (char *) xcalloc(1, 1);
 	}
 
 #ifdef QUICKLOG
@@ -357,9 +357,9 @@ channel_join_list(
 			/* We're trying to join this just a second later. */
 			data->joining = 1;
 			/* Add channel and key in queue. */
-			chans = xrealloc(chans, strlen(data->name) +
+			chans = (char *) xrealloc(chans, strlen(data->name) +
 					strlen(chans) + 2);
-			keys = xrealloc(keys, strlen(keys) +
+			keys = (char *) xrealloc(keys, strlen(keys) +
 					strlen(data->key) + 2);
 			strcat(chans, ",");
 			strcat(chans, data->name);

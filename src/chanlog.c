@@ -73,7 +73,7 @@ chanlog_add_rule(
 		/* Check we havent already done this channel */
 		for (node = chanlog_list.head; node != NULL;
 				node = node->next) {
-			logptr = node->data;
+			logptr = (struct chanlogentry *) node->data;
 			if (xstrcasecmp(chan, logptr->channel) == 0) {
 				return;
 			}
@@ -93,14 +93,14 @@ chanlog_add_rule(
 		 */
 		if (file == NULL || multi) {
 			char	*file;
-			file = xmalloc(strlen(LOGDIR) + strlen(chan)
+			file = (char *) xmalloc(strlen(LOGDIR) + strlen(chan)
 					+ strlen(cfg.logpostfix) + 2);
 			sprintf(file, LOGDIR"/%s%s", chan, cfg.logpostfix);
 			logptr->filename = file;
 		}
 		else {
 			/* If filename is relative, add LOGDIR. */
-			logptr->filename = xmalloc(strlen(file)
+			logptr->filename = (char *) xmalloc(strlen(file)
 					+ strlen(LOGDIR) + 2);
 			sprintf(logptr->filename, LOGDIR"/%s", file);
 		}
@@ -172,7 +172,7 @@ chanlog_open(
 		channel->log = (struct channel_log *)
 			xcalloc(sizeof(struct channel_log), 1);
 
-		p = xmalloc(strlen(LOGDIR) + strlen(lowchan)
+		p = (char *) xmalloc(strlen(LOGDIR) + strlen(lowchan)
 				+ strlen(cfg.logpostfix) + 2);
 		sprintf(p, LOGDIR"/%s%s", lowchan, cfg.logpostfix);
 		channel->log->file = fopen(p, "a");
