@@ -148,7 +148,7 @@ client_read(
 	command = strtok(work, " ");
 	param1 = strtok(NULL, " ");
 	param2 = strtok(NULL, "\0");
-	if (param1 && param1[0] == ':') {
+	if (param1 != NULL && *param1 == ':') {
 		param1++;
 	}
 
