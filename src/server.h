@@ -62,7 +62,7 @@ void server_commands(char *command, char *param, int *pass);
 int parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 		const int cmdindex, int *pass);
 int server_read();
-void check_servers();
+void server_check_list();
 void server_reply(const int command, char *original, char *origin,
 		char *param1, char *param2, int *pass);
 void parse_modes(const char *channel, const char *original);

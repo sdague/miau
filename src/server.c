@@ -225,7 +225,7 @@ server_next(
 	i_server.connected = 0;
 
 	if (servers.amount == 1) {
-		check_servers();
+		server_check_list();
 
 		return;
 	}
@@ -629,8 +629,8 @@ server_read(
  * list, set i_server.current to index of it.
  */
 void
-check_servers(
-	     )
+server_check_list(
+		)
 {
 	llist_node	*ptr;
 	
@@ -660,7 +660,7 @@ check_servers(
 			servers.fresh = 0;
 		}
 	}
-} /* void check_servers() */
+} /* void server_check_list() */
 
 
 

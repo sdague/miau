@@ -1472,7 +1472,7 @@ fakeconnect(
 		}
 	}
 
-	check_servers();
+	server_check_list();
 
 	/* Tell client if we're supposedly marked as being away. */
 	if ((status.awaystate & AWAY)) {
@@ -1870,7 +1870,7 @@ miau_commands(
 			/* Try connecting ASAP. */
 			timers.connect = cfg.reconnectdelay;
 		} else {
-			check_servers();
+			server_check_list();
 		}
 	}
 		
@@ -2300,7 +2300,7 @@ check_config(
 	if (! cfg.listenhost && cfg.bind) cfg.listenhost = strdup(cfg.bind);
 	 */
 
-	check_servers();
+	server_check_list();
 
 	if (servers.amount == 1) {
 		err++;
