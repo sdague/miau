@@ -23,13 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef _DLINK_H_
-#include "llist.h"
-#endif
-
-#ifndef _CHANNELS_H_
-#include "channels.h"
-#endif
+#ifdef _LLIST_H
+#  include "llist.h"
+#endif /* _LLIST_H */
+#ifndef _CHANNELS_H
+#  include "channels.h"
+#endif /* _CHANNELS_H */
 
 
 #ifdef LOGGING
@@ -38,6 +37,7 @@
 #define MAX_CHANNELS 40
 
 
+/* For channel logs. */
 #define LOG_MESSAGE_C	'm'
 #define LOG_MESSAGE	0x0001
 #define LOG_JOIN_C	'j'
