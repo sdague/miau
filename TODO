@@ -1,11 +1,13 @@
 TODO:
 
-- repeat 352 only to person who requested it !
+- repeat 352 only to client who requested it!
 	- keep queue of "WHO #channel" -messages and echo following incoming 
 	  352 / 315 only to this client
 
 - supress echoed post-JOIN messages that certain clients are not interested
   about
+
+- randomize reconnect delay a little bit
 
 - autojoin channels only if not dropping from server too ofter
 
