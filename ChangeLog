@@ -1,3 +1,11 @@
+0.5.3
+
+* Automatically generated logfilenames are now always in lower case.
+
+* Fixed memory-leak in chanlog_open(...). This occured only if global logtype
+  failed to open logfile for writing.
+
+
 0.5.2 - "fluffy little fellow"
 
 * Fixed a bug that caused miau to segfault on rehash if bind was defined while
