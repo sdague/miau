@@ -28,6 +28,10 @@
 * Lots of portability-cleanup (strict typecasting, got rid of (most?)
   "if (foo)"s etc.)
 
+* Installing miau locally no longer overwrites old config.
+
+* miau-rotatelog was removed from distribution package.
+
 
 0.5.2 - "fluffy little fellow"
 
