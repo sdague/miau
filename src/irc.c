@@ -59,7 +59,7 @@ dump_msg_queue(
 	      )
 {
 	int n = 0;
-printf("\nmsg_queue (msgtimer = %d):\n", msgtimer);
+	printf("\nmsg_queue (msgtimer = %d):\n", msgtimer);
 	LLIST_WALK_H(msg_queue.head, char *);
 		printf("\t%d: %s", n++, data);
 	LLIST_WALK_F;
