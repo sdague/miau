@@ -2389,7 +2389,7 @@ setup_home(
 int
 main(
 		int	paramc,
-		char	*params[]
+		char	**params
     )
 {
 	int	pid = 0;
