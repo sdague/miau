@@ -8,11 +8,22 @@ Installing miau:
 On SunOS 5.8, in case make fails, try running gmake, it should work.
 
 
+
+Installing from CVS:
+
+If you have fetched miau from CVS, you need to run
+  - automake --add-missing
+  - autoreconf
+in order to generate configure -sript.
+
+
+
 ipv6 support is not automatically compiled in, as miau does not currently
 support using both ipv4 and ipv6 protocols at once.  
 Give '--enable-ipv6' to configure to enable it.
 
 (See ./configure --help to change default-dirs for 'make install')
+
 
 
 miau is in active development so visit the miau-site for new versions regularly.
