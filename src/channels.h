@@ -78,4 +78,4 @@ void channel_when(channel_type *, char *, char *);
 extern unsigned int channel_hash(char *);
 #endif /* OBSOLETE */
 
-#endif /* __CHANNELS_H__ */
+#endif /* _CHANNELS_H */

@@ -83,4 +83,4 @@ void enduserdebug(char *format, ...);
 #endif /* ENDUSERDEBUG */
 
 
-#endif /* __COMMON_H__ */
+#endif /* _COMMON_H */

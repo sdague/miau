@@ -41,4 +41,4 @@ void onconnect_do();
 
 #endif /* ONCONNECT */
 
-#endif /* __ONCONNECT_H__ */
+#endif /* _ONCONNECT_H */
