@@ -38,14 +38,21 @@ open_file(
 		char	*nick
 	 )
 {
+	char *lownick;
 	char *filename;
 	FILE *file;
+
+	/* Get nick in lowercase. */
+	/* We could use filename as temporary buffer but that isn't safe. */
+	lownick = strdup(nick);
+	lowcase(lownick);
 	
-	filename = xmalloc(strlen(LOGDIR) + strlen(nick)
+	filename = xmalloc(strlen(LOGDIR) + strlen(lownick)
 			+ strlen(cfg.logpostfix) + 2);
-	sprintf(filename, LOGDIR"/%s%s", nick, cfg.logpostfix);
+	sprintf(filename, LOGDIR"/%s%s", lownick, cfg.logpostfix);
 	file = fopen(filename, "a+");
 	xfree(filename);
+	xfree(lownick);
 
 	return file;
 } /* FILE *open_file(char *) */
