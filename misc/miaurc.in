@@ -302,6 +302,8 @@
 # This option might not be compiled in.
 #
 # Default: none
+#
+# Example:
 #timestamp = "beginning"
 
 
