@@ -420,7 +420,19 @@
 #}
 
 
-# log = { "channel(s)":"options":"logfile" }: List of logfiles.
+# privlog = "mode": Whatever private messages should be logged in nick-specific
+#		files. Can be one of "never", "detached", "attached", and
+#		"always".
+#
+# This option might not be compiled in.
+#
+# Default: never
+#
+# Example:
+#privlog = "always"
+
+
+# chanlog = { "channel(s)":"options":"logfile" }: List of channel logfiles.
 #
 # When channel is set to "*", line represents global log. When logging,
 # if channel doesn't have entry of it's own in this list, it will use settings
@@ -451,7 +463,7 @@
 # Default: none
 #
 # Example:
-#log = {
+#chanlog = {
 #	"#foobar":"a"		# log everything on #foobar
 #	"#miau":"aD":"foo.log"	# log everything to file "foo.log" when
 #				  all clients are detached

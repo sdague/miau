@@ -371,8 +371,15 @@ processed as a chain.
 Note: You can define "your" hostname with @@@@. Only the _last_ occurance of
 @@@@ will be translated.
 
-@item @command{log = @{ "channel(s)":"options":"logfile" @}}
-List of logfiles.
+@item @command{privlog = "mode"}
+Whatever private messages should be logged in nick-specific files. Can be one
+of @command{never}, @command{detached}, @command{attached}, and
+@command{always}.
+
+This option might not be compiled in.
+
+@item @command{chanlog = @{ "channel(s)":"options":"logfile" @}}
+List of channel logfiles.
 
 When channel is set to @command{*}, line represents global log. When logging,
 if channel doesn't have entry of it's own in this list, it will use settings of
