@@ -1,5 +1,12 @@
 0.5.3 - "hairball"
 
+* After timeouted connect, miau no longer freezes until send() times out.
+  How did I do this - after adding the timer?-)
+
+* Only one error message after connecting timed out.
+
+* No more skipping one server after connecting timed out.
+
 * Automatically generated logfilenames are now always in lower case.
 
 * Fixed memory-leak in chanlog_open(...). This occured only if global logtype
