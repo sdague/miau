@@ -49,7 +49,7 @@ MY_ARG_ENABLE([ctcp-replies], [enable ctcp-replies], [CTCPREPLIES])
 MY_ARG_ENABLE([mkpasswd], [enable mkpasswd-capability], [MKPASSWD])
 MY_ARG_ENABLE([uptime], [enable uptime-command], [UPTIME])
 MY_ARG_ENABLE([chanlog], [enable channel logging], [CHANLOG])
-MY_ARG_ENABLE([msglog], [enable private message logging], [PRIVLOG])
+MY_ARG_ENABLE([privlog], [enable private message logging], [PRIVLOG])
 MY_ARG_ENABLE([onconnect], [enable on-connect actions], [ONCONNECT])
 MY_ARG_ENABLE([empty-awaymsg], [allow empty AWAY messages], [EMPTYAWAY])
 
