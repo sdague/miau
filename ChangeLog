@@ -1,4 +1,4 @@
-0.5.3 - "hairball"
+0.5.3 - "hairball full of bugs"
 
 * After timeouted connect, miau no longer freezes until send() times out.
   How did I do this - after adding the timer?-)
@@ -9,8 +9,16 @@
 
 * Automatically generated logfilenames are now always in lower case.
 
+* miau now leaves channels (if configured to do so) when client times out and
+  when client dropped connection.
+
+* Fixed handling of event-messages when "leave" is set to true.
+
 * Fixed memory-leak in chanlog_open(...). This occured only if global logtype
   failed to open logfile for writing.
+
+* Fixed proceed_timer_safe -- it was possible to make it never trigger return
+  code 2.
 
 
 0.5.2 - "fluffy little fellow"

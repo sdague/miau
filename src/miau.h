@@ -297,7 +297,7 @@ void miau_commands(char *command, char *param, connection_type *client);
 void set_away(const char *reason);
 void check_timers();
 
-void clients_left(char *reason);
+void clients_left(const char *reason);
 void drop_newclient();
 
 

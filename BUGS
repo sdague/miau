@@ -1,7 +1,5 @@
 Bugs:
 
-- miau doesn't leave channels (when configured to do so) when client times out
-
 - irc.c/irc_write_real() { send() } may lock up if rehashed while connecting
 
 - fails silently if cannot write into ~/.miau/log

@@ -657,13 +657,18 @@ proceed_timer_safe(
 		)
 {
 	(*timer)++;
-	if (repeat != 0 && *timer >= warn && ((*timer - warn) % repeat) == 0) {
-		return 1;				/* Warn */
-	}
-	if (*timer == warn)	return 1;		/* Warn */
-	if (*timer >= exceed) {				/* Exceed */
+	/* Exceed */
+	if (*timer >= exceed) {
 		*timer = 0;
 		return 2;
+	}
+	/* Normal warning */
+	if (*timer == warn) {
+		return 1;
+	}
+	/* Repeated warning */
+	if (repeat != 0 && *timer > warn && (*timer - warn) % repeat == 0) {
+		return 1;
 	}
 	
 	return 0;
@@ -900,12 +905,20 @@ rehash(
  */
 void
 clients_left(
-		char	*reason
+		const char	*reason
 	    )
 {
 	char	*chans;	/* Channels we're going to part/leave. */
 	char	*channel;
-	char	*leavemsg = (reason == NULL) ? cfg.awaymsg : reason;
+	const char	*leavemsg;
+	const char	*awaymsg;
+	if (reason == NULL) {
+		awaymsg = cfg.awaymsg;
+		leavemsg = cfg.leavemsg;
+	} else {
+		awaymsg = cfg.usequitmsg ? reason : cfg.awaymsg;
+		leavemsg = cfg.usequitmsg ? reason : cfg.leavemsg;
+	}
 
 	chans = xcalloc(1, 1);
 	
@@ -979,8 +992,8 @@ clients_left(
 		}
 
 		/* We want to part each channel with a message. */
-		else if (cfg.leave && cfg.leavemsg) {
-			irc_write(&c_server, "PART %s %s",
+		else if (cfg.leave && (cfg.leavemsg || reason)) {
+			irc_write(&c_server, "PART %s :%s",
 					chans + 1, leavemsg);
 		}
 		
@@ -994,8 +1007,8 @@ clients_left(
 	/* Finally, free chans. */
 	xfree(chans);
 
-	set_away(reason); /* Try setting user away with given message. */
-} /* void clients_left(char *) */
+	set_away(awaymsg); /* Try setting user away with given message. */
+} /* void clients_left(const char *) */
 
 
 
@@ -1064,8 +1077,9 @@ check_timers(
 				break;
 				
 			case 2:
-				/* (single client, message, error, echo) */
-				client_drop(client_con, CLNT_STONED, ERROR, 1);
+				/* (single client, message, error, echo, no) */
+				client_drop(client_con, CLNT_STONED, ERROR, 1,
+						NULL);
 				/* error(CLNT_STONED); */
 				break;
 		}
@@ -1889,8 +1903,8 @@ miau_commands(
 		 * connection was lost. Therefore we don't need to tell clients
 		 * what's going on.
 		 */
-		/* (all clients, reason, notice, echo) */
-		client_drop(NULL, reason, DYING, 1);
+		/* (all clients, reason, notice, echo, no) */
+		client_drop(NULL, reason, DYING, 1, NULL);
 		server_drop(reason);
 		drop_newclient(NULL);
 		if (reason != NULL) { xfree(reason); }
@@ -2153,11 +2167,12 @@ run(
 					if (client_read(client_conn) < 0) {
 						/*
 						 * (single client, message,
-						 * report, no echo)
+						 * report, no echo, no)
 						 */
 						client_drop(client_conn,
 								CLNT_DROPPED,
-								REPORT, 0);
+								REPORT, 0,
+								NULL);
 						/* report(CLNT_DROPPED); */
 					}
 				}

@@ -53,7 +53,7 @@ typedef struct {
 #define REPORT	2
 #define DYING	9
 void client_drop(connection_type *client, char *reason, const int error,
-		const int echo);
+		const int echo, const char *);
 int client_read(connection_type *client);
 void client_free();
 

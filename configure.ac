@@ -3,7 +3,7 @@ AC_CONFIG_SRCDIR([src/miau.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2])
 AH_TEMPLATE([VERSIONNAME], [long version name])
-AC_DEFINE([VERSIONNAME], ["fluffy little fellow"])
+AC_DEFINE([VERSIONNAME], ["hairball full of bugs"])
 
 # option, explanation, define
 AC_DEFUN([MY_ARG_ENABLE], [
