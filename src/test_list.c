@@ -1,3 +1,4 @@
+/* $Id */
 /* gcc -DTESTING -g -I.. -Wall -Werror test_list.c list.c common.c && valgrind --leak-check=yes --show-reachable=yes ./a.out */
 
 #include <stdio.h>
