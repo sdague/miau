@@ -244,9 +244,18 @@ client_read(
 #ifdef LOGGING
 #ifdef PRIVLOG
 	if (param1[0] != '#') {
+		/*
+		 * We could say
+		 * 
 		if ((c_clients.connected > 0 && (cfg.privlog & 0x02))
 				|| (c_clients.connected == 0
 					&& cfg.privlog == PRIVLOG_DETACHED)) {
+		 *
+		 * ...but do disconnected clients really talk?-)
+		 *
+		 * Therefore we say the following instead:
+		 */
+		if (cfg.privlog != 0) {
 			privlog_write(param1, PRIVLOG_OUT, param2 + 1);
 		}
 	}
@@ -369,7 +378,6 @@ client_read(
 				}
 			}
 #ifdef QUICKLOG
-
 			/* Also put it in quicklog. If necessary, or course. */
 			if (cfg.flushqlog == 0 && param1 != NULL && log) {
 				qlog_write(0, ":%s!%s@%s %s",
