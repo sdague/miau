@@ -90,9 +90,9 @@ log_add_rule(
 		 */
 		if (file == NULL || multi) {
 			char	*temp_log;
-			temp_log = xmalloc(strlen(chan) +
-					(cfg.logpostfix != NULL ?
-						strlen(cfg.logpostfix) : 0));
+			temp_log = xmalloc(strlen(chan) + 1
+					+ (cfg.logpostfix != NULL
+						? strlen(cfg.logpostfix) : 0));
 			sprintf(temp_log, "%s%s", chan,
 					(cfg.logpostfix != NULL ?
 						cfg.logpostfix : ""));
