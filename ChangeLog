@@ -6,7 +6,7 @@
 * Message for dropping new client no longer contains garbage. Funny thing that
   neither valgrind nor electric fence caught this.
 
-* Rehashing now complains about all required but missing items.
+* Rehashing now complains about all missing and required items.
 
 * Implemented timestamping for quicklog events (QLOGSTAMP).
   Option in miaurc: "timestamp", defines location of timestamp in quicklog
@@ -15,7 +15,7 @@
 * Implemented channel logging like logging for private messages (PRIVLOG).
   Channel log is now CHANLOG. "log" in miaurc is now "chanlog".
 
-* Logfiles finally handle "\1ACTION ...\1"s properly.
+* Logging finally handles "\1ACTION ...\1"s properly.
 
 * "getnick" option (in miaurc) now takes "never", "detached", "attached" and
   "always" as an argument.
