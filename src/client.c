@@ -169,7 +169,7 @@ client_read(
 		chptr = channel_find(channel, LIST_PASSIVE);
 		if (chptr == NULL) {
 			irc_mwrite(&c_clients, ":miau %d %s %s :"
-					"No such channel",
+					"No such channel",	// FIXME mesg.h
 					ERR_NOSUCHCHANNEL,
 					status.nickname,
 					channel);
@@ -379,10 +379,9 @@ client_read(
 					if (client_this->data != client) {
 						/* Bad nesting. */
 						irc_write((connection_type *) client_this->data,
-							":%s!%s@%s %s",
+							":%s!%s %s",
 							status.nickname,
-							i_client.username,
-							i_client.hostname,
+							status.idhostname,
 							client->buffer);
 					}
 				}
