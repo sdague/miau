@@ -21,12 +21,10 @@
 #include "llist.h"
 #include "irc.h"
 #include "table.h"
-#include "log.h"
+#include "chanlog.h"
 #include "qlog.h"
 #include "messages.h"
-#ifdef AUTOMODE
-#  include "automode.h"
-#endif /* AUTOMODE */
+#include "automode.h"
 
 
 
@@ -132,12 +130,12 @@ channel_add(
 	 *   - chptr is non-NULL
 	 */
 	
-#ifdef LOGGING
+#ifdef CHANLOG
 	/* Active channels may need log-structures. */
 	if (list == LIST_ACTIVE) {
-		log_open(chptr);
+		chanlog_open(chptr);
 	}
-#endif /* LOGGING */
+#endif /* CHANLOG */
 
 	return chptr;
 } /* channel_type *channel_add(const char *, const int) */
@@ -181,12 +179,12 @@ channel_rem(
 	automode_drop_channel(chptr, NULL, ANY_MODE);
 #endif /* AUTOMODE */
 
-#ifdef LOGGING
+#ifdef CHANLOG
 	/* Close the logfile if we have one. */
 	if (chptr->log != NULL) {
-		log_close(chptr);
+		chanlog_close(chptr);
 	}
-#endif /* LOGGING */
+#endif /* CHANLOG */
 
 	node = llist_find(chptr, source);
 	if (node == NULL) {
@@ -379,12 +377,12 @@ channel_join_list(
 						data->topicwho,
 						data->topicwhen);
 			}
-#ifdef LOGGING
+#ifdef CNANLOG
 			if (HAS_LOG(data, LOG_MIAU)) {
 				log_write_entry(data, LOGM_MIAU,
 						gettimestamp(0), "");
 			}
-#endif /* LOGGING */
+#endif /* CHANLOG */
 			irc_write(&c_server, "NAMES %s", data->name);
 #ifdef QUICKLOG
 			/* Write header for qlog. */

@@ -7,6 +7,11 @@ TODO:
 - supress echoed post-JOIN messages that certain clients are not interested
   about
 
+- option to use PRIVMSG instead of NOTICE when playing messagelog
+	- talk as "miau" like ENDUSERDEBUG?
+
+- option to make miau send PRIVMSG on connect if messagelog exists
+
 - randomize reconnect delay a little bit
 
 - autojoin channels only if not dropping from server too ofter
@@ -30,7 +35,6 @@ TODO:
 
 - fix anti-idle -thingie, now it works a bit illegal way...
 	- perhaps this isn't an issue
-
 
 
 NOTES TO SELF:

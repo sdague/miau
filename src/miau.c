@@ -29,35 +29,33 @@
 #include "ascii.h"
 #include "commands.h"
 #include "parser.h"
-#include "log.h"
+#include "chanlog.h"
 #include "server.h"
 #include "client.h"
-
 #ifdef DCCBOUNCE
 #  include "dcc.h"
 #endif /* DCCBOUNCE */
-
 #ifdef QUICKLOG
 #  include "qlog.h"
 #endif /* QUICKLOG */
-
 #ifdef AUTOMODE
 #  include "automode.h"
 #endif /* AUTOMODE */
-
+#ifdef ONCONNECT
+#  include "onconnect.h"
+#endif /* ONCONNECT */
+#ifdef PRIVLOG
+#  include "privlog.h"
+#endif /* PRIVLOG */
 #ifdef _NEED_CMDPASSWD
 #  include "remote.h"
 #endif /* _NEED_CMDPASSWD */
 
-#ifdef ONCONNECT
-#  include "onconnect.h"
-#endif /* ONCONNECT */
 
 
-
-#ifdef PRIVMSGLOG
-FILE	*messagelog = NULL;
-#endif /* PRIVMSGLOG */
+#ifdef INBOX
+FILE	*inbox = NULL;
+#endif /* INBOX */
 
 
 int read_newclient();
@@ -95,9 +93,9 @@ cfg_type cfg = {
 #ifdef AUTOMODE
 	30,	/* automodedelay: 30 seconds */
 #endif /* AUTOMODE */
-#ifdef PRIVMSGLOG
+#ifdef INBOX
 	1,
-#endif /* PRIVMSGLOG */
+#endif /* INBOX */
 	0,	/* listenport: 0 */
 	1,	/* getnick: disconnected */
 	60,	/* getnickinterval: 60 seconds */
@@ -112,6 +110,9 @@ cfg_type cfg = {
 	9,	/* maxnicklen: 9 chars */
 	3,	/* maxclients: 3 clients */
 	1,	/* usequitmsg: yes */
+#ifdef PRIVLOG
+	0,	/* privlog: no privlog */
+#endif /* PRIVLOG */
 
 	DEFAULT_NICKFILL,	/* nickfillchar */
 	
@@ -189,10 +190,9 @@ free_resources(
 #ifdef DCCBOUNCE
 	FREE(cfg.dccbindhost);
 #endif /* DCCBOUNCE */
-#ifdef LOGGING
-	FREE(cfg.logpostfix);
-	log_del_rules();
-#endif /* LOGGING */
+#ifdef CHANLOG
+	chanlog_del_rules();
+#endif /* CHANLOG */
 
 #ifdef QUICKLOG
 	/* Replay quicklog - no output and don't keep the logs. */
@@ -215,6 +215,10 @@ escape(
 	/* Clear send queue. */
 	irc_clear_queue();
 
+#ifdef PRIVLOG
+	privlog_close_all();
+#endif /* PRIVLOG */
+
 	/* Close connections and free client list. */
 	rawsock_close(listensocket);
 	sock_close(&c_server);
@@ -227,9 +231,9 @@ escape(
 	c_clients.connected = 0;
 
 	/* Close log-file and remove PID-file. */
-#ifdef PRIVMSGLOG
-	if (messagelog != NULL) { fclose(messagelog); }
-#endif /* PRIVMSGLOG */
+#ifdef INBOX
+	if (inbox != NULL) { fclose(inbox); }
+#endif /* INBOX */
 	unlink(FILE_PID);
 
 	/* Free permission lists. */
@@ -248,6 +252,9 @@ escape(
 	xfree(cfg.realname);
 	xfree(cfg.password);
 	xfree(cfg.home);
+#ifdef LOGGING
+	xfree(cfg.logpostfix);
+#endif /* LOGGING */
 #ifdef _NEED_CMDPASSWD
 	xfree(cfg.cmdpasswd);
 #endif /* _NEED_CMDPASSWD */
@@ -312,7 +319,12 @@ read_cfg(
 	servers.amount = 1;
 
 #ifdef LOGGING
-	cfg.logpostfix = strdup("");		/* No global logfile-postfix. */
+	/*
+	 * cfg.logpostfix _must_ be non-null as it's assumed so everywhere.
+	 * By assuming it's non-NULL, we don't need to do
+	 * 'cfg.logpostfix != NULL ? cfg.logpostfix : ""' every time.
+	 */
+	cfg.logpostfix = strdup("");	/* No global logfile-postfix. */
 #endif /* LOGGING */
 	
 	/* Read configuration file. */
@@ -436,9 +448,9 @@ dump_status(
 #ifdef AUTOMODE
 	dump_status_int("automodedelay", cfg.automodedelay);
 #endif /* AUTOMODE */
-#ifdef PRIVMSGLOG
-	dump_status_int("logging", cfg.logging);
-#endif /* PRIVMSGLOG */
+#ifdef INBOX
+	dump_status_int("inbox", cfg.inbox);
+#endif /* INBOX */
 	dump_status_int("listenport", cfg.listenport);
 	dump_status_int("getnick", cfg.getnick);
 	dump_status_int("getnickinterval", cfg.getnickinterval);
@@ -451,6 +463,9 @@ dump_status(
 	dump_status_int("reconnectdelay", cfg.reconnectdelay);
 	dump_status_int("leave", cfg.leave);
 	dump_status_int("maxnicklen", cfg.maxnicklen);
+#ifdef LOGGING
+	dump_status_char("logpostfix", cfg.logpostfix);
+#endif /* LOGGING */
 	dump_dump();
 
 	dump_string("status:");
@@ -536,6 +551,16 @@ dump_status(
 		dump_add("    }"); dump_dump();
 	LLIST_WALK_F;
 	dump_dump();
+
+#ifdef PRIVLOG
+	dump_string("open privlogs:");
+	LLIST_WALK_H(privlog_get_list()->head, privlog_type *);
+		dump_add("    {");
+		dump_status_char("nick", data->nick);
+		dump_status_int("time", data->updated);
+		dump_add("  }"); dump_dump();
+	LLIST_WALK_F;
+#endif /* PRIVLOG */
 
 #ifdef AUTOMODE
 	dump_string("automodes:");
@@ -705,22 +730,22 @@ rehash(
 	free_resources();
 
 	
-#ifdef LOGGING
+#ifdef CHANLOG
 	/* Close open logfiles. */
 	LLIST_WALK_H(active_channels.head, channel_type *);
-		log_close(data);
+		chanlog_close(data);
 	LLIST_WALK_F;
 	global_logtype = 0;	/* No logging by default. */
-#endif /* LOGGING */
+#endif /* CHANLOG */
 	
 	read_cfg();
 	
-#ifdef LOGGING
+#ifdef CHANLOG
 	/* Open logs. */
 	LLIST_WALK_H(active_channels.head, channel_type *);
-		log_open(data);
+		chanlog_open(data);
 	LLIST_WALK_F;
-#endif /* LOGGING */
+#endif /* CHANLOG */
 
 #ifdef QUICKLOG
 	/*
@@ -774,21 +799,21 @@ rehash(
 		create_listen();
 	}
 
-#ifdef PRIVMSGLOG
+#ifdef INBOX
 	/* We're logging no more. */
-	if (! cfg.logging && messagelog != NULL) {
-		fclose(messagelog);
-		messagelog = NULL;
+	if (! cfg.inbox && inbox != NULL) {
+		fclose(inbox);
+		inbox = NULL;
 	}
 	
 	/* We should start logging. */
-	if (cfg.logging && messagelog == NULL) {
-		messagelog = fopen(FILE_MESSAGES,"a+");
-		if (messagelog == NULL) {
-			report(MIAU_ERRMSGFILE);
+	if (cfg.inbox && inbox == NULL) {
+		inbox = fopen(FILE_INBOX, "a+");
+		if (inbox == NULL) {
+			report(MIAU_ERRINBOXFILE);
 		}
 	}
-#endif /* PRIVMSGLOG */
+#endif /* INBOX */
 
 	/* Reopen log-file. */
 	/*
@@ -892,14 +917,14 @@ clients_left(
 			}
 		LLIST_WALK_F;
 
-#ifdef LOGGING
+#ifdef CHANLOG
 		/* We don't want to leave channels nor message channels. */
 		if (! cfg.leave && cfg.leavemsg == NULL) {
-			log_write_entry_all(LOG_MIAU, LOGM_MIAU,
-					gettimestamp(0), "dis");
+			chanlog_write_entry_all(LOG_MIAU, LOGM_MIAU,
+					get_short_localtime(), "dis");
 		}
 		else
-#endif /* LOGGING */
+#endif /* CHANLOG */
 		
 		/* We want to send an ACTION on each channel. */
 		if (! cfg.leave && cfg.leavemsg != NULL) {
@@ -1192,13 +1217,20 @@ check_timers(
 	
 #ifdef AUTOMODE
 	/* Act as op-o-matic. */
-	if (status.automodes > 0) {
-		if (proceed_timer(&timers.automode, 0, cfg.automodedelay) == 2) {
-			/* automode(...) checks if we have operator-status. */
-			automode_do(&c_server);
-		}
+	if (status.automodes > 0 && proceed_timer(&timers.automode,
+				0, cfg.automodedelay) == 2) {
+		/* automode(...) checks if we have operator-status. */
+		automode_do(&c_server);
 	}
 #endif /* AUTOMODE */
+
+#ifdef PRIVLOG
+	/* Close logfiles that haven't been used for a while. */
+	if (privlog_has_open() && proceed_timer(&timers.privlog,
+				0, PRIVLOG_CHECK_PERIOD)) {
+		privlog_close_old();
+	}
+#endif /* PRIVLOG */
 
 #ifdef DCCBOUNCE
 	/* Bounce DCCs. */
@@ -1359,21 +1391,21 @@ fakeconnect(
 				status.nickname);
 	}
 
-#ifdef PRIVMSGLOG
-#ifdef QUICKLOG
+#ifdef INBOX
+#  ifdef QUICKLOG
 	/* Move old qlog-lines to privmsglog. */
 	qlog_drop_old();
-#endif /* QUICKLOG */
-	if (messagelog != NULL && ftell(messagelog) != 0) {
+#  endif /* QUICKLOG */
+	if (inbox != NULL && ftell(inbox) != 0) {
 		irc_write(newclient, ":%s 372 %s :- "CLNT_HAVEMSGS,
 				i_server.realname,
 				status.nickname);
 	} else {
-		irc_write(newclient, ":%s 372 %s :- "CLNT_HAVENOMSGS,
+		irc_write(newclient, ":%s 372 %s :- "CLNT_INBOXEMPTY,
 				i_server.realname,
 				status.nickname);
 	}
-#endif /* PRIVMSGLOG */
+#endif /* INBOX */
 
 	irc_write(newclient, ":%s 376 %s :"MIAU_END_OF_MOTD,
 			i_server.realname,
@@ -1657,18 +1689,18 @@ miau_commands(
 		rehash();
 	}
 
-#ifdef PRIVMSGLOG
+#ifdef INBOX
 	if (xstrcmp(command, "READ") == 0) {
 		char	*s;
 		corr++;
-		if (messagelog && ftell(messagelog)) {
-			fflush(messagelog);
-			rewind(messagelog);
+		if (inbox && ftell(inbox)) {
+			fflush(inbox);
+			rewind(inbox);
 
-			irc_notice(client, status.nickname, CLNT_MSGLOGSTART);
+			irc_notice(client, status.nickname, CLNT_INBOXSTART);
 
 			s = (char *) xmalloc(1024);
-			while (fgets(s, 1023, messagelog)) {
+			while (fgets(s, 1023, inbox)) {
 				if (s[strlen(s) - 1] == '\n') {
 					s[strlen(s) - 1] = 0;
 				}
@@ -1676,25 +1708,25 @@ miau_commands(
 			}
 			xfree(s);
 
-			irc_notice(client, status.nickname, CLNT_MSGLOGEND);
-			fseek(messagelog, 0, SEEK_END);
+			irc_notice(client, status.nickname, CLNT_INBOXEND);
+			fseek(inbox, 0, SEEK_END);
 		}
 		else {
-			irc_notice(client, status.nickname, CLNT_HAVENOMSGS);
+			irc_notice(client, status.nickname, CLNT_INBOXEMPTY);
 		}
 	}
 
 	else if (xstrcmp(command, "DEL") == 0) {
 		corr++;
-		if (messagelog) {
-			fclose(messagelog);
+		if (inbox) {
+			fclose(inbox);
 		}
-		unlink(FILE_MESSAGES);
-		messagelog = fopen(FILE_MESSAGES, "w+");
+		unlink(FILE_INBOX);
+		inbox = fopen(FILE_INBOX, "w+");
 
 		irc_notice(client, status.nickname, CLNT_KILLEDMSGS);
 	}
-#endif /* PRIVMSGLOG */
+#endif /* INBOX */
 
 	else if (xstrcmp(command, "RESET") == 0) {
 		corr++;
@@ -2194,12 +2226,12 @@ init(
 
 	create_listen();
 
-#ifdef PRIVMSGLOG
-	messagelog = fopen(FILE_MESSAGES, "a+");
-	if (messagelog == NULL) {
-		report(MIAU_ERRMSGFILE);
+#ifdef INBOX
+	inbox = fopen(FILE_INBOX, "a+");
+	if (inbox == NULL) {
+		report(MIAU_ERRINBOXFILE);
 	}
-#endif /* PRIVMSGLOG */
+#endif /* INBOX */
 } /* void init() */
 
 
@@ -2235,11 +2267,17 @@ check_config(
 
 
 
+/*
+ * Setup home and create directories if they don't exist already.
+ */
 void
 setup_home(
 		char	*s
 	  )
 {
+	struct stat ds;
+	int t;
+
 	if (s) {
 		cfg.home = strdup(s);
 		if (cfg.home[strlen(cfg.home) - 1] != '/') {
@@ -2258,7 +2296,7 @@ setup_home(
 		xstrcpy(cfg.home, s);
 		
 		if (cfg.home[strlen(cfg.home) - 1] != '/') {
-			strcat( cfg.home, "/" );
+			strcat(cfg.home, "/");
 		}
 		strcat(cfg.home, MIAUDIR);
 	}
@@ -2266,6 +2304,22 @@ setup_home(
 	if (chdir(cfg.home) < 0) {
 		error(MIAU_ERRCHDIR, cfg.home);
 		escape();
+	}
+
+	/* Create directories. */
+	/* If we need more directories, make new function of this routine. */
+	t = stat(LOGDIR, &ds);
+	if (t == 0) {
+		/* Exists. */
+		if (! S_ISDIR(ds.st_mode)) {
+			error(MIAU_ERRLOGDIR, LOGDIR);
+			escape();
+		}
+	} else {
+		if (mkdir(LOGDIR, 0700) == -1) {
+			error(MIAU_ERRCREATELOGDIR, LOGDIR);
+			escape();
+		}
 	}
 } /* void setup_home(char *) */
 
@@ -2286,20 +2340,12 @@ main(
 	char	salt[3];
 #endif
 #ifdef XXX
-// remove me
-	qlogentry	*t = (qlogentry *) malloc(sizeof(qlogentry));
-command_setup();
-for (cfg.timestamp = 1; cfg.timestamp < 3; cfg.timestamp++) {
-printf("--- %d\n", cfg.timestamp);
-	time(&t->timestamp);
-	t->text = strdup(":wind!~wind@127.0.0.1 PRIVMSG #miau :taihteby");
-	add_timestamp(t);
-	t->text = strdup(":wind!~wind@127.0.0.1 PRIVMSG #miau :omg lol stfu n00b");
-	add_timestamp(t);
-	t->text = strdup(":wind!~wind@127.0.0.1 PRIVMSG #miau :\1ACTION :: xiits ::\1");
-	add_timestamp(t);
-printf("\n");
-}
+char *t;
+t = log_prepare_entry("wind", "\1ACTION foobar\1");
+if (t) printf("'%s' (%d %d/%d/%d/%d)\n", t, t[0], t[strlen(t)], t[strlen(t) - 1], t[strlen(t) - 2], t[strlen(t) - 3]);
+t = log_prepare_entry("wind", "foobar");
+if (t) printf("'%s' (%d %d/%d/%d/%d)\n", t, t[0], t[strlen(t)], t[strlen(t) - 1], t[strlen(t) - 2], t[strlen(t) - 3]);
+command_free();
 exit(0);
 #endif /* XXX */
 

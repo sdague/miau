@@ -24,9 +24,10 @@
 
 #define MIAURC		"miaurc"
 #define MIAUDIR		".miau/"
+#define LOGDIR		"logs"
 #define FILE_PID	"pid"
 #define FILE_LOG	"log"
-#define FILE_MESSAGES	"messages"
+#define FILE_INBOX	"inbox"
 
 #define MIAU_URL	"http://miau.sourceforge.net/"
 #ifndef VERSION
@@ -96,15 +97,15 @@
 #endif
 
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
+#  include <sys/time.h>
+#  include <time.h>
 #else
 
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
+#  if HAVE_SYS_TIME_H
+#    include <sys/time.h>
+#  else
+#    include <time.h>
+#   endif
 #endif
 
 #if !HAVE_RANDOM
@@ -112,13 +113,22 @@
 #endif
 
 #if !HAVE_SIGACTION     /* old "weird signals" */
-#define sigaction	sigvec
-#ifndef sa_handler
-#define sa_handler	sv_handler
-#define sa_mask		sv_mask
-#define sa_flags	sv_flags
+#  define sigaction	sigvec
+#  ifndef sa_handler
+#    define sa_handler	sv_handler
+#    define sa_mask		sv_mask
+#    define sa_flags	sv_flags
+#  endif
 #endif
-#endif
+
+
+
+#ifdef CHANLOG
+#  define LOGGING
+#endif /* CHANLOG */
+#ifdef PRIVLOG
+#  define LOGGING
+#endif /* PRIVLOG */
 
 
 
@@ -185,9 +195,9 @@ typedef struct {
 #ifdef AUTOMODE
 	int	automodedelay;
 #endif /* AUTOMODE */
-#ifdef PRIVMSGLOG
-	int	logging;
-#endif /* PRIVMSGLOG */
+#ifdef INBOX
+	int	inbox;
+#endif /* INBOX */
 	int	listenport;
 	int	getnick;
 	int	getnickinterval;
@@ -202,12 +212,15 @@ typedef struct {
 	int	maxnicklen;	/* Maximum length for nick. */
 	int	maxclients;	/* Maximum number of clients connected. */
 	int	usequitmsg;	/* Use quit-message as away/leavemsg */
+#ifdef PRIVLOG
+	int	privlog;	/* Write log of _private_ messages. */
+#endif /* PRIVLOG */
 
 	char	nickfillchar;	/* Character to fill nick with. */
 
 #ifdef LOGGING
 	char	*logpostfix;	/* Postfix for global logfiles. */
-#endif /* DCCBOUNCE */
+#endif /* LOGGING */
 #ifdef DCCBOUNCE
 	char	*dccbindhost;
 #endif /* DCCBOUNCE */
@@ -239,6 +252,9 @@ typedef struct {
 #ifdef AUTOMODE
 	int		automode;
 #endif /* AUTOMODE */
+#ifdef PRIVLOG
+	int		privlog;
+#endif /* PRIVLOG */
 } timer_type;
 
 
@@ -258,7 +274,7 @@ extern cfg_type		cfg;
 extern nicknames_type	nicknames;
 extern status_type	status;
 
-extern FILE		*messagelog;
+extern FILE		*inbox;
 
 extern timer_type	timers;
 

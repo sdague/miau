@@ -25,15 +25,11 @@
 #include "llist.h"
 #include "messages.h"
 #include "perm.h"
-#ifdef LOGGING
-#  include "log.h"
-#endif /* LOGGING */
-#ifdef QUICKLOG
-#  include "qlog.h"
-#endif /* QUICKLOG */
-#ifdef DCCBOUNCE
-#  include "dcc.h"
-#endif /* DCCBOUNCE */
+#include "chanlog.h"
+#include "privlog.h"
+#include "log.h"
+#include "qlog.h"
+#include "dcc.h"
 #include "tools.h"
 #ifdef _NEED_PROCESS_IGNORES
 #  include "ignore.h"
@@ -78,10 +74,11 @@ server_drop(
 	if (c_server.socket) {
 		sock_setblock(c_server.socket);
 		irc_write(&c_server, "QUIT :%s", reason);
-#ifdef LOGGING
-		log_write_entry_all(LOG_QUIT, LOGM_QUIT, gettimestamp(0),
-				status.nickname, reason, "", "");
-#endif /* LOGGING */
+#ifdef CHANLOG
+		chanlog_write_entry_all(LOG_QUIT, LOGM_QUIT,
+				get_short_localtime(), status.nickname, 
+				reason, "", "");
+#endif /* CHANLOG */
 		sock_close(&c_server);
 	}
 	i_server.connected = 0;
@@ -330,9 +327,9 @@ parse_privmsg(
 		int		*pass
 	     )
 {
-#ifdef LOGGING
+#ifdef CHANLOG
 	channel_type	*chptr;
-#endif /* LOGGING */
+#endif /* CHANLOG */
 	char		*origin = xmalloc(strlen(nick) + strlen(hostname) + 2);
 	int		isprivmsg = 0;
 	int		i, l;
@@ -343,6 +340,16 @@ parse_privmsg(
 	/* Is it to who ? */
 	if (status.nickname && xstrcasecmp(param1, status.nickname) == 0) {
 		/* It's for me. Whee ! :-) */
+		
+#ifdef PRIVLOG
+		/* Should we log? */
+		if ((c_clients.connected > 0 && (cfg.privlog & 0x02))
+				|| (c_clients.connected == 0
+					&& cfg.privlog == PRIVLOG_DETACHED)) {
+			privlog_write(nick, PRIVLOG_IN, param2 + 1);
+		}	
+#endif /* PRIVLOG */
+				
 		
 		/* ignorelist tells who are ignore - not who are allowed. */
 		if (! is_perm(&ignorelist, origin)) {
@@ -472,7 +479,7 @@ parse_privmsg(
 			/* Normal PRIVMSG/NOTICE to client. */
 			if (normal) {
 				isprivmsg = 1;
-#ifdef PRIVMSGLOG
+#ifdef INBOX
 #  ifndef QUICKLOG
 /*
  * Note that we do messagelog here only is privmsglog is enabled and
@@ -485,7 +492,7 @@ parse_privmsg(
 					fflush(messagelog);
 				}
 #  endif /* QUICKLOG */
-#endif /* PRIVMSGLOG */
+#endif /* INBOX */
 				
 				if (cfg.forwardmsg) {
 					timers.forward = 0;
@@ -506,13 +513,13 @@ parse_privmsg(
 		int chw = 0;
 
 		/* channel wallops - notice @#channel etc :) */
-		if((param1[0] == '@') || (param1[0] == '%') ||
-				(param1[0] == '+')) {
+		if (param1[0] == '@' || param1[0] == '%'
+				|| param1[0] == '+') {
 			chw = 1;
 			param1++;
 		}
 
-#ifdef LOGGING
+#ifdef CHANLOG
 		chptr = channel_find(param1, LIST_ACTIVE);
 		if (chptr != NULL && HAS_LOG(chptr, LOG_MESSAGE)) {
 			if (chw) {
@@ -520,17 +527,18 @@ parse_privmsg(
 			}
 		
 			if (cmdindex == CMD_PRIVMSG + MINCOMMANDVALUE) {
-				log_write_entry(chptr, LOGM_MESSAGE,
-						gettimestamp(0), nick,
-						param2 + 1);
-			} else {
-				log_write_entry(chptr, LOGM_NOTICE,
-						gettimestamp(0), nick,
-						param1,
-						param2 + 1);
+				char *t;
+				t = log_prepare_entry(nick, param2 + 1);
+				if (t == NULL) {
+					chanlog_write_entry(chptr, LOGM_MESSAGE,
+							get_short_localtime(),
+							nick, param2 + 1);
+				} else {
+					chanlog_write_entry(chptr, "%s", t);
+				}
 			}
 		}
-#endif /* LOGGING */
+#endif /* CHANLOG */
 	}
 
 	xfree(origin);
@@ -984,10 +992,11 @@ server_reply(
 				}
 			}
 
-#ifdef LOGGING
-			log_write_entry_all(LOG_NICK, LOGM_NICK,
-					gettimestamp(0), nick, param1 + 1);
-#endif /* LOGGING */
+#ifdef CHANLOG
+			chanlog_write_entry_all(LOG_NICK, LOGM_NICK,
+					get_short_localtime(),
+					nick, param1 + 1);
+#endif /* CHANLOG */
 			break;
 
 		/* Ping ?  Pong. */
@@ -1012,7 +1021,7 @@ server_reply(
 				break;
 			}
 
-#ifdef LOGGING
+#ifdef CHANLOG
 			if (HAS_LOG(chptr, LOG_PART)) {
 				t = strchr(param2, ' ');
 				/* Ugly, done because we cant break up param2 */
@@ -1023,14 +1032,14 @@ server_reply(
 					target = strdup(param2);
 					*t = ' ';
 
-					log_write_entry(chptr, LOGM_KICK,
-							gettimestamp(0),
+					chanlog_write_entry(chptr, LOGM_KICK,
+							get_short_localtime(),
 							target, nick, 
 							nextword(param2) + 1);
 					xfree(target);
 				}
 			}
-#endif /* LOGGING */
+#endif /* CHANLOG */
 
 			/* Me being kicked ? */
 			if (xstrncmp(status.nickname, param2,
@@ -1069,13 +1078,13 @@ server_reply(
 			}
 #endif /* AUTOMODE */
 	
-#ifdef LOGGING
+#ifdef CHANLOG
 			if (HAS_LOG(chptr, LOG_JOIN)) {
-				log_write_entry(chptr, LOGM_JOIN,
-						gettimestamp(0), nick,
-						hostname, param1 + 1);
+				chanlog_write_entry(chptr, LOGM_JOIN,
+						get_short_localtime(),
+						nick, hostname, param1 + 1);
 			}
-#endif /* LOGGING */
+#endif /* CHANLOG */
 
 			break;
 
@@ -1103,14 +1112,15 @@ server_reply(
 				channel_rem(chptr, LIST_ACTIVE);
 			}
 
-#ifdef LOGGING
+#ifdef CHANLOG
 			if (HAS_LOG(chptr, LOG_PART)) {
-				log_write_entry(chptr, LOGM_PART,
-						gettimestamp(0), nick, param1,
+				chanlog_write_entry(chptr, LOGM_PART,
+						get_short_localtime(),
+						nick, param1,
 						(param2) ? (param2 + 1) ?
 						param2 + 1 : "" : "");
 			}
-#endif /* LOGGING */
+#endif /* CHANLOG */
 			break;
 
 		/* Someone's leaving for good. */
@@ -1119,11 +1129,11 @@ server_reply(
 			automode_drop_nick(nick, '\0');
 #endif /* AUTOMODE */
 
-#ifdef LOGGING
-			log_write_entry_all(LOG_QUIT, LOGM_QUIT,
-					gettimestamp(0), nick,
-					param1 + 1, " ", param2);
-#endif /* LOGGING */
+#ifdef CHANLOG
+			chanlog_write_entry_all(LOG_QUIT, LOGM_QUIT,
+					get_short_localtime(),
+					nick, param1 + 1, " ", param2);
+#endif /* CHANLOG */
 
 			break;
 
@@ -1159,12 +1169,13 @@ server_reply(
 
 			parse_modes(param1, param2);
 			
-#ifdef LOGGING
+#ifdef CHANLOG
 			if (HAS_LOG(chptr, LOG_MODE)) {
-				log_write_entry(chptr, LOGM_MODE,
-						gettimestamp(0), nick, param2);
+				chanlog_write_entry(chptr, LOGM_MODE,
+						get_short_localtime(),
+						nick, param2);
 			}
-#endif /* LOGGING */
+#endif /* CHANLOG */
 
 			break;
 
@@ -1197,13 +1208,13 @@ server_reply(
 				channel_when(chptr, origin, timebuf);
 			}
 
-#ifdef LOGGING
+#ifdef CHANLOG
 			if (HAS_LOG(chptr, LOG_MISC)) {
-				log_write_entry(chptr, LOGM_TOPIC,
-						gettimestamp(0), nick,
+				chanlog_write_entry(chptr, LOGM_TOPIC,
+						get_short_localtime(), nick,
 						(param2 + 1) ? param2 + 1 : "");
 			}
-#endif /* LOGGING */
+#endif /* CHANLOG */
 			
 			break;
 

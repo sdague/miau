@@ -36,25 +36,27 @@ AC_ARG_WITH([dont-check-select],
 AC_ARG_ENABLE([local], AC_HELP_STRING([--enable-local],
 	[install miau locally, not system-wide]),
 	[ac_local=yes], [ac_local=no])
+
+AH_TEMPLATE([IPV6], [IPV6 available?])
 AC_ARG_ENABLE([ipv6], AC_HELP_STRING([--enable-ipv6],
 	[enable ipv6-support]))
 
 MY_ARG_ENABLE([dccbounce], [enable DCC-bouncing capability], [DCCBOUNCE])
-MY_ARG_ENABLE([automode], [enable automode -capability],
-	[AUTOMODE])
+MY_ARG_ENABLE([automode], [enable automode -capability], [AUTOMODE])
 MY_ARG_ENABLE([releasenick], [enable release nick -feature], [RELEASENICK])
 
 MY_ARG_ENABLE([ctcp-replies], [enable ctcp-replies], [CTCPREPLIES])
 MY_ARG_ENABLE([mkpasswd], [enable mkpasswd-capability], [MKPASSWD])
 MY_ARG_ENABLE([uptime], [enable uptime-command], [UPTIME])
-MY_ARG_ENABLE([logging], [enable channel logging feature], [LOGGING])
+MY_ARG_ENABLE([chanlog], [enable channel logging], [CHANLOG])
+MY_ARG_ENABLE([msglog], [enable private message logging], [PRIVLOG])
 MY_ARG_ENABLE([onconnect], [enable on-connect actions], [ONCONNECT])
 MY_ARG_ENABLE([empty-awaymsg], [allow empty AWAY messages], [EMPTYAWAY])
 
 MY_ARG_DISABLE([ascii-art], [disable fancy ascii-art], [ASCIIART])
-MY_ARG_DISABLE([quicklog], [disable quicklog -feature], [QUICKLOG])
+MY_ARG_DISABLE([quicklog], [disable quicklog], [QUICKLOG])
 MY_ARG_DISABLE([qlogstamp], [disable quicklog timestamps], [QLOGSTAMP])
-MY_ARG_DISABLE([privmsglog], [disable privmsg logging -feature], [PRIVMSGLOG])
+MY_ARG_DISABLE([inbox], [disable message inbox], [INBOX])
 # MY_ARG_DISABLE([qlogtomsglog], [disable quicklog to messagelog -feature],
 #	[QLOGTOMSGLOG])
 
@@ -81,6 +83,11 @@ fi
 #	CFLAGS="${CFLAGS} -Werror"
 #fi
 
+#AH_TEMPLATE([LOGGING], [need logging-related features])
+#if test "x$USE_chanlog" = "xyes" -o "x$msglog" = "xyes"; then
+#	AC_DEFINE([LOGGING], [yes])
+#fi
+
 AC_PROG_CC
 
 AC_PROG_MAKE_SET
@@ -102,7 +109,6 @@ if test "x$GCC" = "xyes"; then
 	CFLAGS="${CFLAGS} -Wall"
 fi
 
-AH_TEMPLATE([IPV6],[IPV6 available?])
 if test "x$enable_ipv6" = "xyes"; then
 	AC_CHECK_FUNC(gethostbyname2, AC_DEFINE(IPV6))
 fi

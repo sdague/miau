@@ -4,11 +4,18 @@
   Option in miaurc: "timestamp", defines location of timestamp in quicklog
   events. May be one of "beginning", "end", or "none".
 
+* Implemented channel logging like logging for private messages (PRIVLOG).
+  Channel log is now CHANLOG.
+
+* Logfiles finally handle "\1ACTION ...\1"s properly.
+
 * "getnick" option (in miaurc) now takes "never", "detached", "attached" and
   "always" as an argument.
 
 * Increased buffersize for error() and report(). Even server-error/kill should
   now fit in it.
+
+* Split log.[ch] into log.[ch], chanlog.[ch] and privlog.[ch].
 
 * Some parts of parser.c rewritten.
 

@@ -20,12 +20,10 @@
 #include "conntype.h"
 #include "irc.h"
 #include "tools.h"
-#ifdef LOGGING
-#  include "log.h"
-#endif /* LOGGING */
-#ifdef DCCBOUNCE
-#  include "dcc.h"
-#endif /* DCCBOUNCE */
+#include "log.h"
+#include "privlog.h"
+#include "chanlog.h"
+#include "dcc.h"
 
 
 
@@ -227,36 +225,57 @@ client_read(
 
 		if (xstrcmp(command, "PRIVMSG") == 0) {		/* PRIVMSG */
 #ifdef DCCBOUNCE
-			if (cfg.dccbounce && xstrncmp(param2, ":\1DCC", 5) == 0) {
+			if (cfg.dccbounce && xstrncmp(param2,
+						":\1DCC", 5) == 0) {
 				if (dcc_initiate(param2 + 1, 1)) {
 					irc_write(&c_server, "PRIVMSG %s %s",
 							param1, param2);
 					pass = 0;
 				}
-			}
-			else
-#endif /* DCCBOUNCE */
 #ifdef LOGGING
-			if (param2[0] != '\1' && param1[0] == '#') {
-				channel_type	*chptr;
+			} else {
+#endif /* LOGGING */
+#else /* DCCBOUNCE */
+#ifdef LOGGING
+			if (xstrncmp(param2, ":\1DCC", 5) != 0) {
+#endif /* LOGGING */
+#endif /* DCCBOUNCE */
 
-				chptr = channel_find(param1, LIST_ACTIVE);
-				if (chptr != NULL &&
-						HAS_LOG(chptr, LOG_MESSAGE)) {
-					log_write_entry(chptr, LOGM_MESSAGE,
-							gettimestamp(0),
-							status.nickname,
-							param2 + 1);
+#ifdef LOGGING
+#ifdef PRIVLOG
+	if (param1[0] != '#') {
+		if ((c_clients.connected > 0 && (cfg.privlog & 0x02))
+				|| (c_clients.connected == 0
+					&& cfg.privlog == PRIVLOG_DETACHED)) {
+			privlog_write(param1, PRIVLOG_OUT, param2 + 1);
+		}
+	}
+#endif /* PRIVLOG */
+
+#ifdef CHANLOG
+				if (param1[0] == '#') {
+					channel_type *chptr;
+					chptr = channel_find(param1,
+							LIST_ACTIVE);
+					if (chptr != NULL && HAS_LOG(chptr,
+								LOG_MESSAGE)) {
+	char *t;
+	t = log_prepare_entry(status.nickname, param2 + 1);
+	if (t == NULL) {
+		chanlog_write_entry(chptr, LOGM_MESSAGE, get_short_localtime(),
+				status.nickname, param2 + 1);
+	} else {
+		chanlog_write_entry(chptr, "%s", t);
+	}
+					}
 				}
+#endif /* CHANLOG */
 			}
-#else /* LOGGING */
-			;	/* End 'else' possibly left open by DCCBOUNCE */
-#endif
+#endif /* LOGGING */
 		}
 
 		else if (xstrcmp(command, "PONG") == 0) {	/* PONG */
-			/* Munch munch munch. */
-			pass = 0;
+			pass = 0;	/* Munch munch munch. */
 		}
 				
 		else if (xstrcmp(command, "PING") == 0) {	/* PING */
