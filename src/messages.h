@@ -134,9 +134,9 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
  * Socket-messages.
  */
 #define SOCK_GENERROR	"General socket error (%s)!"
-#define SOCK_ERROPEN	"Unable to create socket!"
-#define SOCK_ERRBIND	"Unable to bind to port %d!"
-#define SOCK_ERRBINDHOST	"Unable to bind to '%s':%d!"
+#define SOCK_ERROPEN	"Unable to create socket! (%s)"
+#define SOCK_ERRBIND	"Unable to bind to port %d! (%s)"
+#define SOCK_ERRBINDHOST	"Unable to bind to '%s':%d! (%s)"
 #define SOCK_ERRLISTEN	"Unable to listen!"
 #define SOCK_ERRACCEPT	"Unable to accept connection from '%s'!"
 #define SOCK_LISTENOK	"Listening on port %d."

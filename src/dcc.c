@@ -457,7 +457,7 @@ int dcc_realinitiate(
 	dccindex = dcc_addbounce();
 	dccs.data[dccindex]->src = sock_open();
 	if (dccs.data[dccindex]->src < 0) {
-		error(SOCK_ERROPEN);
+		error(SOCK_ERROPEN, net_errstr);
 		dcc_killbounce(dccindex);
 		return 0;
 	}
