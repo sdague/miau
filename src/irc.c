@@ -616,6 +616,7 @@ irc_write_real(
 #ifdef DEBUG
 /* if (connection->socket == c_server.socket) */
 	fprintf(stdout, ">>%03d>> %s", connection->socket, buffer);
+	fflush(stdout);
 #endif
 	return send(connection->socket, buffer, strlen(buffer), 0);
 } /* int irc_write_real(connection_type *, char *) */
@@ -789,6 +790,7 @@ irc_read(
 #ifdef DEBUG
 	fprintf(stdout, "<<%03d<< %s\n", connection->socket,
 			connection->buffer);
+	fflush(stdout);
 #endif
 	connection->offset = 0;
 	connection->timer = 0;		/* Got data, reset timer. */
