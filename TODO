@@ -8,6 +8,8 @@ TODO:
 
 - Only try cfg.joinretries -times to join channel. (Reset at irc_connect?)
 
+- cycle empty channels
+
 - miaurc should have an option for ctcp-replies (if CTCPREPLIES is defined)
 
 - Should miau reply to CTCP-queries by default?
@@ -30,8 +32,6 @@ TODO:
 
 - check other functions related to tables/ignore, there might be other
   useless things as well...
-
-- cycle empty channels
 
 - ascii-art from a file
 
