@@ -341,7 +341,7 @@ parse_privmsg(
 		/* Should we log? */
 		if ((c_clients.connected > 0 && (cfg.privlog & 0x02))
 				|| (c_clients.connected == 0
-					&& cfg.privlog == PRIVLOG_DETACHED)) {
+					&& (cfg.privlog & 0x01))) {
 			privlog_write(nick, PRIVLOG_IN, param2 + 1);
 		}	
 #endif /* PRIVLOG */
