@@ -51,6 +51,12 @@ TODO:
 - consider following: "IRC messages are always lines of characters
   terminated with a CR-LF" (RFC 2812).
 
+- Use ISON instead of plain NICK (as done in _old_ miaus)
+
+- Reduce malloc()s and free()s by using static char[]s. As IRC limits length
+  of messages, this _can_ be done. Hmm, do all server comply to this? They
+  must, really.
+
 
 NOTES TO SELF:
 
