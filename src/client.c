@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *      (C) 2002 Lee Hardy <lee@leeh.co.uk>
  *      (C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -17,6 +17,7 @@
 
 #include "client.h"
 
+#include "error.h"
 #include "conntype.h"
 #include "irc.h"
 #include "tools.h"
@@ -233,16 +234,11 @@ client_read(
 							param1, param2);
 					pass = 0;
 				}
-#ifdef LOGGING
-			} else {
-#endif /* LOGGING */
-#else /* DCCBOUNCE */
-#ifdef LOGGING
-			if (xstrncmp(param2, ":\1DCC", 5) != 0) {
-#endif /* LOGGING */
-#endif /* DCCBOUNCE */
+			}
+#endif /* ifdef DCCBOUNCE */
 
 #ifdef LOGGING
+			if (xstrncmp(param2, ":\1DCC", 5) != 0) {
 #ifdef PRIVLOG
 	if (param1[0] != '#') {
 		/*
@@ -263,24 +259,23 @@ client_read(
 #endif /* PRIVLOG */
 
 #ifdef CHANLOG
-				if (param1[0] == '#') {
-					channel_type *chptr;
-					chptr = channel_find(param1,
-							LIST_ACTIVE);
-					if (chptr != NULL && HAS_LOG(chptr,
-								LOG_MESSAGE)) {
-	char *t;
-	t = log_prepare_entry(status.nickname, param2 + 1);
-	if (t == NULL) {
-		chanlog_write_entry(chptr, LOGM_MESSAGE, get_short_localtime(),
-				status.nickname, param2 + 1);
-	} else {
-		chanlog_write_entry(chptr, "%s", t);
-	}
-					}
-				}
-#endif /* CHANLOG */
+	if (param1[0] == '#') {
+		channel_type *chptr;
+		chptr = channel_find(param1, LIST_ACTIVE);
+		if (chptr != NULL && HAS_LOG(chptr, LOG_MESSAGE)) {
+			char *t;
+			t = log_prepare_entry(status.nickname, param2 + 1);
+			if (t == NULL) {
+				chanlog_write_entry(chptr, LOGM_MESSAGE,
+						get_short_localtime(),
+						status.nickname, param2 + 1);
+			} else {
+				chanlog_write_entry(chptr, "%s", t);
 			}
+		}
+	}
+#endif /* CHANLOG */
+			} /* if (xstrncmp(param2, ":\1DCC", 5) != 0) */
 #endif /* LOGGING */
 		}
 
