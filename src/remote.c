@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,7 +13,9 @@
  * GNU General Public License for more details.
  */
 
+#include <config.h>
 #include "remote.h"
+#include "error.h"
 
 #include "irc.h"
 
