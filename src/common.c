@@ -1,4 +1,4 @@
-/*
+/* $Id$
  * -------------------------------------------------------
  * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Sebastian Kienzl <zap@riot.org>
@@ -14,17 +14,18 @@
  * GNU General Public License for more details.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 #include <string.h>
 #include <stdlib.h>
-#include "miau.h"
-#include "tools.h"
+#include "common.h"
 #include "messages.h"
-#include "log.h"
-#include "irc.h"
+#include "error.h"
 
 
 
-#define REPORT_ERROR(func) error(ERR_UNEXPECTED, func, file, line);
+#define REPORT_ERROR(func) error(ERR_UNEXPECTED, func, file, line)
 
 
 
@@ -43,7 +44,7 @@ _xstrcmp(
 #endif
 		return 1;
 	}
-} /* int _xstrcmp(const char *, const char * DEBUG_ADDPARMS) */
+} /* int _xstrcmp(const char *s1, const char *s2 DEBUG_ADDPARMS) */
 
 
 
@@ -63,7 +64,7 @@ _xstrncmp(
 #endif
 		return 1;
 	}
-} /* int _xstrncmp(const char *, const char *, size_t n DEBUG_ADDPARMS) */
+} /* int _xstrncmp(const char *s1, const char *s2, size_t n DEBUG_ADDPARMS) */
 
 
 
@@ -82,7 +83,7 @@ _xstrcasecmp(
 #endif
 		return 1;
 	}
-} /* int _xstrcasecmp(const char *, const char * DEBUG_ADDPARMS) */
+} /* int _xstrcasecmp(const char *s1, const char *s2 DEBUG_ADDPARMS) */
 
 
 
@@ -102,7 +103,8 @@ _xstrncasecmp(
 #endif
 		return 1;
 	}
-} /* int _xstrncasecmp(const char *, const char *, size_t DEBUG_ADDPARMS) */
+} /* int _xstrncasecmp(const char *s1, const char *s2, size_t n
+		DEBUG_ADDPARMS) */
 
 
 
@@ -121,7 +123,7 @@ _xstrcpy(
 #endif
 		return 0;
 	}
-} /* char *_xstrcpy(char *, const char * DEBUG_ADDPARMS) */
+} /* char *_xstrcpy(char *dest, const char *src DEBUG_ADDPARMS) */
 
 
 
@@ -141,7 +143,31 @@ _xstrncpy(
 #endif
 		return 0;
 	}
-} /* char *_xstrncpy(char *, const char *, size_t n DEBUG_ADDPARMS) */
+} /* char *_xstrncpy(char *dest, const char *src, size_t n DEBUG_ADDPARMS) */
+
+
+
+char *
+_xstrdup(
+		const char	*s
+		DEBUG_ADDPARMS
+       )
+{
+	char *p;
+	if (s != NULL) {
+		p = strdup(s);
+		if (p == NULL) {
+			error(ERR_MEMORY);
+			exit(ERR_CODE_MEMORY);
+		}
+		return p;
+	} else {
+#ifdef DEBUG_ADDPARMS
+		REPORT_ERROR("xstrdup");
+#endif
+		return NULL;
+	}
+} /* char *_xstrdup(const char *s DEBUG_ADDPARMS) */
 
 
 
@@ -153,10 +179,10 @@ xmalloc(
 	void *ret = malloc(size);
 	if (ret == NULL) {
 		error(ERR_MEMORY);
-		escape();
+		exit(ERR_CODE_MEMORY);
 	}	
 	return ret;
-} /* void *xmalloc(size_t) */
+} /* void *xmalloc(size_t size) */
 
 
 
@@ -169,10 +195,10 @@ xcalloc(
 	void *ret = calloc(nmemb, size);
 	if (ret == NULL) {
 		error(ERR_MEMORY);
-		escape();
+		exit(ERR_CODE_MEMORY);
 	}
 	return ret;
-} /* void *xcalloc(size_t, size_t) */
+} /* void *xcalloc(size_t nmemb, size_t size) */
 
 
 
@@ -184,7 +210,7 @@ xfree(
 	if (ptr != NULL) {
 		free(ptr);
 	}
-} /* void xfree(void *) */
+} /* void xfree(void *ptr) */
 
 
 
@@ -197,32 +223,7 @@ xrealloc(
 	void *ret = realloc(ptr, size);
 	if (ret == NULL && size > 0) {
 		error(ERR_MEMORY);
-		escape();
+		exit(ERR_CODE_MEMORY);
 	}
 	return ret;
-} /* void *xrealloc(void *, size_t) */
-
-
-
-#ifdef ENDUSERDEBUG
-void
-enduserdebug(
-		char	*format,
-		...
-	    )
-{
-	va_list	va;
-	char	buf0[BUFFERSIZE];
-	char	buf1[BUFFERSIZE + 160];
-
-	va_start(va, format);
-	vsnprintf(buf0, BUFFERSIZE - 1, format, va);
-	va_end(va);
-	if (c_clients.connected > 0) {
-		sprintf(buf1, ":debug PRIVMSG %s :%s: %s", status.nickname,
-				get_timestamp(TIMESTAMP_NOW,
-					TIMESTAMP_LONG), buf0);
-		irc_mwrite(&c_clients, "%s", buf1);
-	}
-} /* void enduserdebug(char *, ...) */
-#endif /* ENDUSERDEBUG */
+} /* void *xrealloc(void *ptr, size_t size) */

@@ -1,8 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
- *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
- *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,39 +13,45 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TOOLS_H
-#define _TOOLS_H
+#ifndef TOOLS_H_
+#define TOOLS_H_
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* HAVE_CONFIG_H */
+#include <time.h>
 
 
 
-#define TIMESTAMP_NOW	0
-#define TIMESTAMP_LONG	1
-#define TIMESTAMP_SHORT	2
+typedef enum {
+	TIMESTAMP_LONG,
+	TIMESTAMP_SHORT
+} timestamp_t;
 
 
 
 #ifdef VSNPRINTF_WORKAROUND
 #include <stdarg.h>
 int vsnprintf(char *str, size_t size, const char *format, va_list ap);
-#endif /* VSNPRINTF_WORKAROUND */
+#endif /* ifdef VSNPRINTF_WORKAROUND */
 
-void upcase(char *what);
-void lowcase(char *what);
-void randname(char *randchar, char *oldname, int length);
+void upcase(char *str);
+void lowcase(char *str);
+void randname(char *target, const size_t length, const char fillchar);
 
-int pos(const char *str, const char what);
-int lastpos(const char *str, const char what);
-char *lastword(char *from);
-char *nextword(char *string);
+int pos(const char *s, const int c);
+int lastpos(const char *s, const int c);
+
+char *nextword(char *s);
+char *lastword(char *s);
+
 #ifdef UPTIME
-void getuptime(time_t, int *, int *, int *, int *);
+void getuptime(time_t now, int *days, int *hours, int *minutes, int *seconds);
 #endif	/* UPTIME */
-void report(char *format, ...);
-void error(char *format, ...);
 
-char *get_timestamp(time_t, const int);
-char *get_short_localtime();
+const char *get_timestamp(time_t *t, const timestamp_t mode);
+const char *get_short_localtime();
 
 
 
-#endif /* _TOOLS_H */
+#endif /* ifndef TOOLS_H_ */

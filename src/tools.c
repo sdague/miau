@@ -1,8 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
  * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
- *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
- *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +13,18 @@
  * GNU General Public License for more details.
  */
 
-#include "miau.h"
-#include "log.h"
-#include "irc.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+#include "tools.h"
+#include "common.h"
+
+#include <ctype.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 
 
@@ -32,7 +39,7 @@ vsnprintf(
 {
 	/*
 	 * TODO:
-	 * Someone must have done this (smaller, better and safer)
+	 * Someone must have done this (smaller, better and safe)
 	 * before...
 	 * 
 	 * Now we simply ignore the threat and keep going.
@@ -40,164 +47,210 @@ vsnprintf(
 
 	return vsprintf(str, format, ap);
 } /* int vsnprintf(char *, size_t, const char *, va_list) */
-#endif /* VSNPRINTF_WORKAROUND */
+#endif /* ifdef VSNPRINTF_WORKAROUND */
 
 
 
-/*
+/**
  * Convert to upper case.
+ * @str:	String to convert
  */
 void
 upcase(
-		char	*what
+		char	*str
       )
 {
-	char *doit;
-	if (what) {
-		for (doit = what; doit != NULL && *doit != '\0'; doit++) {
-			*doit = (char) toupper((int) *doit);
-		}
+	char *ptr;
+	for (ptr = str; ptr != NULL && *ptr != '\0'; ptr++) {
+		*ptr = (char) toupper((int) *ptr);
 	}
-} /* void upcade(char *) */
+} /* void upcade(char *str) */
 
 
 
-/*
+/**
  * Convert to lower case.
+ * @str:	String to convert
  */
 void
 lowcase(
-		char	*what
+		char	*str
        )
 {
-	char *doit;
-	if (what) {
-		for (doit = what; doit != NULL && *doit != '\0'; doit++) {
-			*doit = (char) tolower((int) *doit);
-		}
+	char *ptr;
+	for (ptr = str; ptr != NULL && *ptr != '\0'; ptr++) {
+		*ptr = (char) tolower((int) *ptr);
 	}
-} /* void lowcase(char *) */
+} /* void lowcase(char *str) */
 
 
 
-/*
+/**
  * Generates a random string or new nick out of the old one.
+ * @target:	Target. It *target != '\0', target will be treated as old nick.
+ * 		If *target == '\0', completely random string will be created.
+ * @length:	(Maximum) length for target
+ * @fillchar:	Character to use pad undersized target
+ *
+ * Target must have space for length + 1 characters.
+ * 
+ * This function doesn't work with multibyte characters.
  */
 void
 randname(
-		char	*randchar,
-		char	*oldnick,
-		int	length
+		char		*target,
+		const size_t	length,
+		const char	fillchar
 	)
 {
-	int	i;
-	int	oldlen;
+	size_t oldlen;
+	size_t i;
+	char shift;
 	
-	if (randchar == NULL) {
+	/* TODO paranoia */
+	if (target == NULL) {
 		/* No target - nothing to do. */
 		return;
 	}
 
-	if (oldnick == NULL) {
-		/* No old nick (or generating salt), just generate a new one. */
-		for (i = 0; i < length; i++ ) {
-			randchar[i] = (char)('A' + (rand() % 56));
+	/* Genereate from scratch? */
+	if (target[0] == '\0') {
+		for (i = 0; i < length; i++) {
+			target[i] = (char)('A' + (rand() % 56));
 		}
-		randchar[length] = '\0';
+		target[length] = '\0';
 		return;
 	}
 
 	/* Try to generate a new nick from the old one. */
-	oldlen = (int) strlen(oldnick);
+	oldlen = strlen(target);
 
 	if (oldlen < length) {
 		/*
-		 * Nick is shorter than maximum length, try adding a '^'
+		 * Nick is shorter than maximum length, try adding fillchar
 		 * at the end.
 		 */
-		xstrncpy(randchar, oldnick, oldlen);
-		randchar[oldlen] = cfg.nickfillchar;
-		randchar[oldlen + 1] = '\0';
+		target[oldlen] = fillchar;
+		target[oldlen + 1] = '\0';
 		return;
 	}
 
 	/* Nick is already as long as it can be. Try rotating the nick. */
-	xstrncpy(randchar + 1, oldnick, length - 1);
-	xstrncpy(randchar, oldnick + length - 1, 1);
-} /* void randname(char *, char *, int) */
+	shift = target[length - 1];
+	memmove(target + 1, target, length - 1);
+	target[0] = shift;
+} /* void randname(char *target, const size_t length, const char fillchar) */
 
 
 
-/*
- * Returns index of what in *str.
+/**
+ * Returns index of first occurance of "c" in "str".
+ * @str:	String to look from
+ * @c:		Character to find
+ *
+ * Returns: Index of last occurance of "c" in "str". -1 if "c" was not found.
+ *
+ * This function does _not_ work with multibyte characters. We get "int c"
+ * instead of "char c" so that this could be fixed without major rewriting.
  */
 int
 pos(
-		const char	*str,
-		const char	what
+		const char	*s,
+		const int	c
    )
 {
 	/* It takes less space to do this than to use strchr. */
-	int	i = 0;
+	int i;
 
-	if (str != NULL) {
-		while (str[i]) {
-			if (str[i] == what) return i;
-			i++;
+	for (i = 0; s[i] != '\0'; i++) {
+		if (s[i] == c) {
+			return i;
 		}
 	}
 
 	return -1;
-} /* int pos(const char *, const char) */
+} /* int pos(const char *s, const int c) */
 
 
 
+/**
+ * Returns index of last occurance of "c" in "str".
+ * @str:	String to look from
+ * @c:		Character to find
+ *
+ * Returns: Index of last occurance of "c" in "str". -1 if "c" was not found.
+ *
+ * This function does _not_ work with multibyte characters. We get "int c"
+ * instead of "char c" so that this could be fixed without major rewriting.
+ */
 int
 lastpos(
-		const char	*str,
-		const char	what
+		const char	*s,
+		const int	c
        )
 {
-	int	i;
-	if (str != NULL) {
-		i = (int) strlen(str) - 1;
-		while (i) {
-			if (str[i] == what) return i;
-			i--;
+	/* It takes less space to do this than to use strchr. */
+	int i;
+
+	if (s == NULL) {
+		return -1;
+	}
+
+	for (i = strlen(s); i >= 0; i--) {
+		if (s[i] == c) {
+			return i;
 		}
 	}
+
 	return -1;
-} /* int lastpos(const char *, const char) */
+} /* int lastpos(const char *s, const int c) */
 
 
 
+/**
+ * Finds next word starting from s.
+ * @s:	Where to start searching.
+ *
+ * Returns: Pointer to stuff starting from next word, NULL if there are no
+ * words left.
+ */
 char *
 nextword(
-		char	*string
+		char	*s
 	)
 {
-	int	i = pos(string, ' ');
+	int i;
+	
+	i = pos(s, ' ');
 	if (i == -1) {
 		return NULL;
 	} else {
-		return (string + i + 1);
+		return s + i + 1;
 	}
-} /* char *nextword(char *) */
+} /* char *nextword(char *s) */
 
 
 
+/**
+ * Finds last word, starting from s.
+ * @s:	Where to start searching.
+ *
+ * Returns: Pointer to last word, NULL if there are no words before s.
+ */
 char *
 lastword(
-		char	*from
+		char	*s
 	)
 {
-	int	i = lastpos(from, ' ');
+	int i;
+	
+	i = lastpos(s, ' ');
 	if (i == -1) {
-		return from;
+		return s;
 	} else {
-		return (from + i + 1);
+		return s + i + 1;
 	}
-} /* char *lastword(char *) */
+} /* char *lastword(char *s) */
 
 
 
@@ -217,68 +270,40 @@ getuptime(
 	now %= 3600;
 	*minutes = now / 60;
 	*seconds = now % 60;
-} /* void getuptime(time_t, int *, int *, int *, int *) */
+} /* void getuptime(time_t now, int *days, int *hours, int *minutes,
+		int *seconds) */
 #endif	/* UPTIME */
 
 
 
-void
-report(
-		char	*format,
-		...
-      )
-{
-	char	buffer[256];
-	va_list	va;
-	
-	va_start(va, format);
-	vsnprintf(buffer, 255, format, va);
-	va_end(va);
-
-	fprintf(stdout, "%s + %s\n", get_short_localtime(), buffer);
-	irc_mnotice(&c_clients, status.nickname, buffer);
-} /* void report(char *, ...) */
-
-
-
-void
-error(
-		char	*format,
-		...
-     )
-{
-	char	buffer[256];
-	va_list	va;
-
-	va_start(va, format);
-	vsnprintf(buffer, 255, format, va);
-	va_end(va);
-	
-	fprintf(stdout, "%s - %s\n", get_short_localtime(), buffer);
-	irc_mnotice(&c_clients, status.nickname, buffer);
-} /* void error(char *, ...) */
-
-
-
-/*
- * Creates a timestamp like:
+/**
+ * Creates a timestamp.
+ * @t:		Pointer to time, NULL if current time.
+ * @mode:	Timestamp format
+ *
+ * Returns: Pointer to timestamp. Allocated memory must not be freed.
+ *
+ * Creates timestamps like:
  *	Sun Jan 02 11:53:33 2002
  * or
  *	Jan 02 11:53:33
  */
-char *
+const char *
 get_timestamp(
-		time_t		t,
-		const int	mode
+		time_t			*t,
+		const timestamp_t	mode
 	     )
 {
 	struct tm	*form;
 	static char	stamp[100];
+	time_t		ts;
 
-	if (t == TIMESTAMP_NOW) {
-		time(&t);
+	if (t == NULL) {
+		time(&ts);
+	} else {
+		ts = *t;
 	}
-	form = localtime(&t);
+	form = localtime(&ts);
 	switch (mode) {
 		case TIMESTAMP_LONG:
 			strftime(stamp, 99, "%a %b %d %H:%M:%S %Y", form);
@@ -288,17 +313,20 @@ get_timestamp(
 	}
 
 	return stamp;
-} /* char *get_timestamp(time_t, const int mode) */
+} /* char *get_timestamp(time_t, const timestamp_t mode) */
 
 
 
-/*
- * Creates a timestamp like:
- *	Jan 02 11:53:33
+/**
+ * Creates a short current timestamp.
+ *
+ * Returns: Pointer to timestamp. Allocated memory must not be freed.
+ *
+ * Creates a timestamp like: "Jan 02 11:53:33"
  */
-char *
+const char *
 get_short_localtime(
 		)
 {
-	return get_timestamp(TIMESTAMP_NOW, TIMESTAMP_SHORT);
-} /* char *get_short_localtime() */
+	return get_timestamp(NULL, TIMESTAMP_SHORT);
+} /* const char *get_short_localtime() */
