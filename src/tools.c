@@ -16,9 +16,7 @@
  */
 
 #include "miau.h"
-// #include "tools.h"
 #include "log.h"
-
 #include "irc.h"
 
 

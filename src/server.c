@@ -34,12 +34,8 @@
 #ifdef _NEED_PROCESS_IGNORES
 #  include "ignore.h"
 #endif /* _NEED_PROCESS_IGNORES */
-#ifdef _NEED_CMDPASSWD
-#  include "remote.h"
-#endif /* _NEED_CMDPASSWD */
-#ifdef ONCONNECT
-#  include "onconnect.h"
-#endif /* ONCONNECT */
+#include "remote.h"
+#include "onconnect.h"
 
 
 serverlist_type	servers;

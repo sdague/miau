@@ -23,12 +23,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _LLIST_H
-#  include "llist.h"
-#endif /* _LLIST_H */
-#ifndef _CHANNELS_H
-#  include "channels.h"
-#endif /* _CHANNELS_H */
+#include "llist.h"
+#include "channels.h"
 
 
 
