@@ -10,6 +10,8 @@ TODO:
 
 - cycle empty channels
 
+- don't write ":No recipient given (PRIVMSG)" in qlog
+
 - miaurc should have an option for ctcp-replies (if CTCPREPLIES is defined)
 
 - Should miau reply to CTCP-queries by default?
