@@ -47,7 +47,7 @@ open_file(
 	lownick = strdup(nick);
 	lowcase(lownick);
 	
-	filename = xmalloc(strlen(LOGDIR) + strlen(lownick)
+	filename = (char *) xmalloc(strlen(LOGDIR) + strlen(lownick)
 			+ strlen(cfg.logpostfix) + 2);
 	sprintf(filename, LOGDIR"/%s%s", lownick, cfg.logpostfix);
 	file = fopen(filename, "a+");
@@ -78,40 +78,40 @@ privlog_write(
 	char *t;
 	int newentry = 0;
 	
-	privlog_type *entry = NULL;
+	privlog_type *line = NULL;
 
 	/* First see if log is already open. */
 	LLIST_WALK_H(open_logs.head, privlog_type *);
 		if (xstrcmp(data->nick, nick) == 0) {
-			entry = data;
+			line = data;
 			LLIST_WALK_BREAK;
 		}
 	LLIST_WALK_F;
 
-	if (entry == NULL) {
+	if (line == NULL) {
 		/* Create new entry. */
 		newentry = 1;
-		entry = xmalloc(sizeof(privlog_type));
-		entry->nick = strdup(nick);
-		entry->file = NULL;
+		line = (privlog_type *) xmalloc(sizeof(privlog_type));
+		line->nick = strdup(nick);
+		line->file = NULL;
 		
 		/* Newly created is likely to be needed first. I think. */
-		llist_add(llist_create(entry), &open_logs);
+		llist_add(llist_create(line), &open_logs);
 	}
 	
 	/* If file is closed, open it. */
-	if (entry->file == NULL) {
-		entry->file = open_file(entry->nick);
-		if (entry->file == NULL) {
+	if (line->file == NULL) {
+		line->file = open_file(line->nick);
+		if (line->file == NULL) {
 			return -1;
 		}
 	}
 	/* Update timestamp. */
-	time(&entry->updated);
+	time(&line->updated);
 
 	/* New entry? Write header. */
 	if (newentry) {
-		fprintf(entry->file, LOGM_LOGOPEN, get_timestamp(
+		fprintf(line->file, LOGM_LOGOPEN, get_timestamp(
 					TIMESTAMP_NOW, TIMESTAMP_LONG));
 	}
 
@@ -119,12 +119,12 @@ privlog_write(
 	active = (in_out == PRIVLOG_IN) ? nick : status.nickname;
 	t = log_prepare_entry(active, message);
 	if (t == NULL) {
-		fprintf(entry->file, LOGM_MESSAGE, get_short_localtime(),
+		fprintf(line->file, LOGM_MESSAGE, get_short_localtime(),
 				active, message);
 	} else {
-		fprintf(entry->file, "%s", t);
+		fprintf(line->file, "%s", t);
 	}
-	fflush(entry->file);
+	fflush(line->file);
 
 	return 0;
 } /* int privlog_write(const char *, const int, const char *) */
