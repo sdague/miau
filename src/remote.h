@@ -26,7 +26,7 @@
 
 
 #ifdef _NEED_CMDPASSWD
-int remote_cmd(char *command, char *params, char *nick, char *hostname);
+int remote_cmd(char *command, char *params, char *nick);
 #endif /* _NEED_CMDPASSWD */
 
 
