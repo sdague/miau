@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -29,7 +29,7 @@ vsnprintf(
 		size_t		size,
 		const char	*format,
 		va_list		ap
-	     )
+	 )
 {
 	/*
 	 * TODO:
@@ -40,7 +40,7 @@ vsnprintf(
 	 */
 
 	return vsprintf(str, format, ap);
-}
+} /* int vsnprintf(char *, size_t, const char *, va_list) */
 #endif /* VSNPRINTF_WORKAROUND */
 
 
@@ -51,15 +51,15 @@ vsnprintf(
 void
 upcase(
 		char	*what
-	   )
+      )
 {
-	char	*doit;
+	char *doit;
 	if (what) {
 		for (doit = what; doit && *doit; doit++) {
 			*doit = (char) toupper((int) *doit);
 		}
 	}
-}
+} /* void upcade(char *) */
 
 
 
@@ -71,7 +71,7 @@ randname(
 		char	*randchar,
 		char	*oldnick,
 		int	length
-		)
+	)
 {
 	int	i;
 	int	oldlen;
@@ -107,7 +107,7 @@ randname(
 	/* Nick is already as long as it can be. Try rotating the nick. */
 	xstrncpy(randchar + 1, oldnick, length - 1);
 	xstrncpy(randchar, oldnick + length - 1, 1);
-}
+} /* void randname(char *, char *, int) */
 
 
 
@@ -118,7 +118,7 @@ int
 pos(
 		const char	*str,
 		const char	what
-       )
+   )
 {
 	/* It takes less space to do this than to use strchr. */
 	int	i = 0;
@@ -131,7 +131,7 @@ pos(
 	}
 
 	return -1;
-}
+} /* int pos(const char *, const char) */
 
 
 
@@ -139,7 +139,7 @@ int
 lastpos(
 		const char	*str,
 		const char	what
-	   )
+       )
 {
 	int	i;
 	if (str != NULL) {
@@ -150,14 +150,14 @@ lastpos(
 		}
 	}
 	return -1;
-}
+} /* int lastpos(const char *, const char) */
 
 
 
 char *
 nextword(
 		char	*string
-	      )
+	)
 {
 	int	i = pos(string, ' ');
 	if (i == -1) {
@@ -165,13 +165,14 @@ nextword(
 	} else {
 		return (string + i + 1);
 	}
-}
+} /* char *nextword(char *) */
+
 
 
 char *
 lastword(
 		char	*from
-	      )
+	)
 {
 	int	i = lastpos(from, ' ');
 	if (i == -1) {
@@ -179,7 +180,7 @@ lastword(
 	} else {
 		return (from + i + 1);
 	}
-}
+} /* char *lastword(char *) */
 
 
 
@@ -205,7 +206,7 @@ gettimestamp(
 	strftime(stamp, 99, "%b %d %H:%M:%S", lt);
 	
 	return stamp;
-}
+} /* char *gettimestamp(int) */
 
 
 
@@ -217,7 +218,7 @@ getuptime(
 		int	*hours,
 		int	*minutes,
 		int	*seconds
-	      )
+	 )
 {
 	*days = now / 86400;
 	now %= 86400;
@@ -225,7 +226,7 @@ getuptime(
 	now %= 3600;
 	*minutes = now / 60;
 	*seconds = now % 60;
-}
+} /* void getuptime(time_t, int *, int *, int *, int *) */
 #endif	/* UPTIME */
 
 
@@ -234,18 +235,18 @@ void
 report(
 		char	*format,
 		...
-	   )
+      )
 {
-	char	buffer[150];
+	char	buffer[256];
 	va_list	va;
 	
 	va_start(va, format);
-	vsnprintf(buffer, 149, format, va);
+	vsnprintf(buffer, 255, format, va);
 	va_end(va);
 
 	fprintf(stdout, "%s + %s\n", gettimestamp(0), buffer);
 	irc_mnotice(&c_clients, status.nickname, buffer);
-}
+} /* void report(char *, ...) */
 
 
 
@@ -253,15 +254,15 @@ void
 error(
 		char	*format,
 		...
-	  )
+     )
 {
-	char	buffer[150];
+	char	buffer[256];
 	va_list	va;
 
 	va_start(va, format);
-	vsnprintf(buffer, 149, format, va);
+	vsnprintf(buffer, 255, format, va);
 	va_end(va);
 	
 	fprintf(stdout, "%s - %s\n", gettimestamp(0), buffer);
 	irc_mnotice(&c_clients, status.nickname, buffer);
-}
+} /* void error(char *, ...) */

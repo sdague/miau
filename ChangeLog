@@ -7,7 +7,12 @@
 * "getnick" option (in miaurc) now takes "never", "detached", "attached" and
   "always" as an argument.
 
+* Increased buffersize for error() and report(). Even server-error/kill should
+  now fit in it.
+
 * Some parts of parser.c rewritten.
+
+* Code-cleanup.
 
 
 0.5.1 - "y2k-compatible"
