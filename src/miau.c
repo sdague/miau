@@ -2378,7 +2378,7 @@ exit(0);
 		}
 	
 		else {		/* pid != 0 */
-			if (! (pidfile = fopen( FILE_PID, "w"))) {
+			if (! (pidfile = fopen(FILE_PID, "w"))) {
 				error(MIAU_ERRFILE, cfg.home);
 				kill(pid, SIGTERM);
 				escape();
