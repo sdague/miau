@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,6 @@
 
 #ifndef LIST_H_
 #define LIST_H_
-
-
-
-/* Need DUMPSTATUS if testing. */
-#ifdef TESTING
-#ifndef DUMPSTATUS
-#define DUMPSTATUS
-#endif /* ifndef DUMPSTATUS */
-#endif /* ifdef TESTING */
 
 
 
@@ -66,8 +57,8 @@ struct _list_type
  */
 #define LIST_WALK_H(firstitem, datatype) { \
 	datatype	data; \
-	llist_node	*node; \
-	llist_node	*nextnode; \
+	list_type	*node; \
+	list_type	*nextnode; \
 	node = (firstitem); \
 	while (node != NULL) { \
 		nextnode = node->next; \
@@ -92,7 +83,7 @@ list_type *list_find(list_type *list, void *data);
 list_type *list_move_first_to(list_type *list, list_type *dest);
 list_type *list_insert_at(list_type *list, list_type *dest, void *data);
 /*
-llist_type *list_move_to(list_type *list, list_type *src, list_type *dest);
+list_type *list_move_to(list_type *list, list_type *src, list_type *dest);
 */
 
 #ifdef USE_POOL
