@@ -102,9 +102,9 @@ perm_dump(
 	int len, t;
 	llist_node	*node;
 
-	len = 0;
 	buf[0] = '\0';
 	strcat(buf, "    ");
+	len = strlen(buf);
 	for (node = list->list.head; node != NULL; node = node->next) {
 		t = strlen(((perm_type *) node->data)->name);
 		if (len + t + 10 < BUFSIZE) {
