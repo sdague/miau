@@ -339,7 +339,7 @@ sock_bind(
 	addr.sin_family = AF_INET;
 	
 	if (bindhost) {
-		if (! name_lookup(bindhost)) {
+		if (name_lookup(bindhost) == NULL) {
 			return 0;
 		}
 		
@@ -830,7 +830,7 @@ irc_connect(
 
 	hostinfo = 0;
 	if (bindto) {
-		if (! name_lookup(bindto)) {
+		if (name_lookup(bindto) == NULL) {
 			return CONN_BIND;
 		}
 	}
@@ -852,7 +852,7 @@ irc_connect(
 		return CONN_BIND;
 	}
 
-	if (! name_lookup(server->name)) {
+	if (name_lookup(server->name) == NULL) {
 		return CONN_LOOKUP;
 	}
 
