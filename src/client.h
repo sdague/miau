@@ -43,7 +43,7 @@ typedef struct {
 #include "conntype.h"
 #include "messages.h"
 #ifdef QUICKLOG
-#  include "qlog.h"
+#include "qlog.h"
 #endif /* QUICKLOG */
 #include "tools.h"
 

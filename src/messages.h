@@ -90,24 +90,24 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 
 /* uptime */
 #ifdef UPTIME
-#  define MIAU_UPTIME	"miau has been online: %dd %02dh %02dm %02ds"
-#  define CMD_UPTIME	" UPTIME"
+#define MIAU_UPTIME	"miau has been online: %dd %02dh %02dm %02ds"
+#define CMD_UPTIME	" UPTIME"
 #else	/* UPTIME */
-#  define	CMD_UPTIME	""
+#define	CMD_UPTIME	""
 #endif	/* UPTIME */
 
 /* pingstat */
 #ifdef PINGSTAT
-#  define CMD_PINGSTAT	" PINGSTAT"
+#define CMD_PINGSTAT	" PINGSTAT"
 #else /* PINGSTAT */
-#  define CMD_PINGSTAT	""
+#define CMD_PINGSTAT	""
 #endif /* PINGSTAT */
 
 /* dumpstatus */
 #ifdef DUMPSTATUS
-#  define CMD_DUMP	" DUMP"
+#define CMD_DUMP	" DUMP"
 #else /* DUMPSTATUS */
-#  define CMD_DUMP	""
+#define CMD_DUMP	""
 #endif /* DUMPSTATUS */
 
 /* mkpasswd */

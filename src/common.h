@@ -24,20 +24,20 @@
 
 /* _NEED_CMDPASSWD */
 #ifdef RELEASENICK
-#  define _NEED_CMDPASSWD
+#define _NEED_CMDPASSWD
 #endif /* RELEASENICK */
 
 /* _NEED_TABLE */
 #ifdef DCCBOUNCE
-#  define _NEED_TABLE
+#define _NEED_TABLE
 #endif /* DCCBOUNCE */
 #ifdef CTCPREPLIES
-#  define _NEED_TABLE
+#define _NEED_TABLE
 #endif /* CTCPREPLIES */
 
 /* _NEED_PROCESS_IGNORES */
 #ifdef CTCPREPLIES
-#  define _NEED_PROCESS_IGNORES
+#define _NEED_PROCESS_IGNORES
 #endif 
 
 

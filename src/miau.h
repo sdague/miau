@@ -97,15 +97,15 @@
 #endif
 
 #if TIME_WITH_SYS_TIME
-#  include <sys/time.h>
-#  include <time.h>
+#include <sys/time.h>
+#include <time.h>
 #else
 
-#  if HAVE_SYS_TIME_H
-#    include <sys/time.h>
-#  else
-#    include <time.h>
-#   endif
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
+#else
+#include <time.h>
+#endif
 #endif
 
 #if !HAVE_RANDOM
@@ -113,21 +113,21 @@
 #endif
 
 #if !HAVE_SIGACTION     /* old "weird signals" */
-#  define sigaction	sigvec
-#  ifndef sa_handler
-#    define sa_handler	sv_handler
-#    define sa_mask		sv_mask
-#    define sa_flags	sv_flags
-#  endif
+#define sigaction	sigvec
+#ifndef sa_handler
+#define sa_handler	sv_handler
+#define sa_mask		sv_mask
+#define sa_flags	sv_flags
+#endif
 #endif
 
 
 
 #ifdef CHANLOG
-#  define LOGGING
+#define LOGGING
 #endif /* CHANLOG */
 #ifdef PRIVLOG
-#  define LOGGING
+#define LOGGING
 #endif /* PRIVLOG */
 
 
@@ -184,9 +184,9 @@ typedef struct {
 typedef struct {
 #ifdef QUICKLOG
 	int	qloglength;
-#  ifdef QLOGSTAMP
+#ifdef QLOGSTAMP
 	int	timestamp;	/* Timestamp type in quicklog. */
-#  endif /* QLOGSTAMP */
+#endif /* QLOGSTAMP */
 	int	flushqlog;	/* Flush quicklog on fakeconnect() ? */
 #endif /* QUICKLOG */
 #ifdef DCCBOUNCE
