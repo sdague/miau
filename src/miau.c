@@ -1978,7 +1978,6 @@ run(
 				servers.amount > 1 &&	/* Servers on list. */
 				/* Time to connect. */
 				timers.connect > status.reconnectdelay) {
-dump_status(); // XXX
 			server = (server_type *) i_server.current->data;
 			server_set_fallback(i_server.current);
 
