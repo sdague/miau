@@ -685,16 +685,18 @@ create_listen(
 	}
 
 	/* Create listener. */
-	if ((listensocket = sock_open()) < 0) {
-		error(SOCK_ERROPEN);
+	listensocket = sock_open();
+	if (listensocket == -1) {
+		error(SOCK_ERROPEN, net_errstr);
 		escape();
 	}
 
 	if (! sock_bind(listensocket, cfg.listenhost, cfg.listenport)) {
 		if (cfg.listenhost) {
-			error(SOCK_ERRBINDHOST, cfg.listenhost, cfg.listenport);
+			error(SOCK_ERRBINDHOST, cfg.listenhost,
+					cfg.listenport, net_errstr);
 		} else {
-			error(SOCK_ERRBIND, cfg.listenport);
+			error(SOCK_ERRBIND, cfg.listenport, net_errstr);
 		}
 
 		escape();
@@ -888,6 +890,8 @@ rehash(
 	xfree(oldrealname);
 	xfree(oldusername);
 	xfree(oldlistenhost);
+
+//	dump_status(); // XXX -- DEBUG
 } /* void rehash() */
 
 
@@ -1975,6 +1979,8 @@ run(
 				timers.connect > status.reconnectdelay) {
 			server = (server_type *) i_server.current->data;
 			server_set_fallback(i_server.current);
+
+// printf("p=%p name='%s'\n", server, server->name); // XXX -- DEBUG
 			
 			/* Not connected to server. */
 			report(SERV_TRYING, server->name, server->port);
@@ -2005,7 +2011,7 @@ run(
 					break;
 	
 				case CONN_SOCK:
-					error(SOCK_ERROPEN);
+					error(SOCK_ERROPEN, net_errstr);
 					escape();
 					break;
 			
@@ -2019,15 +2025,18 @@ run(
 					if (cfg.bind) {
 						error(SOCK_ERRBINDHOST,
 								cfg.bind,
-								cfg.listenport);
+								cfg.listenport,
+								net_errstr);
 					} else {
 						error(SOCK_ERRBIND,
-								cfg.listenport);
+								cfg.listenport,
+								net_errstr);
 					}
 					escape();
 					break;
 					
 				case CONN_CONNECT:
+printf("'%s' '%s'\n", server->name, strerror(errno));
 					error(SOCK_ERRCONNECT, server->name,
 							strerror(errno));
 					server_drop(NULL);
@@ -2449,7 +2458,6 @@ exit(0);
 		
 		if (pid == 0) {
 			if (! freopen(FILE_LOG, "a", stdout)) {
-//				freopen(stdout, "a", stdout);	// XXX
 				error(MIAU_ERRFILE, cfg.home);
 				escape();
 			}
@@ -2483,6 +2491,7 @@ exit(0);
 			exit(0);
 		}
 	}
+//	dump_status(); // XXX -- DEBUG
 	run();
 	return 0;
 } /* int main(int, char *[]) */
