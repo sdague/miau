@@ -26,7 +26,7 @@ endif
 
 config.status: configure
 	dh_testdir
-	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-quicklog --enable-onconnect --enable-chanlog --enable-privlog --enable-uptime --enable-mkpasswd --enable-automode --enable-dccbounce --enable-debug
+	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-onconnect --enable-chanlog --enable-privlog --enable-uptime --enable-mkpasswd --enable-automode --enable-dccbounce
 	${MAKE}
 
 
