@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -14,6 +14,7 @@
  * GNU General Public License for more details.
  */
 
+#include <config.h>
 #include "chanlog.h"
 
 #include "miau.h"
@@ -193,7 +194,7 @@ chanlog_open(
 	
 	/* ...and start logging. */
 	chanlog_write_entry(channel, LOGM_LOGOPEN,
-			get_timestamp(TIMESTAMP_NOW, TIMESTAMP_LONG));
+			get_timestamp(NULL, TIMESTAMP_LONG));
 } /* void chanlog_open(channel_type *) */
 
 
@@ -208,7 +209,7 @@ chanlog_close(
 {
 	if (channel->log != NULL) {
 		chanlog_write_entry(channel, LOGM_LOGCLOSE, get_timestamp(
-					TIMESTAMP_NOW, TIMESTAMP_LONG));
+					NULL, TIMESTAMP_LONG));
 		fclose(channel->log->file);
 		
 		FREE(channel->log);

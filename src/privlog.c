@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2004-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,7 +112,7 @@ privlog_write(
 	/* New entry? Write header. */
 	if (newentry) {
 		fprintf(line->file, LOGM_LOGOPEN, get_timestamp(
-					TIMESTAMP_NOW, TIMESTAMP_LONG));
+					NULL, TIMESTAMP_LONG));
 	}
 
 	/* Write log. */
@@ -167,7 +167,7 @@ finalize_log(
 	}
 	if (log->file != NULL) {
 		fprintf(log->file, LOGM_LOGCLOSE, get_timestamp(
-					log->updated, TIMESTAMP_LONG));
+					&log->updated, TIMESTAMP_LONG));
 		fclose(log->file);
 	}
 	xfree(log->nick);

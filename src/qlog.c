@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +13,10 @@
  * GNU General Public License for more details.
  */
 
+#include <config.h>
 #include "qlog.h"
 
+#include "error.h"
 #include "miau.h"
 #include "commands.h"
 #include "channels.h"
@@ -222,7 +224,7 @@ qlog_drop_old(
 			
 				fprintf(inbox, "%s <%s> %s\n", 
 						get_timestamp(
-							line->timestamp,
+							&line->timestamp,
 							TIMESTAMP_SHORT),
 						line->text + 1, message + 1);
 				fflush(inbox);
