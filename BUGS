@@ -10,6 +10,9 @@ Bugs:
 
 Unconfirmed bugs (and those I couldn't reproduce):
 
+- Weird behaviour on FreeBSD where chanlog will be (partly?) compiled in while
+  --enable-chanlog is _not_ given to configure.
+
 - irc.c/irc_write_real() { send() } may lock up if rehashed while connecting
 
 - miau _may_ crash after rehash
