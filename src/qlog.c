@@ -175,9 +175,9 @@ qlog_add_timestamp(
 	
 	/* Insert timestamp. */
 	i = (int) (p - data->text);
-	len = strlen(data->text);
+	len = (int) strlen(data->text);
 	 /* TSLEN already has '\0' counted in. */
-	data->text = xrealloc(data->text, len + TSLEN);
+	data->text = (char *) xrealloc(data->text, len + TSLEN);
 	p = data->text + i;
 	memmove(p + TSLEN - 1, p, len - (int) i + 1); /* Move '\0' as well. */
 	strncpy(p, temp, TSLEN - 1); /* Don't copy '\0'. */
@@ -210,14 +210,14 @@ qlog_drop_old(
 			/* Get sender (split it) and beginning of payload. */
 			message = strchr(line->text + 1, (int) ':');
 
-#  ifdef ENDUSERDEBUG
+#ifdef ENDUSERDEBUG
 			if (message == NULL) {
 				enduserdebug("converting invalid qlog-line ?");
 				enduserdebug("%s", line->text);
 			} else {
-#  else /* ENDUSERDEBUG */
+#else /* ENDUSERDEBUG */
 			if (message != NULL) {
-#  endif /* ENDUSERDEBUG */
+#endif /* ENDUSERDEBUG */
 				strtok(line->text, " ");
 			
 				fprintf(inbox, "%s <%s> %s\n", 
@@ -265,7 +265,7 @@ qlog_write(
 	va_end(va);
 
 	/* Create new line of quicklog. */
-	line = xmalloc(sizeof(qlogentry));
+	line = (qlogentry *) xmalloc(sizeof(qlogentry));
 	time(&line->timestamp);
 	line->text = strdup(buf);
 	line->privmsg = privmsg;
@@ -290,7 +290,7 @@ qlog_get_channel(
 		if (b != NULL) {
 			l = pos(b + 1, ' ');
 			if (l != -1) {
-				t = xcalloc(l + 1, 1);
+				t = (char *) xcalloc(l + 1, 1);
 				memcpy(t, b + 1, l);
 				/* Check active/old_channels. */
 				chan = channel_find(t, LIST_ACTIVE);
