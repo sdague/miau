@@ -36,6 +36,9 @@ TODO:
 - fix anti-idle -thingie, now it works a bit illegal way...
 	- perhaps this isn't an issue
 
+- consider following: "IRC messages are always lines of characters
+  terminated with a CR-LF" (RFC 2812).
+
 
 NOTES TO SELF:
 
