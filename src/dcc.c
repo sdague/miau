@@ -70,7 +70,7 @@ typedef struct {
 } dcccommand;
 
 
-int dcc_realinitiate(char *dest, dcccommand* dcc);
+int dcc_realinitiate(char *dest, dcccommand *dcc);
 int dcc_resume(char *dest, dcccommand *dcc);
 
 
@@ -177,7 +177,7 @@ dcc_timer(
 		if (dccs.data[i] == NULL) {
 			continue;
 		}
-		if (dccs.data[i]->dest == NULL
+		if (dccs.data[i]->dest == 0
 				&& dccs.data[i]->created + 80 < t) {
 			error(DCC_TIMEOUT, i);
 			dcc_killbounce(i);
