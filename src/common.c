@@ -220,7 +220,8 @@ enduserdebug(
 	va_end(va);
 	if (c_clients.connected > 0) {
 		sprintf(buf1, ":debug PRIVMSG %s :%s: %s", status.nickname,
-				log_get_timestamp(), buf0);
+				get_timestamp(TIMESTAMP_NOW,
+					TIMESTAMP_LONG), buf0);
 		irc_mwrite(&c_clients, "%s", buf1);
 	}
 } /* void enduserdebug(char *, ...) */

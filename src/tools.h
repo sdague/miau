@@ -18,6 +18,14 @@
 #ifndef _TOOLS_H
 #define _TOOLS_H
 
+
+
+#define TIMESTAMP_NOW	0
+#define TIMESTAMP_LONG	1
+#define TIMESTAMP_SHORT	2
+
+
+
 #ifdef VSNPRINTF_WORKAROUND
 #include <stdarg.h>
 int vsnprintf(char *str, size_t size, const char *format, va_list ap);
@@ -30,12 +38,15 @@ int pos(const char *str, const char what);
 int lastpos(const char *str, const char what);
 char *lastword(char *from);
 char *nextword(char *string);
-char *gettimestamp();
-char *gettimestamp2();
 #ifdef UPTIME
 void getuptime(time_t, int *, int *, int *, int *);
 #endif	/* UPTIME */
 void report(char *format, ...);
 void error(char *format, ...);
+
+char *get_timestamp(time_t, const int);
+char *get_short_localtime();
+
+
 
 #endif /* _TOOLS_H */

@@ -16,7 +16,8 @@
  */
 
 #include "miau.h"
-#include "tools.h"
+// #include "tools.h"
+#include "log.h"
 
 #include "irc.h"
 
@@ -184,32 +185,6 @@ lastword(
 
 
 
-/*
- * Creates a timestamp in the form:
- *	Mar 21 11:23:12
- */
-char *
-gettimestamp(
-		int	oldtime
-	    )
-{
-	time_t		t;
-	struct tm	*lt;
-	static char	stamp[100];
-
-	if (oldtime == 0) {
-		time(&t);
-	} else {
-		t = (time_t) oldtime;
-	}
-	lt = localtime(&t);
-	strftime(stamp, 99, "%b %d %H:%M:%S", lt);
-	
-	return stamp;
-} /* char *gettimestamp(int) */
-
-
-
 #ifdef UPTIME
 void
 getuptime(
@@ -244,7 +219,7 @@ report(
 	vsnprintf(buffer, 255, format, va);
 	va_end(va);
 
-	fprintf(stdout, "%s + %s\n", gettimestamp(0), buffer);
+	fprintf(stdout, "%s + %s\n", get_short_localtime(), buffer);
 	irc_mnotice(&c_clients, status.nickname, buffer);
 } /* void report(char *, ...) */
 
@@ -263,6 +238,51 @@ error(
 	vsnprintf(buffer, 255, format, va);
 	va_end(va);
 	
-	fprintf(stdout, "%s - %s\n", gettimestamp(0), buffer);
+	fprintf(stdout, "%s - %s\n", get_short_localtime(), buffer);
 	irc_mnotice(&c_clients, status.nickname, buffer);
 } /* void error(char *, ...) */
+
+
+
+/*
+ * Creates a timestamp like:
+ *	Sun Jan 02 11:53:33 2002
+ * or
+ *	Jan 02 11:53:33
+ */
+char *
+get_timestamp(
+		time_t		t,
+		const int	mode
+	     )
+{
+	struct tm	*form;
+	static char	stamp[100];
+
+	if (t == TIMESTAMP_NOW) {
+		time(&t);
+	}
+	form = localtime(&t);
+	switch (mode) {
+		case TIMESTAMP_LONG:
+			strftime(stamp, 99, "%a %b %d %H:%M:%S %Y", form);
+			break;
+		case TIMESTAMP_SHORT:
+			strftime(stamp, 99, "%b %d %H:%M:%S", form);
+	}
+
+	return stamp;
+} /* char *get_timestamp(time_t, const int mode) */
+
+
+
+/*
+ * Creates a timestamp like:
+ *	Jan 02 11:53:33
+ */
+char *
+get_short_localtime(
+		)
+{
+	return get_timestamp(TIMESTAMP_NOW, TIMESTAMP_SHORT);
+} /* char *get_short_localtime() */
