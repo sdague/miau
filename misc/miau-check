@@ -1,9 +1,9 @@
 #! /bin/sh
 #
 # Put this line into your crontab (man crontab):
-# 0,10,20,30,40,50 * * * * $HOME/miau/miau-check >/dev/null 2>&1
+# 0,10,20,30,40,50 * * * * /path/to/miau/miau-check >/dev/null 2>&1
 #
-# Don't forget to change the path if necessary.
+# ...where /path/to/miau is likely either $HOME/miau or /usr/bin.
 #
 # This will check for a running miau every 10 minutes.
 #
