@@ -558,67 +558,66 @@ server_read(
 	int	commandno;
 
 	rstate = irc_read(&c_server);
-	if (rstate > 0) {
-		/* new data... go for it ! */
-		rstate = 0;
-		if (strlen(c_server.buffer) > 0) {
-			pass = 1;
 
-			backup = strdup(c_server.buffer);
-			
-			if (c_server.buffer[0] == ':') {
-				/* reply */
-				origin = strtok(c_server.buffer + 1, " ");
-				command = strtok(NULL, " ");
-				param1 = strtok(NULL, " ");
-				param2 = strtok(NULL, "\0");
-#ifdef DEBUG
-#ifdef OBSOLETE
-				printf("[%s] [%s] [%s] [%s]\n",
-						origin, command,
-						param1, param2);
-#endif /* OBSOLETE */
-#endif /* DEBUG */
-				if (command) {
-					commandno = atoi(command);
-					if (commandno == 0) {
-						commandno = MINCOMMANDVALUE +
-							command_find(command);
-					}
-					server_reply(commandno,
-							backup,
-							origin,
-							param1,
-							param2,
-							&pass);
-				}
-			}
-			
-			else {
-				/* Command */
-				command = strtok(c_server.buffer, " ");
-				param1 = strtok(NULL, "\0");
-				
-				if (command) {
-					server_commands(command, param1, &pass);
-				}
-			}
+	if (rstate <= 0) {
+		return rstate;
+	}
 
-			/* We wouldn't need to check c_clients.connected... */
-			if (c_clients.connected > 0 && pass) {
-				/*
-				 * Having '"%s", buffer' instead of plain
-				 * 'buffer' is essential because we don't want
-				 * our string processed any further by va.
-				 */
-				irc_mwrite(&c_clients, "%s", backup);
-			}
-
-			xfree(backup);
-		}
+	if (strlen(c_server.buffer) <= 0) {
+		return 0;
 	}
 	
-	return rstate;
+	/* new data... go for it ! */
+	pass = 1;
+
+	backup = strdup(c_server.buffer);
+		
+	if (c_server.buffer[0] == ':') {
+		/* reply */
+		origin = strtok(c_server.buffer + 1, " ");
+		command = strtok(NULL, " ");
+		param1 = strtok(NULL, " ");
+		param2 = strtok(NULL, "\0");
+#ifdef DEBUG
+#ifdef OBSOLETE
+		printf("[%s] [%s] [%s] [%s]\n", origin, command,
+				param1, param2);
+#endif /* OBSOLETE */
+#endif /* DEBUG */
+		if (command != 0) {
+			commandno = atoi(command);
+			if (commandno == 0) {
+				commandno = MINCOMMANDVALUE +
+					command_find(command);
+			}
+			server_reply(commandno, backup, origin,
+					param1, param2, &pass);
+		}
+	}
+			
+	else {
+		/* Command */
+		command = strtok(c_server.buffer, " ");
+		param1 = strtok(NULL, "\0");
+				
+		if (command) {
+			server_commands(command, param1, &pass);
+		}
+	}
+
+	/* We wouldn't need to check c_clients.connected... */
+	if (c_clients.connected > 0 && pass) {
+		/*
+		 * Having '"%s", buffer' instead of plain
+		 * 'buffer' is essential because we don't want
+		 * our string processed any further by va.
+		 */
+		irc_mwrite(&c_clients, "%s", backup);
+	}
+
+	xfree(backup);
+	
+	return 0;
 } /* int server_read() */
 
 
