@@ -1,5 +1,9 @@
 TODO:
 
+- rename check_servers() to server_check_list()
+
+- fails silently if cannot write into ~/.miau/log
+
 - repeat 352 only to client who requested it!
 	- keep queue of "WHO #channel" -messages and echo following incoming 
 	  352 / 315 only to this client

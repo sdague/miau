@@ -1,5 +1,13 @@
 0.5.2 - "fluffy little fellow"
 
+* Fixed a bug that caused miau to segfault on rehash if bind was defined while
+  listenhost was not.
+
+* Message for dropping new client no longer contains garbage. Funny thing that
+  neither valgrind nor electric fence caught this.
+
+* Rehashing now complains about all required but missing items.
+
 * Implemented timestamping for quicklog events (QLOGSTAMP).
   Option in miaurc: "timestamp", defines location of timestamp in quicklog
   events. May be one of "beginning", "end", or "none".
@@ -18,6 +26,8 @@
 * Split log.[ch] into log.[ch], chanlog.[ch] and privlog.[ch].
 
 * Some parts of parser.c rewritten.
+
+* Improved dump_status() :-)
 
 * Code-cleanup.
 
