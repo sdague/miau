@@ -1,6 +1,7 @@
 TODO:
 
-- BUG: may segfault if not connected and user rehashs
+- BUG: irc.c/irc_write_real() { send() } may lock up if rehashed while
+       connecting
 
 - BUG: fails silently if cannot write into ~/.miau/log
 	- stdout is redirected into file we cannot write to!
