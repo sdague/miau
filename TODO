@@ -1,5 +1,11 @@
 TODO:
 
+- option to either...
+	- part channels
+	- send notice on each channel
+	- do nothing
+  when disconnected from the server (requrested feature)
+
 - let users to define flood-protection parameters (requested feature)
 
 - reintroduce channels in specific order (order defined in miaurc)
@@ -16,7 +22,7 @@ TODO:
 
 - miaurc should have an option for ctcp-replies (if CTCPREPLIES is defined)
 
-- Should miau reply to CTCP-queries by default?
+- Should miau reply to CTCP-queries by default? (requested feature)
 
 - repeat 352 only to client who requested it!
 	- keep queue of "WHO #channel" -messages and echo following incoming 
