@@ -721,12 +721,11 @@ create_listen(
  */
 void
 connect_timeout(
-		)
+	       )
 {
 	error(SOCK_ERRCONNECT, ((server_type *)
-				i_server.current->data)->name, 0);
-	server_drop(NULL);
-	server_next(1);
+				i_server.current->data)->name, SOCK_ERRTIMEOUT);
+	sock_close(&c_server);
 } /* void connect_timeout() */
 
 
@@ -2032,9 +2031,15 @@ run(
 					break;
 					
 				case CONN_CONNECT:
-					error(SOCK_ERRCONNECT, server->name,
-							strerror(errno));
-					server_drop(NULL);
+					/*
+					 * If timer was triggered, socket is
+					 * already closed and we don't need to
+					 * display another error.
+					 */
+					if (c_server.socket != 0) {
+						error(SOCK_ERRCONNECT, server->name, strerror(errno));
+						sock_close(&c_server);
+					}
 					server_next(1);
 					break;
 					
@@ -2052,6 +2057,7 @@ run(
 				default:
 					break;
 			}
+			
 			alarm(0);		/* Disable alarm. */
 			timers.connect = 0;
 		}

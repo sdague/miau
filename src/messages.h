@@ -112,8 +112,8 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 
 /* mkpasswd */
 #ifdef MKPASSWD
-#define MIAU_ENTERPASS "Enter password to crypt: "
-#define MIAU_THISPASS "Set this as password in your miaurc: %s\n\n"
+#define MIAU_ENTERPASS	"Enter password to crypt: "
+#define MIAU_THISPASS	"Set this as password in your miaurc: %s\n\n"
 #endif /* MKPASSWD */
 
 #define BANNER1 "\
@@ -146,6 +146,7 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #define SOCK_ERRCONNECT	"Unable to connect to '%s'! (%s)"
 #define SOCK_ERRWRITE	"Error while sending data to '%s'!"
 #define SOCK_RECONNECT	"Trying to reconnect to '%s' in %d seconds."
+#define SOCK_ERRTIMEOUT	"Connection timeout"
 
 /*
  * IRC-messages.
