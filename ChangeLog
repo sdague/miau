@@ -1,5 +1,10 @@
 0.5.3 - "hairball"
 
+* Automatically generated logfilenames are now always in lower case.
+
+* miau now leaves channels (if configured to do so) when client times out and
+  when client dropped connection.
+  
 * After timeouted connect, miau no longer freezes until send() times out.
   How did I do this - after adding the timer?-)
 
@@ -10,11 +15,6 @@
 
 * No more skipping one server after connecting timed out.
 
-* Automatically generated logfilenames are now always in lower case.
-
-* miau now leaves channels (if configured to do so) when client times out and
-  when client dropped connection.
-
 * Fixed handling of event-messages when "leave" is set to true.
 
 * Fixed memory-leak in chanlog_open(...). This occured only if global logtype
@@ -22,6 +22,8 @@
 
 * Fixed proceed_timer_safe -- it was possible to make it never trigger return
   code 2.
+
+* Fixed bug that caused miau to free i_server.isupport[n] twice.
 
 * Lots of portability-cleanup (strict typecasting, got rid of (most?)
   "if (foo)"s etc.)

@@ -755,7 +755,7 @@ server_reply(
 			timers.join = JOINTRYINTERVAL;
 
 			for (n = 0; n < RPL_ISUPPORT_LEN; n++) {
-				xfree(i_server.isupport[n]);
+				FREE(i_server.isupport[n]);
 			}
 
 			break;
