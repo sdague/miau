@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -19,6 +19,7 @@
 
 #include <config.h>
 #include "miau.h"
+#include "error.h"
 #include "irc.h"
 #include "tools.h"
 #include "table.h"
@@ -38,6 +39,8 @@
 #include "onconnect.h"
 #include "privlog.h"
 #include "remote.h"
+#include "encoding.h"
+#include "matchlist.h"
 
 
 
@@ -46,20 +49,28 @@ FILE	*inbox = NULL;
 #endif /* INBOX */
 
 
-int read_newclient();
-int check_config();
+static int read_newclient();
+static int check_config();
 
-void fakeconnect(connection_type *newclient);
-void sig_term();
-void create_listen();
-void rehash();
-void run();
-void pre_init();
-void init();
-void connect_timeout();
+static void fakeconnect(connection_type *newclient);
+static void sig_term();
+static void create_listen();
+static void rehash();
+static void run();
+static void pre_init();
+static void init();
+static void connect_timeout();
 
+static void read_cfg();
+static void check_timers();
+static void miau_welcome();
+static int proceed_timer(int *timer, const int warn, const int exceed);
+static int proceed_timer_safe(int *timer, const int warn, const int exceed,
+		const int repeat);
+static void escape();
+static void setup_atexit();
 
-void setup_home(char *s);
+static void setup_home(char *s);
 
 #ifdef DUMPSTATUS
 void dump_status();
@@ -142,6 +153,8 @@ connection_type	c_newclient;
 int		listensocket = 0;  	/* listensocket */
 char		*forwardmsg = NULL;
 
+int		error_code;		/* Used for EXIT-macro. Ugly. */
+
 
 
 #ifdef PINGSTAT
@@ -157,7 +170,7 @@ int	ping_got = 0;
  *
  * Should be called from escape() and from rehash().
  */
-void
+static void
 free_resources(
 	      )
 {
@@ -194,14 +207,14 @@ free_resources(
 	qlog_replay(NULL, 0);
 #endif /* QUICKLOG */
 	xfree(status.awaymsg);
-} /* void free_resources() */
+} /* static void free_resources() */
 
 
 
 /*
  * Finish things up and quit miau.
  */
-void
+static void
 escape(
       )
 {
@@ -288,15 +301,14 @@ escape(
 	
 	/* We're done. */
 	error(MIAU_ERREXIT);
-	exit(1);
-} /* void escape() */
+} /* static void escape() */
 
 
 
 /*
  * (Re)read configuration file.
  */
-void
+static void
 read_cfg(
 	)
 {
@@ -327,29 +339,29 @@ read_cfg(
 	ret = parse_cfg(MIAURC);
 	if (ret == -1) {
 		error(MIAU_ERRCFG, cfg.home);
-		escape();
+		exit(ERR_CODE_CONFIG);
 	}
 
 	report(MIAU_READ_RC);
-} /* void read_cfg() */
+} /* static void read_cfg() */
 
 
 
-void
+static void
 sig_term(
 	)
 {
 	error(MIAU_SIGTERM);
-	escape();
-} /* void sig_term() */
+	exit(EXIT_SUCCESS);
+} /* static void sig_term() */
 
 
 
 #ifdef DUMPSTATUS
-char	*dumpdata;
-int	foocount = 0;
+static char	*dumpdata;
+static int	foocount = 0;
 
-void
+static void
 dump_add(
 		char	*data
 	)
@@ -358,9 +370,9 @@ dump_add(
 	dumpdata = (char *) xrealloc(dumpdata, strlen(dumpdata) + addlen + 1);
 	strncat(dumpdata, data, addlen);
 	foocount += addlen;
-} /* void dump_add(char *) */
+} /* static void dump_add(char *) */
 
-void
+static void
 dump_dump(
 	 )
 {
@@ -370,18 +382,18 @@ dump_dump(
 		dumpdata[0] = '\0';
 		foocount = 0;
 	}
-} /* void dump_dump() */
+} /* static void dump_dump() */
 
-void
+static void
 dump_finish(
 	   )
 {
 	if (dumpdata[0] != '\0') {
 		dump_dump();
 	}
-} /* void dump_finish() */
+} /* static void dump_finish() */
 
-void
+static void
 dump_status_int(
 		const char	*id,
 		const int	val
@@ -393,9 +405,9 @@ dump_status_int(
 		dump_dump();
 	}
 	dump_add(buf);
-} /* void dump_status_int(const char, conat int) */
+} /* static void dump_status_int(const char, conat int) */
 
-void
+static void
 dump_status_char(
 		const char	*id,
 		const char	*val
@@ -407,16 +419,16 @@ dump_status_char(
 		dump_dump();
 	}
 	dump_add(buf);
-} /* void dump_status_char(const char, const char) */
+} /* static void dump_status_char(const char, const char) */
 
-void
+static void
 dump_string(
-		char	*data
+		const char	*data
 	   )
 {
 	fprintf(stderr, "%s\n", data);
-	irc_mnotice(&c_clients, status.nickname, data);
-} /* void dump_string(char *) */
+	irc_mnotice(&c_clients, status.nickname, "%s", data);
+} /* static void dump_string(const char *) */
 
 void
 dump_status(
@@ -597,6 +609,12 @@ dump_status(
 	dump_dump();
 #endif /* AUTOMODE */
 
+#ifdef ENCODING
+	dump_string("encodings:");
+	dump_string(matchlist_dump(&encodings));
+	dump_dump();
+#endif /* ifdef ENCODINGS */
+
 	dump_finish();
 	xfree(dumpdata);
 } /* void dump_status() */
@@ -627,7 +645,7 @@ drop_newclient(
  *
  * Wrapper for proceed_timer_safe with 0 as last parameter.
  */
-int
+static int
 proceed_timer(
 		int		*timer,
 		const int	warn,
@@ -635,7 +653,7 @@ proceed_timer(
 		)
 {
 	return proceed_timer_safe(timer, warn, exceed, 0);
-} /* int proceed_timer(int *, const int, const int) */
+} /* static int proceed_timer(int *, const int, const int) */
 
 
 
@@ -644,7 +662,7 @@ proceed_timer(
  *
  * Return 1 if timer > warn, 2 if timer > exceed, otherwise 0.
  */
-int
+static int
 proceed_timer_safe(
 		int		*timer,
 		const int	warn,
@@ -668,7 +686,7 @@ proceed_timer_safe(
 	}
 	
 	return 0;
-} /* int proceed_timer_safe(int *, const int, const int, const int) */
+} /* static int proceed_timer_safe(int *, const int, const int, const int) */
 
 
 
@@ -677,7 +695,7 @@ proceed_timer_safe(
  *
  * If old socket exists, close it. If something goes wrong, go down, hard.
  */
-void
+static void
 create_listen(
 	     )
 {
@@ -689,7 +707,7 @@ create_listen(
 	listensocket = sock_open();
 	if (listensocket == -1) {
 		error(SOCK_ERROPEN, net_errstr);
-		escape();
+		exit(ERR_CODE_NETWORK);
 	}
 
 	if (! sock_bind(listensocket, cfg.listenhost, cfg.listenport)) {
@@ -700,12 +718,12 @@ create_listen(
 			error(SOCK_ERRBIND, cfg.listenport, net_errstr);
 		}
 
-		escape();
+		exit(ERR_CODE_NETWORK);
 	}
 	
 	if (! sock_listen(listensocket)) {
 		error(SOCK_ERRLISTEN);
-		escape();
+		exit(ERR_CODE_NETWORK);
 	}
 	
 	if (cfg.listenhost) {
@@ -713,21 +731,21 @@ create_listen(
 	} else {
 		report(SOCK_LISTENOK, cfg.listenport);
 	}
-} /* void create_listen() */
+} /* static void create_listen() */
 
 
 
 /*
  * Function noting connect() timeouted. Called thru alert().
  */
-void
+static void
 connect_timeout(
 	       )
 {
 	error(SOCK_ERRCONNECT, ((server_type *)
 				i_server.current->data)->name, SOCK_ERRTIMEOUT);
 	sock_close(&c_server);
-} /* void connect_timeout() */
+} /* static void connect_timeout() */
 
 
 
@@ -737,7 +755,7 @@ connect_timeout(
  * Clear lists but don't touch settings aleady set. Perhaps this isn't a good
  * idea and we should reset all values to default...
  */
-void
+static void
 rehash(
       )
 {
@@ -890,7 +908,7 @@ rehash(
 	xfree(oldrealname);
 	xfree(oldusername);
 	xfree(oldlistenhost);
-} /* void rehash() */
+} /* static void rehash() */
 
 
 
@@ -1012,7 +1030,7 @@ clients_left(
 /*
  * Check timers.
  */
-void
+static void
 check_timers(
 	    )
 {
@@ -1299,7 +1317,7 @@ check_timers(
 		dcc_timer();
 	}
 #endif /* DCCBOUNCE */
-} /* void check_timers() */
+} /* static void check_timers() */
 
 
 
@@ -1353,7 +1371,8 @@ get_nick(
 			oldnick = strdup(status.nickname);
 			xfree(status.nickname);
 			status.nickname = (char *) xmalloc(cfg.maxnicklen + 1);
-			randname(status.nickname, oldnick, cfg.maxnicklen);
+			randname(status.nickname, cfg.maxnicklen,
+					cfg.nickfillchar);
 			xfree(oldnick);
 		} else {
 			status.nickname = strdup((char *)
@@ -1374,7 +1393,7 @@ get_nick(
 /*
  * User has connected to bouncer.
  */
-void
+static void
 fakeconnect(
 		connection_type	*newclient
 	   )
@@ -1536,7 +1555,7 @@ fakeconnect(
 		 */
 		channel_join_list(LIST_ACTIVE, 0, newclient);
 	}
-} /* void fakeconnect(connection_type *) */
+} /* static void fakeconnect(connection_type *) */
 
 
 
@@ -1546,7 +1565,7 @@ fakeconnect(
  * Some IRC-clients take server's name from this message - this is why we
  * send them this welcome-message when jumping off the server.
  */
-void
+static void
 miau_welcome(
 	    )
 {
@@ -1554,7 +1573,7 @@ miau_welcome(
 			status.nickname,
 			MIAU_WELCOME,
 			status.nickname);
-} /* void miau_welcome() */
+} /* static void miau_welcome() */
 
 
 
@@ -1617,7 +1636,7 @@ set_away(
 
 
 
-int
+static int
 read_newclient(
 	      )
 {
@@ -1721,7 +1740,7 @@ read_newclient(
 		}
 	}
 	return c_status;
-} /* int read_newclient() */
+} /* static int read_newclient() */
 
 
 
@@ -1926,7 +1945,7 @@ miau_commands(
 		 * (See client_free() for more info.
 		 */
 		client_free();
-		escape();
+		exit(EXIT_SUCCESS);
 	}
 
 	else if (xstrcmp(command, "PRINT") == 0) {
@@ -1980,7 +1999,12 @@ miau_commands(
 
 
 
-void
+/*
+ * Main loop.
+ *
+ * Checks if there's data coming from sockets etc.
+ */
+static void
 run(
    )
 {
@@ -2034,7 +2058,7 @@ run(
 	
 				case CONN_SOCK:
 					error(SOCK_ERROPEN, net_errstr);
-					escape();
+					exit(ERR_CODE_NETWORK);
 					break;
 			
 				case CONN_LOOKUP:
@@ -2054,7 +2078,7 @@ run(
 								cfg.listenport,
 								net_errstr);
 					}
-					escape();
+					exit(ERR_CODE_NETWORK);
 					break;
 					
 				case CONN_CONNECT:
@@ -2078,7 +2102,7 @@ run(
 			
 				case CONN_OTHER:
 					error(SOCK_GENERROR, net_errstr);
-					escape();
+					exit(ERR_CODE_NETWORK);
 					break;
 			
 				default:
@@ -2211,11 +2235,11 @@ run(
 		
 		check_timers();
 	}
-} /* void run() */
+} /* static void run() */
 
 
 
-void
+static void
 pre_init(
 	)
 {
@@ -2241,11 +2265,15 @@ pre_init(
 	passive_channels.tail = NULL;
 	old_channels.head = NULL;
 	old_channels.tail = NULL;
-} /* void pre_init() */
+
+#ifdef ENCODING
+	encodings.head = encodings.tail = NULL;
+#endif /* ifdef ENCODING */
+} /* static void pre_init() */
 
 
 
-void
+static void
 init(
     )
 {
@@ -2310,7 +2338,7 @@ init(
 		report(MIAU_ERRINBOXFILE);
 	}
 #endif /* INBOX */
-} /* void init() */
+} /* static void init() */
 
 
 
@@ -2319,7 +2347,7 @@ init(
  *
  * Returns number of errors.
  */
-int
+static int
 check_config(
 	    )
 {
@@ -2347,14 +2375,14 @@ check_config(
 	}
 
 	return err;
-} /* int check_config() */
+} /* static int check_config() */
 
 
 
 /*
  * Setup home and create directories if they don't exist already.
  */
-void
+static void
 setup_home(
 		char	*s
 	  )
@@ -2373,7 +2401,7 @@ setup_home(
 	else {
 		if (! (s = getenv("HOME"))) {
 			error(MIAU_ERRNOHOME);
-			escape();
+			exit(ERR_CODE_HOME);
 		}
 		
 		cfg.home = xmalloc(strlen(s) + strlen(MIAUDIR) + 2);
@@ -2387,7 +2415,7 @@ setup_home(
 	
 	if (chdir(cfg.home) < 0) {
 		error(MIAU_ERRCHDIR, cfg.home);
-		escape();
+		exit(ERR_CODE_HOME);
 	}
 
 	/* Create directories. */
@@ -2397,15 +2425,31 @@ setup_home(
 		/* Exists. */
 		if (! S_ISDIR(ds.st_mode)) {
 			error(MIAU_ERRLOGDIR, LOGDIR);
-			escape();
+			exit(ERR_CODE_HOME);
 		}
 	} else {
 		if (mkdir(LOGDIR, 0700) == -1) {
 			error(MIAU_ERRCREATELOGDIR, LOGDIR);
-			escape();
+			exit(ERR_CODE_HOME);
 		}
 	}
-} /* void setup_home(char *) */
+} /* static void setup_home(char *) */
+
+
+
+static void
+setup_atexit(
+	    )
+{
+	int r;
+	
+	r = atexit(escape);
+	if (r != 0) {
+		error(ERR_CANT_ATEXIT);
+		escape();
+		exit(EXIT_FAILURE);
+	}
+} /* static void setup_atexit() */
 
 
 
@@ -2432,11 +2476,12 @@ main(
 		switch( c ) {
 #ifdef MKPASSWD
 		        case 'c':
-		            srand(time(NULL));
-        		    randname(salt, NULL, 2);
-		            printf(MIAU_THISPASS, crypt(getpass(MIAU_ENTERPASS),
-						    salt));
-				return 0;
+				srand(time(NULL));
+				randname(salt, 8, ' ');
+				printf(MIAU_THISPASS,
+						crypt(getpass(MIAU_ENTERPASS),
+							salt));
+				return EXIT_SUCCESS;
 				break;
 #endif /* MKPASSWD */
 			case 'd':
@@ -2447,11 +2492,11 @@ main(
 				break;
 			case ':':
 				error(MIAU_ERRNEEDARG, optopt);
-				escape();
+				exit(EXIT_FAILURE);
 				break;
 			default:
 				printf(SYNTAX, params[0]);
-				return 1;
+				return EXIT_FAILURE;
 				break;
 		}
 	}
@@ -2462,24 +2507,24 @@ main(
 
 	read_cfg();
 	if (check_config() != 0) {
-		escape();
+		exit(ERR_CODE_CONFIG);
 	}
 
 	command_setup();
 
 	init();
 
-	if (dofork) {
+	if (dofork == 1) {
 		pid = fork();
 		if (pid < 0) {
 			error(MIAU_ERRFORK);
-			escape();
+			exit(EXIT_FAILURE);
 		}
 		
 		if (pid == 0) {
 			if (! freopen(FILE_LOG, "a", stdout)) {
 				error(MIAU_ERRFILE, cfg.home);
-				escape();
+				exit(ERR_CODE_HOME);
 			}
 #ifndef SETVBUF_REVERSED
 			setvbuf(stdout, NULL, _IONBF, 0);
@@ -2496,21 +2541,30 @@ main(
 				report(SOCK_LISTENOK, cfg.listenport);
 			}
 			report(MIAU_NICK, (char *) nicknames.nicks.head->data);
+
+			setup_atexit();
+
+			run();
 		}
 	
 		else {		/* pid != 0 */
-			if (! (pidfile = fopen(FILE_PID, "w"))) {
+			pidfile = fopen(FILE_PID, "w");
+			if (pidfile == NULL) {
 				error(MIAU_ERRFILE, cfg.home);
 				kill(pid, SIGTERM);
-				escape();
+				exit(ERR_CODE_HOME);
 			}
 			fprintf(pidfile, "%d\n", pid);
 			fclose(pidfile);
+			
 			report(MIAU_NICK, (char *) nicknames.nicks.head->data);
 			report(MIAU_FORKED, pid);
-			exit(0);
 		}
+	} else {
+		setup_atexit();
+
+		run();
 	}
-	run();
-	return 0;
+
+	return EXIT_SUCCESS;
 } /* int main(int, char *[]) */

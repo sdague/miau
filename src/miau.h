@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MIAU_H
-#define _MIAU_H
+#ifndef MIAU_H_
+#define MIAU_H_
 
 #include <config.h>
 
@@ -286,30 +286,21 @@ extern int	ping_sent;
 extern int	ping_got;
 #endif /* PINGSTAT */
 
+extern int	error_code;
+
 void get_nick(char *format);
-void escape();
-void read_cfg();
-int proceed_timer(int *timer, const int warn, const int exceed);
-int proceed_timer_safe(int *timer, const int warn, const int exceed,
-		const int repeat);
 void join_channels(connection_type *client);
-void miau_welcome();
 void miau_commands(char *command, char *param, connection_type *client);
 
 
 void set_away(const char *reason);
-void check_timers();
 
 void clients_left(const char *reason);
 void drop_newclient();
-
-
-void dump_status();
-
 
 /* parse-section */
 extern int lineno;
 extern FILE *yyin;
 
 
-#endif /* _MIAU_H */
+#endif /* ifndef MIAU_H_ */
