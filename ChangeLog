@@ -5,6 +5,8 @@
 
 * Workaround for Chatzilla. Thanks to Oliver Eikemeier and James Ross.
 
+* Fixed parser to handle CR-LF -linefeeds.
+
 
 0.5.3 - "hairball"
 

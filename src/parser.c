@@ -742,6 +742,9 @@ parse_cfg(
 	nextptr = strchr(buf, '\n');
 	while (nextptr >= bufptr) {
 		*nextptr = '\0';
+		if (*(nextptr - 1) == '\r') {
+			*(nextptr - 1) = '\0';
+		}
 		bufptr = trim(bufptr, LINE);
 		if (strlen(bufptr) > 0 && *bufptr != '#') {
 			if (listid == CFG_NOLIST) {
