@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ permlist_type	automodelist;
  */
 void
 automode_do(
-		connection_type	*server
 	   )
 {
 	channel_type	*channel;	/* Channel the modes are for. */
@@ -54,7 +53,7 @@ automode_do(
 			/* Commit three modes at a time. */
 			LLIST_WALK_H(channel->mode_queue.head, automode_type *);
 				modes[modecount] = data->mode;
-				nicks = xrealloc(nicks, strlen(nicks)
+				nicks = (char *) xrealloc(nicks, strlen(nicks)
 						+ strlen(data->nick) + 2);
 				strcat(nicks, " ");
 				strcat(nicks, data->nick);
@@ -86,7 +85,7 @@ automode_do(
 	LLIST_WALK_F;	/* walk channels */
 
 	xfree(nicks);
-} /* void automode_do(connection_type *) */
+} /* void automode_do() */
 
 
 
@@ -103,10 +102,10 @@ automode_queue(
 	automode_type	*modeact;
 	char		*mask;
 	
-	char		modes[] = "ov";
+	char		modes[2] = "ov";
 	int		mode_c = 2;
 
-	mask = xmalloc(strlen(nick) + strlen(hostname)
+	mask = (char *) xmalloc(strlen(nick) + strlen(hostname)
 			+ strlen(channel->name) + 5);
 
 	/* Generate mask and see if any automode should take place. */
@@ -115,7 +114,8 @@ automode_queue(
 				channel->name);
 		if (is_perm(&automodelist, mask) && automode_lookup(nick,
 					channel, modes[mode_c]) == NULL) {
-			modeact = xmalloc(sizeof(automode_type));
+			modeact = (automode_type *)
+				xmalloc(sizeof(automode_type));
 			modeact->nick = strdup(nick);
 			modeact->mode = modes[mode_c];
 			llist_add_tail(llist_create(modeact),
