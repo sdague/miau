@@ -32,24 +32,12 @@
 #include "chanlog.h"
 #include "server.h"
 #include "client.h"
-#ifdef DCCBOUNCE
-#  include "dcc.h"
-#endif /* DCCBOUNCE */
-#ifdef QUICKLOG
-#  include "qlog.h"
-#endif /* QUICKLOG */
-#ifdef AUTOMODE
-#  include "automode.h"
-#endif /* AUTOMODE */
-#ifdef ONCONNECT
-#  include "onconnect.h"
-#endif /* ONCONNECT */
-#ifdef PRIVLOG
-#  include "privlog.h"
-#endif /* PRIVLOG */
-#ifdef _NEED_CMDPASSWD
-#  include "remote.h"
-#endif /* _NEED_CMDPASSWD */
+#include "dcc.h"
+#include "qlog.h"
+#include "automode.h"
+#include "onconnect.h"
+#include "privlog.h"
+#include "remote.h"
 
 
 
@@ -82,9 +70,9 @@ status_type 		status;
 cfg_type cfg = {
 #ifdef QUICKLOG
 	30,	/* qloglength: 30 minutes */
-#  ifdef QLOGSTAMP
+#ifdef QLOGSTAMP
 	0,	/* timestamp: no timestamp */
-#  endif /* QLOGSTAMP */
+#endif /* QLOGSTAMP */
 	1,	/* flushqlog: flush */
 #endif /* QUICKLOG */
 #ifdef DCCBOUNCE
@@ -360,7 +348,7 @@ dump_add(
 	)
 {
 	int addlen = strlen(data);
-	dumpdata = xrealloc(dumpdata, strlen(dumpdata) + addlen + 1);
+	dumpdata = (char *) xrealloc(dumpdata, strlen(dumpdata) + addlen + 1);
 	strncat(dumpdata, data, addlen);
 	foocount += addlen;
 } /* void dump_add(char *) */
@@ -427,7 +415,7 @@ void
 dump_status(
 	   )
 {
-	dumpdata = xmalloc(1);
+	dumpdata = (char *) xmalloc(1);
 	dumpdata[0] = '\0';
 #ifdef QUICKLOG
 	/* First check qlog. */
@@ -449,9 +437,9 @@ dump_status(
 
 #ifdef QUICKLOG
 	dump_status_int("qloglength", cfg.qloglength);
-#  ifdef QLOGSTAMP
+#ifdef QLOGSTAMP
 	dump_status_int("timestamp", cfg.timestamp);
-#  endif /* QLOGSTAMP */
+#endif /* QLOGSTAMP */
 	dump_status_int("flushqlog", cfg.flushqlog);
 #endif /* QUICKLOG */
 #ifdef DCCBOUNCE
@@ -920,7 +908,7 @@ clients_left(
 		leavemsg = cfg.usequitmsg ? reason : cfg.leavemsg;
 	}
 
-	chans = xcalloc(1, 1);
+	chans = (char *) xcalloc(1, 1);
 	
 	/*
 	 * When all clients have detached from miau...
@@ -936,8 +924,8 @@ clients_left(
 	if (active_channels.head != NULL) {
 		/* Build a string of channel list. */
 		LLIST_WALK_H(active_channels.head, channel_type *);
-			chans = xrealloc(chans, strlen(data->name) + 2 +
-					strlen(chans));
+			chans = (char *) xrealloc(chans, strlen(data->name) + 2
+					+ (int) strlen(chans));
 			strcat(chans, ",");
 			strcat(chans, data->name);
 			if (cfg.leave) {
@@ -992,7 +980,8 @@ clients_left(
 		}
 
 		/* We want to part each channel with a message. */
-		else if (cfg.leave && (cfg.leavemsg || reason)) {
+		else if (cfg.leave == 1 && (cfg.leavemsg != NULL
+					|| reason != NULL)) {
 			irc_write(&c_server, "PART %s :%s",
 					chans + 1, leavemsg);
 		}
@@ -1133,7 +1122,7 @@ check_timers(
 						i_server.realname);
 #ifdef PINGSTAT
 				ping_sent++;
-#  ifdef ENDUSERDEBUG
+#ifdef ENDUSERDEBUG
 				if (c_clients.connected > 0
 						&& c_server.timer >
 						(timeout - 20 >= 5 ?
@@ -1142,7 +1131,7 @@ check_timers(
 							c_server.timer,
 							timeout);
 				}
-#  endif /* ENDUSERDEBUG */
+#endif /* ENDUSERDEBUG */
 #endif /* PINGSTAT */
 				break;
 			case 2:
@@ -1247,7 +1236,7 @@ check_timers(
 			case 1:
 				break;
 			case 2:
-				if (! forwardmsg) {
+				if (forwardmsg == NULL) {
 					/* Nothing to forward. */
 					break;
 				}
@@ -1274,8 +1263,8 @@ check_timers(
 	/* Act as op-o-matic. */
 	if (status.automodes > 0 && proceed_timer(&timers.automode,
 				0, cfg.automodedelay) == 2) {
-		/* automode(...) checks if we have operator-status. */
-		automode_do(&c_server);
+		/* automode() checks if we have operator-status. */
+		automode_do();
 	}
 #endif /* AUTOMODE */
 
@@ -1447,10 +1436,10 @@ fakeconnect(
 	}
 
 #ifdef INBOX
-#  ifdef QUICKLOG
+#ifdef QUICKLOG
 	/* Move old qlog-lines to privmsglog. */
 	qlog_drop_old();
-#  endif /* QUICKLOG */
+#endif /* QUICKLOG */
 	if (inbox != NULL && ftell(inbox) != 0) {
 		irc_write(newclient, ":%s 372 %s :- "CLNT_HAVEMSGS,
 				i_server.realname,
@@ -1623,7 +1612,7 @@ read_newclient(
 		command = strtok(c_newclient.buffer, " ");
 		param = strtok(NULL, "\0");
 		
-		if (command && param) {
+		if (command != NULL && param != NULL) {
 			upcase(command);
 			if ((xstrcmp(command, "PASS") == 0) &&
 					! (status.init & 1)) {
@@ -1679,7 +1668,8 @@ read_newclient(
 				i_newclient.username = NULL;
 				i_newclient.hostname = NULL;
 
-				newclient = xmalloc(sizeof(connection_type));
+				newclient = (connection_type *)
+					xmalloc(sizeof(connection_type));
 				node = llist_create(newclient);
 				llist_add(node, c_clients.clients);
 				c_clients.connected++;
@@ -1726,7 +1716,7 @@ miau_commands(
 	int	i;
 
 	/* No command at all ? */
-	if (! command) {
+	if (command == NULL) {
 		/*
 		 * Basically we could just wait if-elseif-else to reach its
 		 * end where we have this "(! corr)" -test, but xstrcmp
@@ -1748,7 +1738,7 @@ miau_commands(
 	if (xstrcmp(command, "READ") == 0) {
 		char	*s;
 		corr++;
-		if (inbox && ftell(inbox)) {
+		if (inbox != NULL && ftell(inbox) != 0) {
 			fflush(inbox);
 			rewind(inbox);
 
@@ -1988,6 +1978,7 @@ run(
 				servers.amount > 1 &&	/* Servers on list. */
 				/* Time to connect. */
 				timers.connect > status.reconnectdelay) {
+dump_status(); // XXX
 			server = (server_type *) i_server.current->data;
 			server_set_fallback(i_server.current);
 
@@ -2211,7 +2202,7 @@ pre_init(
 	nicknames.nicks.tail = NULL;
 
 	/* Initialize some client-structures. */
-	c_clients.clients = xmalloc(sizeof(llist_list));
+	c_clients.clients = (llist_list *) xmalloc(sizeof(llist_list));
 	c_clients.clients->head = NULL;
 	c_clients.clients->tail = NULL;
 
