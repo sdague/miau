@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 #include "miau.h"
 #include "tools.h"
 #include "common.h"
+
 
 
 /*
@@ -45,7 +46,7 @@ match(
 
 	if (status.goodhostname != 0) {
 		host = status.idhostname + status.goodhostname;
-		hostlen = strlen(host);
+		hostlen = (int) strlen(host);
 		/*
 		 * "@@" is replaced by hostname and terminator (strlen()
 		 * doesn't count terminator so we can decrement lengths by one.
@@ -53,7 +54,7 @@ match(
 		 * Even if "@@" was not found, we can use duplicated pattern
 		 * later or (although xrealloc would be wasteful).
 		 */
-		pat = xmalloc(strlen(pattern) + hostlen - 1);
+		pat = (char *) xmalloc(strlen(pattern) + hostlen - 1);
 		strcpy(pat, pattern); /* Could use strncpy. */
 		/*
 		 * Find and replace _last_ occurance of "@@" with our hostname.
