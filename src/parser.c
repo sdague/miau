@@ -434,6 +434,10 @@ parse_param(
 		assign_param(&cfg.usermode, val);
 	} else if (xstrcmp(data, "maxnicklen") == 0) {	/* maxnicklen */
 		assign_int(&cfg.maxnicklen, val, 3);
+	} else if (xstrcmp(data, "floodtimer") == 0) {	/* floodtimer */
+		assign_int(&cfg.floodtimer, val, 0);
+	} else if (xstrcmp(data, "burstsize") == 0) {	/* burstsize */
+		assign_int(&cfg.burstsize, val, 1);
 	} else {
 		parse_error();
 	}

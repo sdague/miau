@@ -125,6 +125,28 @@
 #listenhost = "127.0.0.1"
 
 
+# floodtimer = "number": Time it takes to send one message.
+#
+# When configuring flood-protection, this variable defined how fast you can
+# send messages; how many seconds sending one message takes. See also burstsize.
+#
+# Default: 2
+#
+# Example
+#floodtimer = "1"
+
+
+# burstsize = "number": How manu messages can be sent at once.
+#
+# When onfiguring flood-protection, this variable defined how many messages
+# can be sent at once (in a burst). See also floodtimer.
+#
+# Default: 5
+#
+# Example:
+#burstsize = "3"
+
+
 # bind = "host": Host/IP miau uses for outgoing connections.
 #
 # Default: none

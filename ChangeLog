@@ -5,6 +5,8 @@
   * Workaround for Chatzilla. Thanks to Oliver Eikemeier and James Ross.
   * Fixed channel mode change parser.
   * Fixed parser to handle CR-LF -linefeeds.
+  * Added miaurc-options "floodtimer" and "burstsize" for configuring
+    flood-protection.
 
 
 0.5.3 - "hairball"

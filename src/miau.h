@@ -199,6 +199,8 @@ typedef struct {
 	int	inbox;
 #endif /* INBOX */
 	int	listenport;
+	int	floodtimer;	/* Sending one message takes n seconds. */
+	int	burstsize;	/* We may send up to n messages in a burst. */
 	int	getnick;
 	int	getnickinterval;
 	int	antiidle;

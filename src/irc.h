@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -19,15 +19,6 @@
 #define _IRC_H
 
 #include "miau.h"
-
-
-
-/*
- * MSGLENGTH and BURSTSIZE are hardcoded because no self-respecting
- * IRC-network allows flooding any more than this. :-)
- */
-#define MSGLENGTH	2	/* We can send message every n:th second. */
-#define BURSTSIZE	5	/* Send at most n messages in a burst. */
 
 
 

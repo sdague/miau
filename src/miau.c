@@ -85,6 +85,8 @@ cfg_type cfg = {
 	1,
 #endif /* INBOX */
 	0,	/* listenport: 0 */
+	2,	/* floodtimer */
+	5,	/* burstsize */
 	1,	/* getnick: disconnected */
 	60,	/* getnickinterval: 60 seconds */
 	0,	/* antiidle: no */
@@ -1027,14 +1029,22 @@ check_timers(
 	oldtime = newtime;
 	
 	/*
-	 * If MSGLENGTH second(s) have elapsed (since last allowance) allow
+	 * If cfg.floodtimer second(s) have elapsed (since last allowance) allow
 	 * sending anohter message. Don't forget to limit the counter to
-	 * BURSTSIZE.
+	 * cfg.burstsize.
 	 */
-	if (newtime - floodtime >= MSGLENGTH && msgtimer < BURSTSIZE) {
-		msgtimer += (newtime - floodtime) / MSGLENGTH;
-		if (msgtimer > BURSTSIZE) {
-			msgtimer = BURSTSIZE;
+	if (newtime - floodtime >= cfg.floodtimer && msgtimer < cfg.burstsize) {
+		if (cfg.floodtimer != 0) {
+			msgtimer += (newtime - floodtime) / cfg.floodtimer;
+			if (msgtimer > cfg.burstsize) {
+				msgtimer = cfg.burstsize;
+			}
+		} else {
+			/*
+			 * cfg.floodtimer == 0, send cfg.burstsize
+			 * lines at once.
+			 */
+			msgtimer = cfg.burstsize;
 		}
 		floodtime = newtime;
 		irc_process_queue();
