@@ -23,6 +23,18 @@ Unconfirmed bugs (and those I couldn't reproduce):
 	  accessed - looks like "safe" is inaccesable!
 	- Electric fence nor valgrind can't find anything alarming (although
 	  I didn't run them when I managed to reproduct this bug)
+	- while not necessary the same bug, it sure sounds the same:
+		- dropped from IRC (server B) because network B went down
+		- as network B went down, router now routed connection to
+		  server A throught network B
+		- miau connected server A but got "Unauthorized connection"
+		  and dropped off
+		- miau tried to connect server A which would allow us in
+		- just after connection was established, miau crashed:
+			xfree(i_server.isupport[n]) (n == 0) failed -
+			and i_server.isupport[0] contained garbage (something
+			that was said on the channel - but only ":foobar",
+			not control data)
 
 - miau joins weird channels
 	- after attaching to miau, user was on channels #tko-äly (user wanted
