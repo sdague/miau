@@ -260,7 +260,7 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #endif /* QUICKLOG */
 
 /*
- * quicklog to messagelog,
+ * quicklog to inbox,
  */
 #ifdef QLOGTOMSGLOG
 #define QLOGM_PRIVMSG	"<%s/%s> %s\n"

@@ -380,7 +380,7 @@ channel_join_list(
 #ifdef CNANLOG
 			if (HAS_LOG(data, LOG_MIAU)) {
 				log_write_entry(data, LOGM_MIAU,
-						gettimestamp(0), "");
+						get_short_localtime(), "");
 			}
 #endif /* CHANLOG */
 			irc_write(&c_server, "NAMES %s", data->name);

@@ -478,14 +478,14 @@ parse_privmsg(
 #ifdef INBOX
 #  ifndef QUICKLOG
 /*
- * Note that we do messagelog here only is privmsglog is enabled and
+ * Note that we do inbox here only is privmsglog is enabled and
  * quicklogging is disabled.
  */
-				if (messagelog) {
-					fprintf(messagelog, "%s(%s) %s\n",
-							gettimestamp(0), origin,
-							param2 + 1);
-					fflush(messagelog);
+				if (inbox) {
+					fprintf(inbox, "%s(%s) %s\n",
+							get_short_localtime(),
+							origin, param2 + 1);
+					fflush(inbox);
 				}
 #  endif /* QUICKLOG */
 #endif /* INBOX */
