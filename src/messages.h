@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MESSAGES_H
-#define _MESSAGES_H
+#ifndef MESSAGES_H_
+#define MESSAGES_H_
 
 #include <config.h>
 
@@ -271,6 +271,7 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 /*
  * General error-message.
  */
+#define ERR_CANT_ATEXIT	"Couldn't set atexit()!"
 #define ERR_MEMORY	"Out of memory, terminating!"
 #define ERR_UNEXPECTED	"!!! An unexpected situation occured, please send us this: [%s, %s:%d]\n"
 
@@ -284,4 +285,4 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #endif /* PINGSTAT */
 
 
-#endif /* _MESSAGE_H */
+#endif /* ifndef MESSAGE_H_ */
