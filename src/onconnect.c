@@ -63,7 +63,7 @@ onconnect_flush(
 
 void
 onconnect_do(
-		)
+	    )
 {
 	LLIST_WALK_H(onconnect_actions.head, char *);
 		irc_write(&c_server, data);

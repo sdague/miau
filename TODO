@@ -1,10 +1,6 @@
 TODO:
 
-- BUG: irc.c/irc_write_real() { send() } may lock up if rehashed while
-       connecting
-
-- BUG: fails silently if cannot write into ~/.miau/log
-	- stdout is redirected into file we cannot write to!
+- Should miau reply to CTCP-queries by default?
 
 - repeat 352 only to client who requested it!
 	- keep queue of "WHO #channel" -messages and echo following incoming 
