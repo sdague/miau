@@ -54,7 +54,7 @@ upcase(
 {
 	char *doit;
 	if (what) {
-		for (doit = what; doit && *doit; doit++) {
+		for (doit = what; doit != NULL && *doit != '\0'; doit++) {
 			*doit = (char) toupper((int) *doit);
 		}
 	}
@@ -72,7 +72,7 @@ lowcase(
 {
 	char *doit;
 	if (what) {
-		for (doit = what; doit && *doit; doit++) {
+		for (doit = what; doit != NULL && *doit != '\0'; doit++) {
 			*doit = (char) tolower((int) *doit);
 		}
 	}
@@ -108,7 +108,7 @@ randname(
 	}
 
 	/* Try to generate a new nick from the old one. */
-	oldlen = strlen(oldnick);
+	oldlen = (int) strlen(oldnick);
 
 	if (oldlen < length) {
 		/*
@@ -160,7 +160,7 @@ lastpos(
 {
 	int	i;
 	if (str != NULL) {
-		i = strlen(str) - 1;
+		i = (int) strlen(str) - 1;
 		while (i) {
 			if (str[i] == what) return i;
 			i--;
