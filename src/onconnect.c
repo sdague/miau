@@ -36,7 +36,8 @@ onconnect_add(
 	switch (type) {
 		case 'p':
 		case 'n':
-			msg = xmalloc(strlen(target) + strlen(data) + 11);
+			msg = (char *) xmalloc(strlen(target)
+					+ strlen(data) + 11);
 			sprintf(msg, "%s %s :%s",
 					(type == 'p') ? "PRIVMSG" : "NOTICE",
 					target, data);
