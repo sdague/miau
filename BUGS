@@ -1,5 +1,7 @@
 Bugs:
 
+- If server changes user's nick, miau doesn't try to get it back!?
+
 - When forced to leave a channel (dead server etc.) channel cannot be removed
   from miau's internal list. When connection to a server is re-established,
   channels are rejoined even if user did "JOIN 0" meanwhile. It is likely that
