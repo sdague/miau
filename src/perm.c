@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,9 @@ add_perm(
 	llist_node	*node;
 
 	/* Don't allow permissions without name (identifier). */
-	if (! name)	return;
+	if (name == NULL) {
+		return;
+	}
 
 	perm = (perm_type *) xmalloc(sizeof(perm_type));
 	perm->name = name;
@@ -104,9 +106,9 @@ perm_dump(
 
 	buf[0] = '\0';
 	strcat(buf, "    ");
-	len = strlen(buf);
+	len = (int) strlen(buf);
 	for (node = list->list.head; node != NULL; node = node->next) {
-		t = strlen(((perm_type *) node->data)->name);
+		t = (int) strlen(((perm_type *) node->data)->name);
 		if (len + t + 10 < BUFSIZE) {
 			len += t + 3;
 			strcat(buf, ((perm_type *) node->data)->name);
