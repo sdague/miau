@@ -45,7 +45,7 @@ typedef struct {
 
 
 
-void automode_do(connection_type *server);
+void automode_do();
 void automode_queue(const char *nick, const char *hostname,
 		channel_type *channel);
 void automode_clear(llist_list *queue);
