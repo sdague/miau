@@ -7,18 +7,35 @@ Bugs:
 - irc.c/irc_write_real() { send() } may lock up if rehashed while connecting
 
 - Fails silently if cannot write into ~/.miau/log
-	- stdout is redirected into file we cannot write to!       
+	- stdout is redirected into file we cannot write to!
 
 
-Bugs-to-be:
+Unconfirmed bugs:
 
-after "server closed connection" miau reconnected and sent
-  "P:irc.kolumbus.fi 433 * wind :Nickname is already in use."
-to client. After this, miau kind of ... froze.
+- miau _may_ crash after rehash
+	- First time I found this after some network problems. I dropped from
+	  IRC (network went down), changed username and stonedtimeout while
+	  offline, then rehashed -> "reconnecting" -> crash.
+	- I was able to reproduce this exactly once by launching miau,
+	  connecting with client, changing username,
+	  rehashing -> "reconnecting" -> crash.
+	- miau fails at server_set_fallback() because safe->name can't be
+	  accessed - looks like "safe" is inaccesable!
+	- Electric fence nor valgrind can't find anything alarming (although
+	  I didn't run them when I managed to reproduct this bug)
 
+- miau joins weird channels
+	- after attaching to miau, user was on channels #tko-äly (user wanted
+	  to be on this channel) and #tko-.ly where "." was a character which
+	  X-Chat Aqua didn't display. X-Chat Aqua couldn't part "#tko-ly"
+	  because it wasn't on such channel.
+	- This could be a bug in X-Chat Aqua - there already was another bug
+	  that was one of XCA's instead of miau's.
+	- Can't reproduce this
 
-After attaching to miau, user was on channels #tko-äly (user wanted to be on
-this channel) and #tko-.ly where "." was a character which X-Chat Aqua didn't
-display. X-Chat Aqua couldn't part "#tko-ly" because it wasn't on such channel.
-  This could be a bug in X-Chat Aqua - there already was another bug that was
-  one of XCA's instead of miau's.
+- Garbage sent to client
+	- After "server closed connection" miau reconnected and sent
+	  "P:irc.kolumbus.fi 433 * wind :Nickname is already in use."
+	  to client. After this, miau kind of ... froze. I didn't wait long,
+	  though, send() (or something else) might have timed out later on.
+	- Haven't been able to reproduce this
