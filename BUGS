@@ -49,3 +49,7 @@ Unconfirmed bugs (and those I couldn't reproduce):
 "away='h@ friendly'    awaystate=0    good_server=1    goodhostname=7"
 	  from miau. after reconnect, everything was fine. even away-message
 	  was set ok (after disconnect after this garbage)
+
+- qlog_drop_old() (called by qlog_write() called by server.c after receiving
+  ":No recipient given (PRIVMSG)") managed to segfault: qlog.head->data was
+  non-NULL, but pointed to unallocated area.
