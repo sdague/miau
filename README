@@ -12,15 +12,19 @@ Notes:
 
 About multi-client support
 
-DCC-requests also work, but there are a few things to consider:
-  - When accepting a DCC-request, fastest client most likely gets it all.
-    This may differ from (sending) client to client, because DCC-requests
-    are sent to each client connected to miau and usually the other end
-    (the one offering DCC) only accepts one connection.
-  - When offering a DCC-something, offer is, unfortunately, echoed to each
-    client and again, fastest gets it all - this means another client, with
-    auto-accept on, connected to bouncer could get the file instead of the
-    original target.
+- When having a dialog with someone, most clients see two persons talking
+  instead of two having a dialog. This really isn't a bug nor feature of miau
+  but a "feature" of IRC-clients.
+
+- DCC-requests also work, but there are a few things to consider:
+    - When accepting a DCC-request, fastest client most likely gets it all.
+      This may differ from (sending) client to client, because DCC-requests are
+      sent to each client connected to miau and usually the other end (the one
+      offering DCC) only accepts one connection.
+    - When offering a DCC-something, offer is, unfortunately, echoed to each
+      client and again, fastest gets it all - this means another client, with
+      auto-accept on, connected to bouncer could get the file instead of the
+      original target.
 
 
 miau has been compiled succesfully on following platforms:
