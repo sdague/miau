@@ -9,6 +9,7 @@
     flood-protection.
   * Added an option for defining how many times miau should try to rejoin the
     channel. (Counter is reset on reconnect/attach.)
+  * Major internal changes
 
 
 0.5.3 - "hairball"
