@@ -1,5 +1,9 @@
 TODO:
 
+- reintroduce channels in specific order (order defined in miaurc)
+	- alphabetical order
+	- channels in miaurc, then channels from client in given order
+
 - miaurc should have an option for ctcp-replies (if CTCPREPLIES is defined)
 
 - Should miau reply to CTCP-queries by default?
