@@ -1300,7 +1300,7 @@ parse_modes(
 	}
 
 	buf = strdup(original);
-	
+
 	ptr = strtok(buf, " ");
 	param = strtok(NULL, " ");
 	while (ptr[0] != '\0') {
@@ -1312,9 +1312,14 @@ parse_modes(
 		}
 
 		switch (ptr[0]) {
-			case 'o':	/* Mode queue -modes. */
-			case 'v':
+			/* miau thinks 'o' and 'O' are the same. */
+			case 'O':	/* Channel creator. */
+			case 'o':	/* Channel operator. */
+			case 'v':	/* Voice privilege. */
 #ifdef AUTOMODE
+				if (ptr[0] == 'O') {
+					ptr[0] = 'o';
+				}
 				if (modetype == '-') {	/* Taking... */
 					if (xstrcasecmp(status.nickname,
 								param) == 0
@@ -1333,6 +1338,7 @@ parse_modes(
 								ptr[0]);
 					}
 				}
+
 #endif /* AUTOMODE */
 				param = strtok(NULL, " ");
 				break;
@@ -1342,16 +1348,37 @@ parse_modes(
 					xfree(chptr->key);
 					chptr->key = strdup(param);
 				} /* No need to clear unset key. */
+				/* Removig key needs parameter. */
 				param = strtok(NULL, " ");
 				break;
-
+				
 			case 'l':	/* Limit. */
 				/*
 				 * It's not like we would care, but we need
 				 * to jump to next parameter.
 				 */
+				if (modetype == '+') {
+					param = strtok(NULL, " ");
+				}
+				break;
+
+			case 'b':	/* Ban mask. */
+			case 'e':	/* Exception mask. */
+			case 'I':	/* Invitation mask. */
+				/* Get next parameter. */
 				param = strtok(NULL, " ");
 				break;
+
+#if USE_DISABLED
+			case 'a':	/* anonymous */
+			case 'i':	/* invite-only */
+			case 'm':	/* moderated */
+			case 'n':	/* no messages from outside */
+			case 'q':	/* quiet */
+			case 's':	/* secret */
+			case 'r':	/* server re-op */
+			case 't':	/* topic */
+#endif /* ifdef USE_DISABLED */
 		}
 
 		ptr++;

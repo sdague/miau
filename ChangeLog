@@ -5,6 +5,8 @@
 
 * Workaround for Chatzilla. Thanks to Oliver Eikemeier and James Ross.
 
+* Fixed channel mode change parser.
+
 * Fixed parser to handle CR-LF -linefeeds.
 
 
