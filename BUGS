@@ -43,3 +43,9 @@ Unconfirmed bugs (and those I couldn't reproduce):
 	  receives bogus data from the server, it prints it out unhandeled
 	  just like that.
 	- Haven't been able to reproduce this
+
+- More garbage
+	- got
+"away='h@ friendly'    awaystate=0    good_server=1    goodhostname=7"
+	  from miau. after reconnect, everything was fine. even away-message
+	  was set ok (after disconnect after this garbage)
