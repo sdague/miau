@@ -192,7 +192,8 @@ sock_setblock(
 {
 	int	flags;
 
-	if ((flags = fcntl(sock, F_GETFL, 0)) < 0) {
+	flags = fcntl(sock, F_GETFL, 0);
+	if (flags == -1) {
 		net_errstr = strerror(errno);
 		return 0;
 	}
