@@ -10,12 +10,11 @@ Bugs:
 
 Bugs-to-be:
 
-
 after "server closed connection" miau reconnected and sent
   "P:irc.kolumbus.fi 433 * wind :Nickname is already in use."
 to client. After this, miau kind of ... froze.
 
-rejoin/leave set to default, a few channels defined in miaurc
-  - client-quit parts some channels in miaurc, some it doesn't
-  - all channels not mentioned in miaurc were parted
-  - channels we _were_ left on was commented out in miaurc!
+
+After attaching to miau, user was on channels #tko-äly (user wanted to be on
+this channel) and #tko-.ly where "." was a character which X-Chat-Aqua didn't
+display. X-Chat-Aqua couldn't part "#tko-ly" because it wasn't on such channel.

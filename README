@@ -4,8 +4,10 @@ See ChangeLog for stuff that has changed.
 Notes:
 - cmdpasswd and related things are space-sensitive.
 - epic _may_ act funny when using getnick-feature.
-- automodes do not track nick-changes. if target changes nick, invalid
+- Automodes do not track nick-changes. if target changes nick, invalid
   mode-change will be done and error will be passed to the client.
+- Don't reboot your Mac running X-Chat Aqua (2.0.5) unless you want to part
+  _some_ of the channels you are on.
 
 
 About multi-client support
