@@ -28,6 +28,18 @@
 
 
 
+/*
+ * active_channels
+ * 	miau is on these channels
+ *
+ * passive_channels
+ * 	miau will be on these channels.
+ * 	For example, if cfg.leave == cfg.rejoin == true, active_channels are
+ * 	moved to passive_channels when client detached.
+ *
+ * old_channels
+ *	miau was on these channels - and they still contain some
+ */
 llist_list	active_channels;
 llist_list	passive_channels;
 llist_list	old_channels;
@@ -315,13 +327,15 @@ channel_join_list(
 	char	*chans = NULL;
 	char	*keys = NULL;
 
-	/* Join old_channels. */
-	LLIST_WALK_H(old_channels.head, channel_type *);
-		irc_write(client, ":%s!%s JOIN :%s",
-				status.nickname,
-				status.idhostname,
-				data->name);
-	LLIST_WALK_F;
+	/* Join old_channels if client was defined. */
+	if (client != NULL) {
+		LLIST_WALK_H(old_channels.head, channel_type *);
+			irc_write(client, ":%s!%s JOIN :%s",
+					status.nickname,
+					status.idhostname,
+					data->name);
+		LLIST_WALK_F;
+	}
 
 	if (first != NULL) {
 		chans = xcalloc(1, 1);

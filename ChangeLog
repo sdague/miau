@@ -3,6 +3,9 @@
 * After timeouted connect, miau no longer freezes until send() times out.
   How did I do this - after adding the timer?-)
 
+* miau no longer joins channels defined in miaurc at start-up if
+  rejoin and leave are set to false.
+
 * Only one error message after connecting timed out.
 
 * No more skipping one server after connecting timed out.

@@ -749,16 +749,6 @@ server_reply(
 			status.awaystate &= ~AWAY;
 			set_away(NULL);	/* No special message. */
 
-			/* Need to join passive_channels ? */
-			if (! status.autojoindone && cfg.leave) {
-				/* 
-				 * passive_channels are now joined. It doesn't
-				 * matter if passive_channels is empty or not.
-				 */
-				status.autojoindone = 1;
-				channel_join_list(LIST_PASSIVE, 0, NULL);
-			}
-
 			/* ASAP, see if we should join channels. */
 			timers.join = JOINTRYINTERVAL;
 
