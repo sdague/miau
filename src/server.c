@@ -719,9 +719,16 @@ server_reply(
 				status.goodhostname =
 					pos(status.idhostname, '@') + 1;
 			} else {
-				/* Should we do something about this ? */
-				status.idhostname = strdup("miau");
-				status.goodhostname = 0;
+				/*
+				 * While not giving hostname is ok with RFC,
+				 * clients like Chatzilla expect to get it.
+				 * Thanks to James Ross and Oliver Eikemeier
+				 * for pointing this out.
+				 *
+			 * http://bugzilla.mozilla.org/show_bug.cgi?id=242095
+				 */
+				status.idhostname = strdup("miau@miau");
+				status.goodhostname = 5;
 			}
 
 #ifdef UPTIME
