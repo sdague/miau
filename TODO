@@ -4,6 +4,8 @@ TODO:
 	- alphabetical order
 	- channels in miaurc, then channels from client in given order
 
+- Only try cfg.joinretries -times to join channel. (Reset at irc_connect?)
+
 - miaurc should have an option for ctcp-replies (if CTCPREPLIES is defined)
 
 - Should miau reply to CTCP-queries by default?
