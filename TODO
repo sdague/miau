@@ -1,5 +1,7 @@
 TODO:
 
+- miaurc should have an option for ctcp-replies (if CTCPREPLIES is defined)
+
 - Should miau reply to CTCP-queries by default?
 
 - repeat 352 only to client who requested it!
