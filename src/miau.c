@@ -236,8 +236,12 @@ escape(
 
 	/* Free server-info. */
 	xfree(i_server.realname);
-	for (n = 0; n < RPL_MYINFO_LEN; n++) { xfree(i_server.greeting[n]); }
-	for (n = 0; n < RPL_ISUPPORT_LEN; n++) { xfree(i_server.isupport[n]); }
+	for (n = 0; n < RPL_MYINFO_LEN; n++) {
+		xfree(i_server.greeting[n]);
+	}
+	for (n = 0; n < RPL_ISUPPORT_LEN; n++) {
+		xfree(i_server.isupport[n]);
+	}
 
 	/* Free configuration parameters. */
 	xfree(cfg.home);
@@ -868,8 +872,8 @@ rehash(
 	 */
 
 	/* Real name or user name changed. */
-	if (xstrcmp(oldrealname, cfg.realname) ||
-			xstrcmp(oldusername, cfg.username)) {
+	if (xstrcmp(oldrealname, cfg.realname) != 0
+			|| xstrcmp(oldusername, cfg.username) != 0) {
 		server_drop(MIAU_RECONNECT);
 		report(MIAU_RECONNECT);
 		i_server.current--;
@@ -1382,13 +1386,19 @@ fakeconnect(
 				i_client.username,
 				i_client.hostname);
 
+		/*
+		 * Don't take it for granted that we would get all these...
+		 * Network could be broken you know.
+		 */
 		for (i = 1; i < 4; i++) {
-			irc_write(newclient,
-					":%s %03d %s %s",
-					i_server.realname,
-					i + 1,
-					status.nickname,
-					i_server.greeting[i]);
+			if (i_server.greeting[i] != NULL) {
+				irc_write(newclient,
+						":%s %03d %s %s",
+						i_server.realname,
+						i + 1,
+						status.nickname,
+						i_server.greeting[i]);
+			}
 		}
 
 		for (i = 0; i < 3; i++) {
@@ -2303,12 +2313,12 @@ check_config(
 	int err = 0;
 #define REPORTERROR(x) { error(PARSE_MK, x); err++; }
 	
-	if (! nicknames.nicks.head)	REPORTERROR("nicknames");
-	if (! cfg.realname)		REPORTERROR("realname");
-	if (! cfg.username)		REPORTERROR("username");
-	if (! cfg.password)		REPORTERROR("password");
-	if (! cfg.listenport)		REPORTERROR("listenport");
-	if (! connhostlist.list.head)	REPORTERROR("connhosts");
+	if (nicknames.nicks.head == NULL)	REPORTERROR("nicknames");
+	if (cfg.realname == NULL)		REPORTERROR("realname");
+	if (cfg.username == NULL)		REPORTERROR("username");
+	if (cfg.password == NULL)		REPORTERROR("password");
+	if (cfg.listenport == 0)		REPORTERROR("listenport");
+	if (connhostlist.list.head == NULL)	REPORTERROR("connhosts");
 	/*
 	 * Actually, we did we do this?
 	 * 

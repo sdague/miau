@@ -75,7 +75,7 @@ void *xrealloc(void *ptr, size_t size);
 
 
 /* #define FREE(ptr) xnullfree((void *) &ptr) */
-#define FREE(ptr) { if (ptr) { free(ptr); ptr = NULL; } }
+#define FREE(ptr) { if (ptr != NULL) { free(ptr); ptr = NULL; } }
 
 
 #ifdef ENDUSERDEBUG

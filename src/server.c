@@ -695,9 +695,7 @@ server_reply(
 
 
 	switch (command) {
-
 		/* Replies. */
-
 	
 		/* Just signed in to server. */
 		case RPL_WELCOME:
@@ -711,6 +709,10 @@ server_reply(
 
 			xfree(i_server.greeting[0]);
 			i_server.greeting[0] = strdup(param2);
+			n = lastpos(i_server.greeting[0], ' ');
+			if (n != -1) {
+				i_server.greeting[0][n] = '\0';
+			}
 
 			xfree(status.idhostname);
 			t = strchr(param2, '!');
@@ -737,8 +739,6 @@ server_reply(
 			}
 #endif /* UPTIME */
 
-			i_server.greeting[0][lastpos(
-					i_server.greeting[0], ' ')] = 0;
 			report(IRC_CONNECTED, i_server.realname);
 
 #ifdef ONCONNECT
