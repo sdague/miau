@@ -167,7 +167,8 @@ chanlog_open(
 		channel->log = (struct channel_log *)
 			xcalloc(sizeof(struct channel_log), 1);
 
-		p = xmalloc(strlen(channel->name) + strlen(cfg.logpostfix) + 2);
+		p = xmalloc(strlen(LOGDIR) + strlen(channel->name)
+				+ strlen(cfg.logpostfix) + 2);
 		sprintf(p, LOGDIR"/%s%s", channel->name, cfg.logpostfix);
 		channel->log->file = fopen(p, "a");
 
