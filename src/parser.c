@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 #include "miau.h"
 #include "parser.h"
 
+#include "error.h"
 #include "messages.h"
 #include "perm.h"
 #include "tools.h"
@@ -23,6 +24,7 @@
 #include "qlog.h"
 #include "chanlog.h"
 #include "onconnect.h"
+#include "encoding.h"
 
 
 
@@ -325,6 +327,10 @@ parse_param(
 		} else if (xstrcmp(data, "onconnect") == 0) {	/* onconnect */
 			listid = CFG_ONCONNECT;
 #endif /* ONCONNECT */
+#ifdef ENCODING
+		} else if (xstrcmp(data, "encodings") == 0) {	/* encodings */
+			listid = CFG_ENCODINGS;
+#endif /* ifdef ENCODING */
 		} else {
 			listid = CFG_INVALID;
 			parse_error();
@@ -688,6 +694,15 @@ parse_list_line(
 			}
 			break;
 #endif /* ONCONNECT */
+
+#ifdef ENCODING
+		case CFG_ENCODINGS:
+			if (paramcount == 2) {
+				encoding_add_rule(param[0], param[1]);
+				ok = 1;
+			}
+			break;
+#endif /* ifdef ENCODING */
 		case CFG_INVALID:
 			ok = 1;
 			break;
