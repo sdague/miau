@@ -82,7 +82,7 @@ add_server(
 	llist_node	*node;
 
 	/* Must have a name for this server. */
-	if (! name) { return; }
+	if (name == NULL) { return; }
 	/* If port was not defined, use default. */
 	if (port == 0) { port = DEFAULT_PORT; }
 
@@ -94,7 +94,7 @@ add_server(
 	server = (server_type *) xmalloc(sizeof(server_type));
 	server->name = strdup(name);
 	server->port = port;
-	server->password = (pass == NULL) ? NULL : strdup(pass);
+	server->password = (char *) ((pass == NULL) ? NULL : strdup(pass));
 	server->timeout = (timeout > 0) ? timeout : 0;
 	server->working = 1;
 	node = llist_create(server);
@@ -344,13 +344,13 @@ parse_param(
 #ifdef QUICKLOG
 	} else if (xstrcmp(data, "qloglength") == 0) {	/* qloglength */
 		assign_int(&cfg.qloglength, val, 0);
-#  ifdef QLOGSTAMP
+#ifdef QLOGSTAMP
 	} else if (xstrcmp(data, "timestamp") == 0) {	/* timestamp */
 		/* See qlog.h for options' order. */
 		/* Double-terminate just to be sure. */
 		assign_option(&cfg.timestamp, val,
 				"none\0beginning\0end\0\0");
-#  endif /* QLOGSTAMP */
+#endif /* QLOGSTAMP */
 	} else if (xstrcmp(data, "flushqlog") == 0) {	/* flushqlog */
 		assign_boolean(&cfg.flushqlog, val);
 #endif /* QUICKLOG */
@@ -482,7 +482,7 @@ parse_list_line(
 	/* Read parameters. */
 	
 	/* We can't use strtok(), because it eats subsequent delimeters. */
-	param = xmalloc(sizeof(char *) * MAXNUMOFPARAMS);
+	param = (char **) xmalloc((sizeof(char *)) * MAXNUMOFPARAMS);
 	ptr = data;
 	par = ptr;
 	
@@ -725,7 +725,7 @@ parse_cfg(
 	char		*bufptr;
 	char		*nextptr;
 
-	buf = xmalloc(READBUFSIZE);
+	buf = (char *) xmalloc(READBUFSIZE);
 
 	line = 1;
 	file = fopen(cfgfile, "r");
@@ -734,7 +734,7 @@ parse_cfg(
 	}
 
 	/* Make sure configuration-file ends. */
-	filelen = fread(buf, 1, READBUFSIZE - 2, file);
+	filelen = (int) fread(buf, 1, READBUFSIZE - 2, file);
 	buf[filelen] = '\n';
 	buf[filelen + 1] = '\0';
 	
