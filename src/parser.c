@@ -383,7 +383,15 @@ parse_param(
 	} else if (xstrcmp(data, "usequitmsg") == 0) {	/* usequitmsg */
 		assign_boolean(&cfg.usequitmsg, val);
 	} else if (xstrcmp(data, "getnick") == 0) {	/* getnick */
-		/* See miau.h for options' order. */
+		/*
+		 * 0 = never
+		 * 1 = detached
+		 * 2 = attached
+		 * 3 = always
+		 *
+		 * Values are hardcoded all over miau.c.
+		 * This should be fixed even though code is quite clear.
+		 */
 		/* Double-terminate just to be sure. */
 		assign_option(&cfg.getnick, val,
 				"never\0detached\0attached\0always\0\0");
