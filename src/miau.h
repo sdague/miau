@@ -30,7 +30,7 @@
 
 #define MIAU_URL	"http://miau.sourceforge.net/"
 #ifndef VERSION
-#define VERSION "???"
+#define VERSION		"???"
 #endif
 #define DEFAULT_NICKFILL	'_'
 #define DEFAULT_PORT		6667
