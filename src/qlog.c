@@ -198,10 +198,8 @@ qlog_drop_old(
 
 	if (qlog.head == NULL) { return; } /* Perhaps there's nothing to do. */
 
-	
-	time(&oldest);
-	oldest -= (cfg.qloglength * 60);	/* Minutes, not seconds. */
-	/* oldest -= (cfg.qloglength); DEBUG */
+	/* We want seconds. */
+	oldest = time(NULL) - (cfg.qloglength * 60);
 
 	line = (qlogentry *) qlog.head->data;
 	while (line != NULL && line->timestamp <= oldest) {
