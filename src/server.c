@@ -32,7 +32,7 @@
 #include "dcc.h"
 #include "tools.h"
 #ifdef _NEED_PROCESS_IGNORES
-#  include "ignore.h"
+#include "ignore.h"
 #endif /* _NEED_PROCESS_IGNORES */
 #include "remote.h"
 #include "onconnect.h"
@@ -285,7 +285,7 @@ server_commands(
 
 	if (xstrcmp(command, "PING") == 0) {
 		*pass = 0;
-		if (param && param[0] == ':') param++;
+		if (param != NULL && *param == ':') param++;
 		/* Don't make this global (see ERROR) */
 		if (param) {
 			/*
@@ -334,7 +334,8 @@ parse_privmsg(
 	sprintf(origin, "%s!%s", nick, hostname);
 
 	/* Is it to who ? */
-	if (status.nickname && xstrcasecmp(param1, status.nickname) == 0) {
+	if (status.nickname != NULL
+			&& xstrcasecmp(param1, status.nickname) == 0) {
 		/* It's for me. Whee ! :-) */
 		
 #ifdef PRIVLOG
@@ -367,9 +368,9 @@ parse_privmsg(
 				}
 #endif /* DCCBOUNCE */
 #ifdef DCCBOUNCE
-#  ifdef CTCTPREPLIES
+#ifdef CTCTPREPLIES
 				else
-#  endif /* CTCPREPLIES */
+#endif /* CTCPREPLIES */
 #endif /* DCCBOUNCE */
 #ifdef CTCPREPLIES
 				if (! is_ignore(hostname, IGNORE_CTCP) &&
@@ -465,7 +466,7 @@ parse_privmsg(
 						upcase(command);
 						*pass = remote_cmd(command,
 								params,
-								nick, hostname);
+								nick);
 						normal = 0;
 					}
 				}
@@ -476,7 +477,7 @@ parse_privmsg(
 			if (normal) {
 				isprivmsg = 1;
 #ifdef INBOX
-#  ifndef QUICKLOG
+#ifndef QUICKLOG
 /*
  * Note that we do inbox here only is privmsglog is enabled and
  * quicklogging is disabled.
@@ -487,14 +488,15 @@ parse_privmsg(
 							origin, param2 + 1);
 					fflush(inbox);
 				}
-#  endif /* QUICKLOG */
+#endif /* QUICKLOG */
 #endif /* INBOX */
 				
 				if (cfg.forwardmsg) {
 					timers.forward = 0;
-					l = forwardmsg ? strlen(forwardmsg) : 0;
-					i = l + strlen(origin) +
-						strlen(param2 + 1) + 5;
+					l = forwardmsg
+						? (int) strlen(forwardmsg) : 0;
+					i = l + (int) strlen(origin)
+						+ (int) strlen(param2 + 1) + 5;
 					forwardmsg = (char *)
 						xrealloc(forwardmsg, i);
 					sprintf(forwardmsg + l, "(%s) %s\n",
@@ -570,11 +572,11 @@ server_read(
 				param1 = strtok(NULL, " ");
 				param2 = strtok(NULL, "\0");
 #ifdef DEBUG
-#  ifdef OBSOLETE
+#ifdef OBSOLETE
 				printf("[%s] [%s] [%s] [%s]\n",
 						origin, command,
 						param1, param2);
-#  endif /* OBSOLETE */
+#endif /* OBSOLETE */
 #endif /* DEBUG */
 				if (command) {
 					commandno = atoi(command);
@@ -897,11 +899,11 @@ server_reply(
 				}
 				channel = strtok(t + 1, " ");
 				chptr = channel_find(channel, LIST_ACTIVE);
-#  ifdef AUTOMODE
+#ifdef AUTOMODE
 				if (chptr == NULL || chptr->oper != -1) {
-#  else /* AUTOMODE */
+#else /* AUTOMODE */
 				if (chptr == NULL) {
-#  endif /* AUTOMODE */
+#endif /* AUTOMODE */
 #ifdef ENDUSERDEBUG
 					if (chptr == NULL) {
 						enduserdebug("NAMREPLY on unjoined channel (%s)", channel);
@@ -1334,8 +1336,8 @@ parse_modes(
 					xfree(chptr->key);
 					chptr->key = strdup(param);
 				} /* No need to clear unset key. */
-				break;
 				param = strtok(NULL, " ");
+				break;
 
 			case 'l':	/* Limit. */
 				/*
