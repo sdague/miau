@@ -394,6 +394,8 @@ of following:
 	always write private message logs
 @end table
 
+All logfiles are written into miau's log directory (@command{logs}).
+
 This option might not be compiled in.
 
 @item @command{chanlog = @{ "channel(s)":"options":"logfile" @}}
@@ -406,8 +408,8 @@ global log and write log to it's own file. When defining global log,
 @command{#foobar,#miau}).
 
 If logfile is left undefined, logfile will be named after the channel with
-possible postfix (see @command{logpostfix}). All lofiles are written in miau's
-work directory.
+possible postfix (see @command{logpostfix}). All filenames are relative and are,
+by default, written in miau's log directory (@command{logs}).
 
 Options consist of abritary set of following possibilities:
 @table @asis
