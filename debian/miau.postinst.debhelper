@@ -1,0 +1,5 @@
+# Automatically added by dh_installinfo
+if [ "$1" = "configure" ]; then
+	install-info --quiet --section "Texinfo documentation system" "Texinfo documentation system" /usr/share/info/miau.info
+fi
+# End automatically added section

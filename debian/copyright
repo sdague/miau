@@ -1,0 +1,21 @@
+This package was created by Tommi Saviranta <tsaviran@cs.helsinki.fi> on
+Mon,  1 Dec 2003 04:14:42 +0200.
+
+It can be downloaded from <http://sourceforge.net/projects/miau/>.
+
+Upstream Authors:
+
+ Tommi Saviranta
+ and the authors of muh (from which miau was branched)
+
+Copyright:
+
+ This program is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by the
+ Free Software Foundation; either version 2, or (at your option) any
+ later version.
+
+ On Debian GNU/Linux systems, the complete text of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL'.
+      
+This copyright also applies to the Debian-related build scripts.

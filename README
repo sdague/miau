@@ -1,0 +1,45 @@
+See ChangeLog for stuff that has changed.
+
+
+Notes:
+- cmdpasswd and related things are space-sensitive.
+- epic _may_ act funny when using getnick-feature.
+- automodes do not track nick-changes. if target changes nick, invalid
+  mode-change will be done and error will be passed to the client.
+
+
+About multi-client support
+
+DCC-requests also work, but there are a few things to consider:
+  - When accepting a DCC-request, fastest client most likely gets it all.
+    This may differ from (sending) client to client, because DCC-requests
+    are sent to each client connected to miau and usually the other end
+    (the one offering DCC) only accepts one connection.
+  - When offering a DCC-something, offer is, unfortunately, echoed to each
+    client and again, fastest gets it all - this means another client, with
+    auto-accept on, connected to bouncer could get the file instead of the
+    original target.
+
+
+miau 0.5.0 has been compiled succesfully on following platforms:
+	- Darwin 5.5 Darwin Kernel Version 5.5 Power Macintosh powerpc
+	- FreeBSD 4.9-PRERELEASE FreeBSD 4.9-PRERELEASE i386
+	- HP-UX B.10.20 A 9000/785 2013691475
+	- Linux 2.2.20 alpha unknown
+	- Linux 2.4.21-143-smp x86_64 unknown
+	- Linux 2.6.0-test11 i686 GNU/Linux
+	- NetBSD 1.6.1 NetBSD 1.6.1 (GENERIC) i386
+	- SunOS sparc-solaris1 5.9 Generic_112233-03 sun4u sparc SUNW,Ultra-60
+	- Intel StrongARM-1110 rev 8 (v4l) running
+		Linux 2.4.9-ac10-rmk2-np1-cerf2
+	- COMPAQ AlphaServer DS20 (Alpha EV67) running Linux 2.2.20
+
+miau also compiles on following, but with some trouble:
+	- OSF1 V4.0 1229 alpha
+
+Following platforms are also reported to work:
+	- HP-UX B.11.00 U 9000/800 (complains about -O2)
+
+
+If you have compiled miau on other platforms than those above, please let me
+know.

@@ -1,0 +1,462 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename miau.info
+@settitle miau Manual
+@c %**end of header
+
+@include version.texi
+
+@setchapternewpage odd
+
+@ifinfo
+This is the miau manual.
+
+Copyright (C) 2002-2004 Tommi Saviranta
+
+@dircategory Texinfo documentation system
+@direntry
+* miau: (miau).		The miau manual
+@end direntry
+@end ifinfo
+
+@titlepage
+@sp 10
+@center @titlefont{The miau manual}
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2002-2004 Tommi Saviranta
+
+@end titlepage
+
+@node Top
+@top miau Manual
+
+This is edition @value{EDITION} of the @cite{miau Manual}, last updated @value{UPDATED}.
+
+@menu
+* Introduction::	Why you need an irc-bouncer and how it is used
+* Installation::	How to install miau
+* Command Line Options::	Invocation of miau
+* miau Commands::	Commands while miau is running
+* miaurc Commands::	Statements in your miaurc
+@end menu
+
+
+@node Introduction
+@chapter What is an irc-bouncer?
+A bouncer doesn't do anything else than diverting a network-connection.
+
+In case of an irc-bouncer, connections from your irc-program (client) are
+diverted by the bouncer to a irc-server.
+
+"What is this good for?", you might ask.
+
+Well, let's assume you've got a dialup-connection.  If somebody performs a
+@command{/WHOIS} on you it shows something like "yournick is
+yournick!yourident@@dialup66-r-v.isp.at".
+
+If you are vain you don't want people to see this stupid hostname.  So you get
+a account on a machine with a cool hostname (from now on refered as middleman),
+get miau running there and a /whois on you will show middleman's hostname,
+since the connection to the irc-server is actually originating from middleman.
+
+Another advantage is that network-attacks aren't really destinating to YOUR
+computer but to middleman, which is in theory a machine that can't be brought
+down.
+
+@chapter What makes miau special over other bouncers?
+miau is very straight and simple to set up and the probably most important and
+interesting feature is that miau keeps the middleman-->irc-server connection up
+even after you disconnect with your client.
+
+This means miau prevents people from using your nick (this is especially handy
+on nets like IRCNet, since there are no services like on dalnet etc) and tells
+people who message you that you're not here and logs what these people said.
+
+Upon your next connect to miau, it will let the channels you've been in in your
+last session pop up, which means that you'll keep your status in these
+channels.
+
+Besides that miau's got a very enhanced flood-protection making it (almost)
+impossible to disconnect miau.
+
+@chapter Copyright
+
+miau has been writted by Tommi Saviranta @email{tsaviran@@cs.helsinki.fi}.
+miau branched from muh, see http://mind.riot.org/muh/.
+miau is licensed under the GPL. See COPYING for details.
+
+@node Command Line Options
+@chapter Command Line Options
+@table @asis
+@item @option{-f}
+Stay in foreground (don't fork)
+@item @option{-d directory}
+Specifies a different directory than the default for miaurc, messages and log
+@item @option{-c}
+You will be prompted for a word to crypt. The output can be used as "password"
+in miaurc if you don't wanna have the password stored in clear text.
+Note that you'll still have to authorize with the unencrypted password.
+
+This option might not be compiled in.
+@end table
+
+@node miau Commands
+@chapter miau Commands
+miau accepts following commands to be issued by the client via
+@command{/MIAU <command>}.
+
+Note that some irc-clients might require a prefix such as @command{/QUOTE} or
+@command{/RAW} to send commands they don't know about.
+
+@table @asis
+@item @command{HELP}
+Display supported commands
+@item @command{READ}
+Read received messages
+@item @command{DEL}
+Delete all messages
+@item @command{PRINT}
+Prints miau's server-list. Servers prefixed with '+' work, those with '-' don't.
+@item @command{JUMP [servernumber]}
+Jump to next server in serverlist. if [servernumber] (see PRINT) is specified,
+miau will jump to this server (even if marked as not working).
+@item @command{REHASH}
+Reread config-file. Note that this can also be performed by sending a SIGHUP to
+miau (see @command{kill(1)}). If "realname" or "username" have been changed miau
+will reconnect to it's current server.
+@item @command{DIE}
+Terminate miau. A quit reason can be given after command.
+@item @command{UPTIME}
+Prints uptime of miau.
+
+This command might not be compiled in.
+@item @command{PINGSTAT}
+Prints ping statistics.
+
+This command might not be compiled in.
+@item @command{DUMP}
+Prints some of miau's internal variables. Used for debugging.
+
+This command might not be compiled in.
+@end table
+
+
+@node Installation
+@chapter Installation
+
+Create a @file{.miau/}-directory in your homedir and copy @file{miaurc} there
+(it will propably reside in @file{/usr/share/miau}, depending on your
+os/distribution).
+
+Edit @file{miaurc}, @emph{make sure noone except you has read-access} and launch
+miau.
+
+To make sure miau's running all day there is a script called @file{miau-check}
+that came with miau. Edit it as well and make @command{crontab(5)} call it
+periodically.
+
+@node miaurc Commands
+@chapter miaurc Commands
+
+There are numerous commands with which you can extensively customize miau's
+behaviour. The must be placed in the @file{miaurc} that miau reads on startup,
+it is usually @file{$HOME/.miau/miaurc}.
+
+@chapter Required settings
+
+@table @asis
+@item @command{nicknames = @{ "nick" @}}
+Your nickname (and secondary nicknames) on IRC. If the primary nick (first nick
+on the list) is already on use, miau will try the others on the list.
+
+@item @command{realname = "realname"}
+Your "real" name (which will be shown by @command{/WHOIS}-command) on IRC.
+
+@item @command{username = "username"}
+Your ident (matters only if you don't have @command{identd} running).
+
+@item @command{password = "password"}
+The password miau will expect to receive from client when it's registering with
+nick. If this is 13 characters long, miau assumed it's crypted. miau can
+generate password-hashes with @command{-c} -switch, if it is compiled with that
+feature.
+
+@item @command{listenport <int>}
+The port miau will wait for incoming connections. This is the port you connect
+your IRC-client to.
+
+@item @command{servers = @{ "server":"port":"password":"timeout" @}}
+miau's IRC-server-list. Each line represents one server, where timeout is delay
+in seconds before connectiong attempt times out. Only @command{server}
+parameter is required.
+
+@item @command{connhosts = @{ "host":"permitted" @}}
+List of hosts that are allowed (or denied) to connect to miau. When
+@command{permitted} is left unset, it is assumed to be @command{true}. This
+list will be processed as a chain which means latter rules can override
+previous ones.
+
+Note: You can define "your" hostname with @@@@. Only the _last_ occurance of
+@@@@ will be translated.
+
+@end table
+
+@chapter Optional settings
+
+@table @asis
+
+@item @command{listenhost = "host"}
+Host miau uses to listen on.
+If you are compiled with IPV6 and need this to listen on an IPV4 port, you
+must use an IP in the form @command{::FFFF:127.0.0.1}.
+
+@item @command{bind = "host"}
+Host/IP miau uses for outgoing connections.
+
+@item @command{maxclients = "number"}
+Maximum number of clients connected to miau concurrently. Set to zero for
+unlimited clients.
+
+@item @command{stonedtimeout = "seconds"}
+Time (in seconds) with no data from the server before it is declared stoned and
+being disconnected. Although minimum value is 30, this value has no upper
+limit. Watch out, though, if this value is set too high, death of servers may
+stay undetected for a very long time if you are idle.
+
+@item @command{connecttimeout = "seconds"}
+Time (in seconds) before connection attampt will time out. Note that while
+connecting to the server miau will not respond to clients. Minimum value is 5,
+and many systems define maximum value.
+
+@item @command{channels = @{ "channel":"keyword" @}}
+List of channels to join.
+
+@item @command{rejoin = "state"}
+Rejoin channels after disconnecting from the server.  If @command{rejoin} is
+set to @command{true}, channels defined in @command{channels}" are also joined
+when client first time connects to miau.
+
+@item @command{leave = "state"}
+Leave channels when all clients have detached from miau.  If @command{leave} is
+set to @command{false} and @command{rejoin} is set to @command{true}, channels
+defined at @command{channels} will be joined at miau startup.  If both
+@command{leave} and @command{rejoin} is set to @command{true}, channels that
+are left at client detach, are rejoined when client attached back to miau.
+
+@item @command{leavemsg = "message"}
+Message miau will either use as PART-message or as ACTION when all clients have
+detached from miau. If unset or set to empty, no message will be shown. Note
+that many people dislike event-based messages (which happens when
+@command{leave} is set to @command{false} and @command{leavemsg} is set). Note
+that commenting this option out and rehashing after @command{leavemsg} was set,
+this option is @emph{not} reverted. To disable @command{leavemsg} afterwards you
+need to write an empty string here and rehash. Also see @command{usequitmsg}.
+
+@item @command{awaymsg = "message"}
+Text that will be set to miau's away-reason when all clients have detached from
+miau. If unset or set to empty, AWAY-status will be left untouched. When any
+client attaches back to miau, AWAY-status will be reset. Note that is user sets
+him/herself away, miau will @emph{not} touch away-status nor message neither
+when connecting to or disconnected from miau. Also note that commenting this
+option out and rehashing after @command{awaymsg} was set, this option is
+@emph{not} reverted. To disable @command{awaymsg} afterwards you need to write
+an empty string here and rehash. Also see @command{usequitmsg}.
+
+@item @command{usequitmsg = "state"}
+Use last quit-reason as away-reason and/or leave-message (if respective options
+are enabled) when all clients have disconnected from miau. If quit-reason was
+empty, default values of awaymsg and leavemsg will be used, otherwise most
+recent quit-message overrides values in miaurc.
+
+@item @command{getnick = "selection"}
+miau can try to reclaim your primary nick when it is lost. This option has four
+possible settings:
+@table @asis
+@item @command{0} miau will not try to get your nick back
+@item @command{1} miau will try to get your nick when no clients are attached
+@item @command{2} miau will try to get your nick when there are one or more
+clients attached
+@item @command{3} miau will try to get your nick 
+@end table
+Note: do @emph{not} use options 2 or 3 with clients (like irc-II EPIC) that
+automatically change your nick when they receive @command{ERR_NICKINUSE} from
+the server - you might end up chaning your nick until server drops your
+connection due excess (nick) flood.
+
+@item @command{getnickinterval = "seconds"}
+Time between tries (in seconds) to obtain currently (possibly) lost primary
+nick. Don't set it too low or you might get kicked out the server due to excess
+flood.
+
+@item @command{antiidle = "minutes"}
+Time between idle-timer resets in minutes. Set to 0 to disable.
+
+@item @command{qloglength = "minutes"}
+Age of oldest entry in quicklog in minutes. Set to zero to disable quicklog.
+
+Note: private messages get also logged into quicklog, but if @command{logging}
+is enabled, they are moved to messagelog instead of simply dropping of from
+quicklog.
+
+This option might not be compiled in.
+
+@item @command{flushqlog = "state"}
+If set to @command{true}, quicklog will be written only when no clients are
+connected and quicklog will be erased when client connects to miau. If you are
+running a single client, you probably want to leave this to @command{false}.
+
+This option might not be compiled in.
+
+@item @command{logging = "state"}
+Enables logging private messages when no clients are connected to miau.
+
+Note: if quicklog is enabled (see @command{qloglength}), private messages are
+first stored in quicklog and moved to messagelog when they become too old to be
+stored in quicklog.
+
+This option might not be compiled in.
+
+@item @command{nevergiveup = "state"}
+If set to @command{true}, miau will reset "working"-status of servers to
+working when all are set to dysfunctional.  Respectively, if set to
+@command{false}, miau will quit when all servers on the list have been set to
+dysfunctional.
+
+@item @command{norestricted = "state"}
+If set to @command{true}, miau will not stay on server that forces user to have
+restricted-status (+r).
+
+@item @command{reconnectdelay = "seconds"}
+Time (in seconds) between connection attempts.  Minumun value is set to 1.
+
+@item @command{nickfillchar = "fill character"}
+Character used to modify your primary nick when all defined nicks are already
+occupied. Note character is a single octet (byte) and if longer string is fed,
+only the first character is used.
+
+@item @command{maxnicklen = "length"}
+Maximum nick length, used with @command{nickfillchar}.
+
+@item @command{usermode = "usermode(s)"}
+Usermode that miau will request (if no clients are attached at the moment) from
+the server when connection to the server is established. Leave unset or set to
+empty to disable this feature.
+
+@item @command{forwardmsg = "command"}
+miau can collect the (private) messages within three (3) minutes and pipe them
+into the program specified. Leave this unset or set to empty to disable this
+feature.
+
+@item @command{ignore = @{ "mask":"ignored" @}}
+List of users whose private messages (PRIVMSG) and noticies (NOTICE) are
+ignored when no clients are attached to miau. When @command{ignored} is left
+undefined, it is assumed to be @command{true}. Setting @command{ignored} to
+@command{false} means that this user will @emph{not} be ignored. This list is
+processed as a chain.
+
+Note: You can define "your" hostname with @@@@. Only the _last_ occurance of
+@@@@ will be translated.
+
+@item @command{log = @{ "channel(s)":"options":"logfile" @}}
+List of logfiles.
+
+When channel is set to @command{*}, line represents global log. When logging,
+if channel doesn't have entry of it's own in this list, it will use settings of
+global log and write log to it's own file. When defining global log,
+@command{logfile} is ignored. Each line can have multiple channels (like
+@command{#foobar,#miau}).
+
+If logfile is left undefined, logfile will be named after the channel with
+possible postfix (see @command{logpostfix}). All lofiles are written in miau's
+work directory.
+
+Options consist of abritary set of following possibilities:
+@table @asis
+@item @command{j} log joins
+@item @command{e} log parts (exits)
+@item @command{q} log quits
+@item @command{m} log messages (privmsg/notice)
+@item @command{c} log mode changes
+@item @command{n} log nick changes
+@item @command{o} log misc events (other)
+@item @command{b} log messages from miau (bouncer)
+@item @command{a} log all of above
+@item @command{A} log when a client is attached
+@item @command{D} log when a client is detached
+@item @command{C} log continuously (status of clients doesn't matter)
+@end table
+
+This option might not be compiled in.
+
+@item @command{logpostfix = "postfix"}
+When writing log to undefined logfile, each logfile consists of channel name
+followed by postfix. Postfix can be defined here.
+
+@item @command{onconnect = @{ "mode":"target/data"(:"data") @}}
+When miau connects and registers user to server, miau can send pre-defined
+messages. User can define miau to send normal messages (@command{PRIVMSG}),
+notices (@command{NOTICE}) or arbitrary messages.
+
+Mode can be one of the following:
+@table @asis
+@item @command{p} private message (@command{PRIVMSG}).
+@item @command{n} notice (@command{NOTICE}). Should be used with services and
+	automatons, but unfortunately some network services can't cope with
+	notices.
+@item @command{r} "raw" message. This means user must provide complete message
+	to send to the server. Using raw message user has complete control over
+	what is being sent. If you don't know what this is, you don't need this.
+	When using modes "@command{p}" or "@command{n}", user must provide both
+	message and target where as with raw messages only one parameter in
+	addition to type should be given.
+@end table
+
+This option might not be compiled in.
+
+@item @command{automodes = @{ "mask":"privilegded" @}}
+List of people who are automatically given certain privilege on channel. Mask is
+given in form of @command{mode:nick!username@@host/#channel} (where
+@command{mode} is a single character) and list is processed as a chain.
+
+Note: You can define "your" hostname with @@@@. Only the _last_ occurance of
+@@@@ will be translated.
+
+This option might not be compiled in.
+
+@item @command{automodedelay = "seconds"}
+Time (in seconds) after first queued mode change would take effect. During this
+period of time miau can collect more than one mode change and commit up to
+three at a time. Other situation reasonaly big value (like 30) here could prove
+useful is channel where there are stupid "auto-oping" bots. (Stupid bots do
+mode changes even if someone else did that already.)
+
+This option might not be compiled in.
+
+@item @command{cmdpasswd = "password"}
+Password for remote commands. If this is 13 characters long, miau assumes it's
+crypted. Comment this out or leave it empty to disable remote commands. When
+sending miau a remote command, password _always_ begins with column (':') (if
+@command{cmdpasswd} is set to "foobar" (or hash of it), you need to send miau a
+message beginning with @command{:foobar} to issue a remote command).  miau can
+generate password-hashes with @command{-c} -switch, if it is compiled with that
+feature.
+
+This feature might not be compiled in.
+
+@item @command{dccbounce = "state"}
+miau can bounce DCCs. Set to true to enable bouncing.  You probably don't need
+this.
+
+This option might not be compiled in.
+
+@item @command{dccbindhost = "host"}
+If miau has separate IPs for IRC-network and clients, you should enter IP for
+clients here.
+
+This option might not be compiled in.
+
+@end table
+
+@bye
+

@@ -1,0 +1,18 @@
+Installing miau:
+
+- Type './configure' to configure miau or './configure --enable-local'
+  if you'd like to install miau locally in your account.
+- Type 'make' to compile.
+- Type 'make install' to install miau.
+
+On SunOS 5.8, in case make fails, try running gmake, it should work.
+
+
+ipv6 support is not automatically compiled in, as miau does not currently
+support using both ipv4 and ipv6 protocols at once.  
+Give '--enable-ipv6' to configure to enable it.
+
+(See ./configure --help to change default-dirs for 'make install')
+
+
+miau is in active development so visit the miau-site for new versions regularly.

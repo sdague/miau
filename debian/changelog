@@ -1,0 +1,18 @@
+miau (0.5.1) unstable; urgency=low
+
+  * New release.
+
+ -- Tommi Saviranta <wind@kikai.katei>  Tue, 24 Feb 2004 17:09:26 +0200
+
+miau (0.5.0-mk2-1) unstable; urgency=low
+
+  * Finally properly debianized version.
+
+ -- Tommi Saviranta <tsaviran@cs.helsinki.fi>  Tue, 13 Jan 2004 20:31:19 +0200
+
+miau (0.5.0-1) unstable; urgency=low
+
+  * First debianized version.
+
+ -- Tommi Saviranta <tsaviran@cs.helsinki.fi>  Mon,  1 Dec 2003 04:14:42 +0200
+

@@ -1,0 +1,391 @@
+0.5.1 - "y2k-compatible"
+
+* Quitting miau resulted in deadlock when logging was compiled in but not
+  defined in miaurc. Fixed.
+
+* miau no longer tries to join channels when not connected.
+  (There was one occasion this check wasn't done...)
+
+* When randomized nick was in use, error message told
+  "Nick 'foobar' unavailable - using 'foobar^^" while miau had nick
+  'foobar^'. Fixed.
+
+* Away-status is now set and unset properly. miau used to set/unset
+  away-status even when it was not needed.
+
+* Empty away-message ("AWAY :") is now, by default, understood as "remove
+  AWAY message". Empty AWAY messages can be allowed by giving
+  --enable-empty-awaymsg (EMPTYAWAY) to configure-script.
+
+* If user is marked as being away, new client is told about this. Some IRC-
+  clients like irssi won't even try to remove away-status unless they think
+  user is away. This fixes this issue.
+
+* No more detectable (not even those static) memory leaks!
+
+* Number of connected clients is now both reported to clients and written
+  into log when number changes (and if more than one client is allowed).
+  Message order is also sensible now, first we tell what happened, then the
+  number of connected clients.
+
+* When user issues DIE-command, reason is echoed to all clients.
+
+* PINGSTAT and DUMP are also listed in list of miau's commands.
+
+* miau no longer catches SIGKILL.
+
+* Added Sebastian Kienzl and Lee Hardy into copyright-part of client.c and
+  server.c from where they were left out when miau.c got splitted.
+
+* Minor code clean-ups.
+
+
+0.5.0-mk2 - "Mark 2"
+
+* STATUSDUMP now dump to clients as well.
+
+* New configure-option, --enable-statusdump (STATUSDUMP).
+
+* Fixed --enable-local that got broken in 0.2.0... "Oops."
+
+* Finally debianized for good.
+
+* Code clean-up.
+
+
+0.5.0 - "so it begins"
+
+* Implemented flood protection for client and for miau's internal functions.
+  miau should no longer be able to flood itself out from IRC-server.
+
+* auto-op was enhanced to auto-mode. miau can now commit up to three mode
+  changes per command. Also filenames autoop.[ch] were renamed accordingly to
+  automode.[ch] as well as AUTOOP was translated to AUTOMODE. I'm already
+  planning to change the format (in miaurc) of this feature to gain some
+  speed-up... Don't hold your breath, though.
+
+* If miau drops from the server (which we were already in) it tries to
+  reconnect to it. If connection can't be established, miau moves to the
+  next server in the list.
+
+* When defining permissions, "@@" can be used to define miau's public
+  hostname.
+
+* Fixed bug in parser which caused entries in invalid list to be added to last
+  succesfully defined list.
+
+* Should've fixed "qlog-for-this-channel-though-nothing-exists" -bug for good.
+
+* Using quicklog takes much less CPU-time than before.
+
+* Fixed illegal memory access in parser. (Check was done in wrong order.)
+
+* Received ERROR-message is now (finally) sent as part-reason to clients.
+
+* No longer "Received a CTCP ... (didn't reply)" -messages when compiling
+  CTCPREPLIES disabled.
+
+* Code clean-up and optimization.
+
+* Almost complete debian/-directory.
+
+
+0.4.7 - "another bug-free release ;-)"
+
+* Fixed "try to free non-allocated memory"-bug that revealed itself only when
+  using gcc 2.95 instead of gcc 3.3.1.
+
+
+0.4.6 - "a long road ahead"
+
+* Fixed a bug in "quit-reason to away-message" that tried to access already
+  freed memory. How did I miss this ?-O
+
+* miau 0.4.5 started counting length of quicklog in seconds because of
+  forgotten debug-code. Fixed.
+
+* Reloading miaurc (with only one server defined) while connecting to server
+  made miau to access already freed memory. Fixed.
+
+* Since 0.4.0, miau have processed incorrect lines (like lines with too many
+  parameters) in miaurc although complaining about them. Invalid lines are no
+  longer parsed.
+
+* miau can now execute a command when connecting to server (like send a message
+  to nickserv). Should we have same functionality for event when client
+  connects to miau ?
+
+* All errors and notices that would be printed in log are now sent to clients.
+
+* RELEASENICK writes now a log-entry.
+
+* Legacy fix: replaced read and write with recv and send (whenever playing
+  with sockets).
+
+* Fixes and updates in documentation.
+
+* Added a missing space to messages.h plus some other minor changes.
+
+* A few minor code clean-ups.
+
+* miau is now developed by using (GNU) autoconf 2.57, automake 1.7.6 and
+  aclocal 1.7.6 instead of older versions.
+
+
+0.4.5 - "bug-o-matic"
+
+* privmsglog fixed. If quicklog is being used, message is moved to privmsglog
+  when appropriate quicklog-line would be discarded.
+
+* New configuration option: usequitmsg. This option enabled, quit-reason is
+  used as away-message when all clients have disconnected from miau.
+
+* Client is now sent SERV_DROPPED instead of SERV_DISCONNECT when server
+  closes connection.
+
+* Changed timestamp-format to "Mon dd hh:mm:ss"
+
+* Reverted "SIGPIPE"-fix in 0.4.4 back to normal - I completely forgot that
+  we are signoring SIGPIPEs in the first place. This is what one gets when
+  (s)he runs programs in gdb even while not actually debugging...
+
+* Splitted miau.c to miau.c, server.c, client.c and remote.c
+
+* Moved some type definitions and variables to appropriate files
+
+* Fixes and updates in documentation and miaurc.in
+
+
+0.4.4 - "a new hope"
+
+* ERRONEUSNICKNAME no longer causes miau to quit - in fact, ERRONEUSNICKNAME
+  only causes changing nick while registering to the server.
+
+* miau should, again, send a QUIT-message to server before closing the socket.
+  However, if connection to server is believed lost, QUIT-message is not sent.
+
+* User's away-message is now preserved when miau drops from the server.
+
+* User's away-message is no longer removed when miau connects to the server.
+  Note that if awaymsg is set and no clients are connected to miau, miau will
+  set user away upon connect - and remove AWAY-message when user connects to
+  miau. In this case user will, again, see his/hers away-status unset.
+
+* Queued auto-op-actions are now dropped when target user quits.
+
+* USER-message during server registeration no longer sends out server's name.
+
+* Fixed an illegal memory access -bug in configuration-file parser.
+
+* Fixed JUMP-command (that was broken somewhere around 0.3.0).
+
+* miau no longer crashes at start-up if MIAUDIR doesn't exist
+
+* Since 0.4.0 miau didn't complain about missing miaurc. Fixed.
+
+* Fixes in documentation plus some spellcheck.
+
+
+0.4.3 - "I screwed up again, right ?"
+
+* JOIN-message is now accepted both with and without preceeding column (':').
+
+
+0.4.2 - "let the hunt begin"
+
+* Dropping the server didn't clear operator status. Fixed.
+
+* User never saw the actual message sent with ERROR. Fixed.
+
+* getting_nick -counter is now reset when connection to the server is
+  established.
+
+* Fixes in documentation.
+
+
+0.4.1
+
+* Fixed all-broken configuration file parser. I knew I should've tested
+  misc/miaurc - things like this shouldn't happen...
+
+* NICKINUSE-messages are no longer written in quicklog. Should make life
+  easier for irc-II -derivates.
+
+* Commented out #define DEBUG in miau.c
+
+
+0.4.0
+
+* First of all, this release was supposed to be 0.3.3, honest, but at the end,
+  I ended up doing way too much changes for this being 0.3.3.
+
+* miau now allows multiple clients at once.
+
+* Rewrote quicklog-thing to have "global" quicklog instead of channel-specific
+  log. This way we can log _everything_ (like QUITs etc.) and not only
+  channel related actions.
+
+* miau no longer takes commands while connecting a server - but instead, allows
+  user to configure timeout for connect(). This is done to get rid of alarm()
+  which probably messed up some read()s really bad and caused some weird
+  network-related problems.
+
+* User can now join and part channels while not connected to server. miau
+  will, respectively, add or remove channels to/from its internal list.
+
+* If miau is forced to leave from server, miau will now rejoin those channels.
+  If a channel can not be joined right now, miau will try again later.
+
+* miau now stores and traces changes of channel keys.
+
+* miau should now know about its operator status when arriving on an empty
+  channel.
+
+* Completely rewritten configuration-file parser. This means you have to
+  rewrite your config-file, sorry about that. This change made (compiled) miau
+  about 12 kB smaller.
+
+* New configuration options:
+    - List (of arbitrary length) of preferred nicks.
+    - Timeout before disconnecting from stoned server. (stonedtimeout)
+    - Timeout for new connect(). (connecttimeout)
+    - Delay between (server) connection attempts. (reconnectdelay)
+    - Default user mode.
+    - Global logfile postfix.
+    - Character to use when generating a nick.
+    - Maximum length for nick (for generated nicks).
+    - Maximum number of clients connected
+
+* When connection to the server is lost, channels are left to keep client happy.
+
+* Changed behaviour of permission-lists to ruleset. This allows writing more
+  flexible permissions.
+
+* Rewriting configuration file fixed an altnick-issue when changing a server.
+
+* Fixed a legacy bug related to client's receive buffer.
+
+* Logging can be defined to happen only when attached/detached.
+
+* More compile-time options: LOGGING and PRIVMSGLOG (plus, for debugging,
+  ENDUSERDEBUG and PINGSTAT).
+
+* Many structures use linked list instead of a table. table.[ch] is a pain to
+  use and will be removed completely in future.
+
+* Most lists are now flushed at rehash.
+
+* Wrote base for remote commands. Eww.
+	- cmdpasswd can now be hash, too.
+
+* Almost all memory is now freed at exit.
+
+* Some optimization.
+
+* dlink.[ch] renamed to llist.[ch].
+
+* Fixes in misc/miaurc.in + documentation.
+
+
+0.3.2
+
+* Replaced POSIX-threads with a signal. :-) This way debugging will be easier
+  _and_ miau will eat less memory (and appear in process list only once).
+  So far the only drawback have been a slightly increased latency between miau
+  and the user.
+
+* Mode-changes are now processed properly. This eliminates the problem of giving
+  operator status to people, who got the status with "MODE +oo nick0 nick1"
+  and the problem of miau trying to give operator status without have one. The
+  problem is, if miau enters an empty channel and gets operator status without
+  mode-change, it doesn't know it...
+  
+
+0.3.1
+
+* Fixed empty join -bug.
+
+* Made changing server more verbose.
+
+* Removed some forgotten debug-information.
+
+
+0.3.0
+
+* Big change: miau now uses additional POSIX-thread to listen the client
+  while connection to the server is maintained in the main process. This
+  allows user to interact with miau even when miau's not connected to the
+  server. Also, miau no longer disconnects the client when changing the
+  server etc.
+
+* Server-list is now flushed at rehash.
+
+* Removing current server from server-list no longer (did it ever ?-) makes
+  miau drop connection from current server.
+
+* Changed a few strings.
+
+* Code clean-up.
+
+* Decided to number miau as x.y.z instead of x.y(-pre#)
+
+
+0.2
+
+* miau should survive better even if pings to server are lost.
+
+* Cleaned up configure.ac
+
+* Fixed a definition bug (typo) in configure.ac
+
+* Traced most memory leaks (in numbers) to name_lookup.
+
+* miau should now eat _most_ error messages about ERR_NICKINUSE and
+  ERR_UNAVAILRESOURCE when trying to obtain the nick.
+
+* miau should no longer auto-ops people that are already op'd.
+	- checking mode-changes is not bullet-proof, only first mode change
+	  is noticed.
+
+* quicklog can be saved to messagelog when bouncer is to leave channel without
+  user's command. This is disabled by default, because it is not tested very
+  well. Use with caution.
+
+* Fixed a bug in server-handing code. (never over-optimize again. right... :-)
+
+* Wrote an extremly dirty hack to make miau compile Digital-UNIX. This _very_
+  dirty hack does (in certain situations) cause buffer overflows. :p
+
+* miau.c splitted in pieces:
+	- autoop.[ch]
+
+* Code clean-up.
+
+* Fixed an error in messages.h
+
+
+0.1
+
+* Fixed some memory issues inherited from muh (freed twice, zero byte
+  allocation).
+
+* Removed some useless (no, really) code
+
+* miau now generated better pseudo-random nicks if defined nick are in use.
+
+* Feature to cache channel logs to replay them on connection to miau.
+
+* setaway-option implemented.
+
+* Anti-idle interval can now be configured.
+
+* All-infamous auto-operate -feature implemented.
+
+* Default permissions set to deny.
+
+* Cat-art in ascii.c  :-)
+
+* Die-command can be given quit-reason or the default one can be used.
+
+* Added compile-time options CTCP_REPLIES, UPTIME, MKPASSWD, ASCII_ART,
+  RELEASENICK, QUICKLOG, AUTOOP and DCCBOUNCE.

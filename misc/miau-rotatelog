@@ -1,0 +1,10 @@
+#! /bin/sh
+#
+# See miau-check on how to put this in your crontab.
+# Make sure this corresponds with your miaurc-settings.
+#
+
+LOGDIR=$HOME/miau-logs
+
+mkdir -p `date +$LOGDIR/%b-%y/`
+kill -USR2 `cat $HOME/.miau/pid`

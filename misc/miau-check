@@ -1,0 +1,24 @@
+#! /bin/sh
+#
+# Put this line into your crontab (man crontab):
+# 0,10,20,30,40,50 * * * * /path/to/miau-check >/dev/null 2>&1
+#
+# This will check for a running miau every 10 minutes.
+#
+
+MIAUBIN=miau
+
+# You must modify this if you have installed miau locally:
+# MIAUBIN=$HOME/miau/miau
+
+cd $HOME/.miau/
+if test -r pid; then
+	PID=`cat pid`
+	if `kill -USR1 $PID >/dev/null 2>&1`; then
+		exit 0
+	fi
+	rm -f pid
+fi
+echo "Reloading miau..."
+$MIAUBIN
+exit 0
