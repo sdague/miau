@@ -4,13 +4,13 @@ Bugs:
   client to join this channel. The problem is that user is _not_ on this
   channel.
 
-- irc.c/irc_write_real() { send() } may lock up if rehashed while connecting
-
 - Fails silently if cannot write into ~/.miau/log
 	- stdout is redirected into file we cannot write to!
 
 
-Unconfirmed bugs:
+Unconfirmed bugs (and those I couldn't reproduce):
+
+- irc.c/irc_write_real() { send() } may lock up if rehashed while connecting
 
 - miau _may_ crash after rehash
 	- First time I found this after some network problems. I dropped from
