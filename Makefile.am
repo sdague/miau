@@ -9,7 +9,7 @@ version = @PACKAGE_VERSION@
 
 install-data-hook:
 	@if [ "x$(ac_local)" = "xyes" ]; then \
-		echo "----------------------------------------"; \
+		echo "========================================"; \
 		echo "miau is now installed to $(HOME)/miau/."; \
 		if [ -f "$(HOME)/.miau/miaurc.new" ]; then \
 			echo "New configuration file was installed as"; \
@@ -22,5 +22,5 @@ install-data-hook:
 		fi; \
 		echo "Once miaurc is all set up, you can launch miau by"; \
 		echo "running $(HOME)/miau/miau-check"; \
-		echo "----------------------------------------"; \
+		echo "========================================"; \
 	fi
