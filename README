@@ -21,18 +21,18 @@ DCC-requests also work, but there are a few things to consider:
     original target.
 
 
-miau 0.5.0 has been compiled succesfully on following platforms:
+miau has been compiled succesfully on following platforms:
+	- COMPAQ AlphaServer DS20 (Alpha EV67) running Linux 2.2.20
 	- Darwin 5.5 Darwin Kernel Version 5.5 Power Macintosh powerpc
 	- FreeBSD 4.9-PRERELEASE FreeBSD 4.9-PRERELEASE i386
 	- HP-UX B.10.20 A 9000/785 2013691475
-	- Linux 2.2.20 alpha unknown
-	- Linux 2.4.21-143-smp x86_64 unknown
-	- Linux 2.6.0-test11 i686 GNU/Linux
-	- NetBSD 1.6.1 NetBSD 1.6.1 (GENERIC) i386
-	- SunOS sparc-solaris1 5.9 Generic_112233-03 sun4u sparc SUNW,Ultra-60
 	- Intel StrongARM-1110 rev 8 (v4l) running
 		Linux 2.4.9-ac10-rmk2-np1-cerf2
-	- COMPAQ AlphaServer DS20 (Alpha EV67) running Linux 2.2.20
+	- Linux 2.2.20 alpha unknown
+	- Linux 2.4.21-143-smp x86_64 unknown
+	- Linux 2.6.3 i686 GNU/Linux
+	- NetBSD 1.6.1 NetBSD 1.6.1 (GENERIC) i386
+	- SunOS sparc-solaris1 5.9 Generic_112233-03 sun4u sparc SUNW,Ultra-60
 
 miau also compiles on following, but with some trouble:
 	- OSF1 V4.0 1229 alpha
