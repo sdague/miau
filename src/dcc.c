@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,8 @@
 #include "tools.h"
 #include "dcc.h"
 
+
+
 #ifdef DCCBOUNCE
 
 static int dcc_bouncedata(int a, int b, int *wrflag);
@@ -45,7 +47,7 @@ typedef struct {
 	int	connected;
 	time_t	created;
 
-	int			srcport;
+	unsigned int		srcport;
 	struct sockaddr_in	destaddr;
 } dccbounce;
 
@@ -69,12 +71,12 @@ typedef struct {
 
 
 int dcc_realinitiate(char *dest, dcccommand* dcc);
-int dcc_resume(char *dest, dcccommand* dcc);
+int dcc_resume(char *dest, dcccommand *dcc);
 
 
 typedef struct {
 	char	*cmd;
-	int	(*func) (char *dest, dcccommand* dcc);
+	int	(*func) (char *dest, dcccommand *dcc);
 } dcccall;
 
 
@@ -97,7 +99,7 @@ dcc_bouncedata(
 	static char	buffer[2048];
 	int		rret, wret;
 	
-	rret = recv(a, buffer, 2048, MSG_PEEK);
+	rret = (int) recv(a, buffer, 2048, MSG_PEEK);
 	if (rret <= 0) {
 		if (errno == EAGAIN) {
 			return 1;
@@ -121,7 +123,7 @@ dcc_bouncedata(
 	}
 	
 	return 1;
-}
+} /* int dcc_bouncedata(int, int, int *) */
 
 
 
@@ -138,7 +140,7 @@ dcc_addbounce(
 	printf("added bounce %d\n", dccindex);
 #endif
 	return dccindex;
-}
+} /* int dcc_addbounce() */
 
 
 
@@ -158,7 +160,7 @@ dcc_killbounce(
 #ifdef DEBUG
 	printf("killed bounce %d\n", dccindex);
 #endif
-}
+} /* void dcc_killbounce(int) */
 
 
 
@@ -172,16 +174,17 @@ dcc_timer(
 	t = time(NULL);
 
 	for (i = 0; i < dccs.amount; i++) {
-		if (! dccs.data[i]) {
+		if (dccs.data[i] == NULL) {
 			continue;
 		}
-		if (! dccs.data[i]->dest && dccs.data[i]->created + 80 < t) {
+		if (dccs.data[i]->dest == NULL
+				&& dccs.data[i]->created + 80 < t) {
 			error(DCC_TIMEOUT, i);
 			dcc_killbounce(i);
 			continue;
 		}
 	}
-}
+} /* void dcc_timer() */
 
 
 
@@ -194,7 +197,7 @@ dcc_socketsubscribe(
 	int	i;
 	
 	for (i = 0; i < dccs.amount; i++) {
-		if (! dccs.data[i]) {
+		if (dccs.data[i] == NULL) {
 			continue;
 		}
 
@@ -214,14 +217,14 @@ dcc_socketsubscribe(
 			FD_SET(dccs.data[i]->src, writeset);
 		}
 	}
-}
+} /* void dcc_socketsubscribe(fd_set *, fd_set *) */
 
 
 
 void
 dcc_socketcheck(
-		fd_set*	readset,
-		fd_set*	writeset
+		fd_set	*readset,
+		fd_set	*writeset
 	       )
 {
 	int	i;
@@ -231,7 +234,7 @@ dcc_socketcheck(
 	char	*host;
 
 	for (i = 0; i < dccs.amount; i++) {
-		if (! dccs.data[i]) {
+		if (dccs.data[i] == NULL) {
 			continue;
 		}
 
@@ -338,7 +341,7 @@ dcc_socketcheck(
 			}
 		}
 	} /* for */
-}
+} /* void dcc_socketcheck(fd_set *, fd_set *) */
 
 
 
@@ -369,7 +372,7 @@ dcc_initiate(
 	
 #define DCCINITNULLRETURN { xfree(dparam); return NULL; }
 
-	while ((chop = strchr(chop, ' ')) && *(++chop)) {
+	while ((chop = strchr(chop, ' ')) != NULL && *(++chop) != '\0') {
 		switch (dcc.argc) {
 			case 0:
 				xstrncpy(dcc.type, chop, 15);
@@ -408,7 +411,7 @@ dcc_initiate(
 
 	for (i = 0; dcccalls[i].cmd; i++) {
 		if (xstrcmp(dcccalls[i].cmd, dcc.type) == 0) {
-			if (! dcccalls[i].func(param, &dcc)) {
+			if (dcccalls[i].func(param, &dcc) == 0) {
 				DCCINITNULLRETURN;
 			}
 			break;
@@ -418,13 +421,14 @@ dcc_initiate(
 	xfree(dparam);
 	
 	return param;;
-}
+} /* char *dcc_initiate(char *, int) */
 
 
 
-int dcc_realinitiate(
+int
+dcc_realinitiate(
 		char		*dest,
-		dcccommand*	dcc
+		dcccommand	*dcc
 		)
 {
 	unsigned int	address, port;
@@ -436,11 +440,11 @@ int dcc_realinitiate(
 	address = htonl(dcc->args[0]);
 	port = dcc->args[1];
 
-	if (! dcc->fromclient && cfg.dccbindhost) {
+	if (dcc->fromclient == 0 && cfg.dccbindhost != NULL) {
 		host = name_lookup(cfg.dccbindhost);
 	}
 	else {
-		if (cfg.bind) {
+		if (cfg.bind != NULL) {
 			host = name_lookup(cfg.bind);
 		}
 		else {
@@ -505,22 +509,23 @@ int dcc_realinitiate(
 			dccindex);
 
 	return 1;
-}
+} /* int dcc_realinitiate(char *, dcccommand *) */
 
 
 
-int dcc_resume(
+int
+dcc_resume(
 		char		*dest,
 		dcccommand	*dcc
-	      )
+	  )
 {
 	int	i;
 	int	resume;
 
-	resume = (xstrcmp(dcc->type, "RESUME") == 0);
+	resume = xstrcmp(dcc->type, "RESUME") == 0;
 
 	for (i = 0; i < dccs.amount; i++) {
-		if (! dccs.data[i]) {
+		if (dccs.data[i] == NULL) {
 			continue;
 		}
 
@@ -548,7 +553,8 @@ int dcc_resume(
 	}
 	
 	return 0;
-}
+} /* dcc_resume(char *, dcccommand *) */
+
 
 
 #endif /* DCCBOUNCE */
