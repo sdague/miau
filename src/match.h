@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 1998-2000 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -14,9 +14,15 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MATCH_H
-#define _MATCH_H
+#ifndef MATCH_H_
+#define MATCH_H_
+
+
 
 int match(const char *string, const char *pattern);
+int match_replace(const char *string, const char *pattern, const char *foo,
+		const int foo_len, const char *replace);
 
-#endif /* _MATCH_H */
+
+
+#endif /* ifndef MATCH_H_ */
