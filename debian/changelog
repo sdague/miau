@@ -1,3 +1,11 @@
+miau (0.5.2) unstable; urgency=low
+
+  * New release.
+
+  * --enable-debug by default.
+
+ -- Tommi Saviranta <wind@kikai.katei>  Thu,  1 Apr 2004 01:10:49 +0300
+
 miau (0.5.1) unstable; urgency=low
 
   * New release.
