@@ -34,7 +34,7 @@ llist_list		qlog;
 
 
 #ifdef QLOGSTAMP
-void add_timestamp(qlogentry *);
+void qlog_add_timestamp(qlogentry *);
 #endif /* QLOGSTAMP */
 
 
@@ -84,7 +84,7 @@ qlog_replay(
 		if (client != NULL) {
 #ifdef QLOGSTAMP
 			if (cfg.timestamp != TS_NONE) {
-				add_timestamp(data);
+				qlog_add_timestamp(data);
 			}
 #endif /* QLOGSTAMP */
 			irc_write(client, "%s", data->text);
@@ -100,22 +100,31 @@ qlog_replay(
 
 
 #ifdef QLOGSTAMP
+/*
+ * Add timestamp in qlogentry.
+ */
 void
-add_timestamp(
+qlog_add_timestamp(
 		qlogentry	*data
-	     )
+		)
 {
 	int		i = -1;
-	int		l;
+	int		len;
 	char		*p;
+/* TSLEN: "[HH:MM:SS] \0" == 12 */
 #define TSLEN	12
 	static char	temp[TSLEN];
 	
-	p = strchr(data->text, (int) ' ');
+	p = nextword(data->text);
+	/*
+	 * If we can't handle it - ignore it. We give up in "if (! (i == ...".
+	 * What we can't see, can't hurt us, right? :-)
+	 */
 	if (p != NULL) {
-		i = pos(p + 1, ' ');
-		if (i < TSLEN) {
-			strncpy(temp, p + 1, i);
+		/* Next find out what command it was. */
+		i = pos(p, ' ');
+		if (i < TSLEN - 1) {
+			strncpy(temp, p, i);
 			temp[i] = '\0';
 			i = command_find(temp);
 		}
@@ -133,7 +142,7 @@ add_timestamp(
 
 	/* Get place to insert timestamp. */
 	if (cfg.timestamp == TS_BEGINNING) {
-		p = strchr(p + 1, (int) ':');
+		p = strchr(p, (int) ':');
 		if (p != NULL) {
 			if (p[1] == '\0') {
 				p = NULL;
@@ -145,12 +154,12 @@ add_timestamp(
 		if (p == NULL) {
 			return;
 		}
+		p++;
 		strftime(temp, TSLEN, "[%H:%M:%S] ",
 				localtime(&data->timestamp));
-		p++;
 	} else if (cfg.timestamp == TS_END) {
 		char *t;
-		p = strchr(p + 1, ':');
+		p = strchr(p, (int) ':');
 		if (p == NULL) {
 			return;
 		}
@@ -165,13 +174,14 @@ add_timestamp(
 	}
 	
 	/* Insert timestamp. */
-	i = p - data->text;
-	l = strlen(data->text);
-	data->text = xrealloc(data->text, l + TSLEN); // one extra for '\0'
+	i = (int) (p - data->text);
+	len = strlen(data->text);
+	 /* TSLEN already has '\0' counted in. */
+	data->text = xrealloc(data->text, len + TSLEN);
 	p = data->text + i;
-	memmove(p + TSLEN - 1, p, l - i);
-	strncpy(p, temp, TSLEN - 1);
-} /* void add_timestamp(qlogentry *) */
+	memmove(p + TSLEN - 1, p, len - (int) i + 1); /* Move '\0' as well. */
+	strncpy(p, temp, TSLEN - 1); /* Don't copy '\0'. */
+} /* void qlog_add_timestamp(qlogentry *) */
 #endif /* QLOGSTAMP */
 
 
