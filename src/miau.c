@@ -351,6 +351,7 @@ static void
 sig_term(
 	)
 {
+	server_drop(MIAU_SIGTERM);
 	error(MIAU_SIGTERM);
 	exit(EXIT_SUCCESS);
 } /* static void sig_term() */
