@@ -150,7 +150,7 @@ xmalloc(
 		size_t	size
        )
 {
-	void	*ret = malloc(size);
+	void *ret = malloc(size);
 	if (ret == NULL) {
 		error(ERR_MEMORY);
 		escape();

@@ -760,16 +760,15 @@ server_reply(
 
 			break;
 
-		/* Still shaking hands... */
+		/* More registeration-time replies... */
 		case RPL_YOURHOST:
-		case RPL_SERVERIS:
-		case RPL_SERVERVER:
-			/* your-host, your-server-is, server-version replies */
+		case RPL_CREATED:
+		case RPL_MYINFO:
 			xfree(i_server.greeting[command - 1]);
 			i_server.greeting[command - 1] = strdup(param2);
 			break;
 		
-		/* Talking about weather. */
+		/* Supported features */
 		case RPL_ISUPPORT:
 			for (n = 0; n < RPL_ISUPPORT_LEN; n++) {
 				if (i_server.isupport[n] == NULL) {

@@ -89,16 +89,21 @@ void irc_notice(connection_type *connection, char nickname[],
 		char *format, ...);
 
 
-#define RPL_SERVERVER_LEN	4
+#define RPL_MYINFO_LEN		4
 #define RPL_ISUPPORT_LEN	3
 
-/* v IRC-REPLY-CODES */
+/* Numeric command responses */
 
 #define RPL_WELCOME		1
 #define RPL_YOURHOST		2
-#define RPL_SERVERIS		3
-#define RPL_SERVERVER		4
+#define RPL_CREATED		3
+#define RPL_MYINFO		4
+/*
+ * 005: http://www.irc.org/tech_docs/draft-brocklesby-irc-isupport-03.txt
+ * This implementation assumes RPL_BOUNCE has been changed to 010.
+ */
 #define RPL_ISUPPORT		5
+#define RPL_BOUNCE		10
 
 #define RPL_MOTDSTART		375
 #define RPL_MOTD		372
@@ -126,7 +131,7 @@ void irc_notice(connection_type *connection, char nickname[],
 
 #define ERR_ERRONEUSNICKNAME	432
 #define ERR_NICKNAMEINUSE	433
-#define ERR_NICKUNAVAILABLE	437	/* what is this ? :-) */
+#define ERR_NICKUNAVAILABLE	437	/* what is this?-) */
 #define ERR_UNAVAILRESOURCE	437
 #define ERR_NOPERMFORHOST	463
 #define ERR_YOUREBANNEDCREEP	465

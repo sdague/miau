@@ -236,8 +236,8 @@ escape(
 
 	/* Free server-info. */
 	xfree(i_server.realname);
+	for (n = 0; n < RPL_MYINFO_LEN; n++) { xfree(i_server.greeting[n]); }
 	for (n = 0; n < RPL_ISUPPORT_LEN; n++) { xfree(i_server.isupport[n]); }
-	for (n = 0; n < RPL_SERVERVER_LEN; n++) { xfree(i_server.greeting[n]); }
 
 	/* Free configuration parameters. */
 	xfree(cfg.home);
