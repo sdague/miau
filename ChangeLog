@@ -1,3 +1,13 @@
+0.5.2 - "fluffy little fellow"
+
+* Implemented timestamping for quicklog events (QLOGSTAMP).
+
+* "getnick" option (in miaurc) now takes "never", "detached", "attached" and
+  "always" as an argument.
+
+* Some parts of parser.c rewritten.
+
+
 0.5.1 - "y2k-compatible"
 
 * Quitting miau resulted in deadlock when logging was compiled in but not

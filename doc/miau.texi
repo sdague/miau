@@ -270,19 +270,20 @@ empty, default values of awaymsg and leavemsg will be used, otherwise most
 recent quit-message overrides values in miaurc.
 
 @item @command{getnick = "selection"}
-miau can try to reclaim your primary nick when it is lost. This option has four
-possible settings:
+miau can try to reclaim your primary nick when it is lost. This option may be
+one of the following:
 @table @asis
-@item @command{0} miau will not try to get your nick back
-@item @command{1} miau will try to get your nick when no clients are attached
-@item @command{2} miau will try to get your nick when there are one or more
-clients attached
-@item @command{3} miau will try to get your nick 
+@item @command{never} miau will not try to get your nick back
+@item @command{detached} miau will try to get your nick when no clients are
+attached
+@item @command{attached} miau will try to get your nick when there are one or
+more clients attached
+@item @command{always} miau will try to get your nick 
 @end table
-Note: do @emph{not} use options 2 or 3 with clients (like irc-II EPIC) that
-automatically change your nick when they receive @command{ERR_NICKINUSE} from
-the server - you might end up chaning your nick until server drops your
-connection due excess (nick) flood.
+Note: do @emph{not} use options @command{attached} and @command{always} with
+clients (like irc-II EPIC) that automatically change your nick when they
+receive @command{ERR_NICKINUSE} from the server - you might end up chaning your
+nick until server drops your connection due excess (nick) flood.
 
 @item @command{getnickinterval = "seconds"}
 Time between tries (in seconds) to obtain currently (possibly) lost primary
@@ -300,6 +301,18 @@ is enabled, they are moved to messagelog instead of simply dropping of from
 quicklog.
 
 This option might not be compiled in.
+
+@item @command{timestamp = "mode"}
+Location of timestamp in quicklog.
+
+Available modes:
+@table @asis
+@item @command{none} No timestamp
+@item @command{beginning} Timestamp in beginning of line
+@item @command{end} Timestamp at end of line
+@end table
+
+This options might not be compiled in.
 
 @item @command{flushqlog = "state"}
 If set to @command{true}, quicklog will be written only when no clients are

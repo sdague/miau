@@ -1190,7 +1190,7 @@ server_reply(
 				gettimeofday(&now, &tz);
 				/*
 				 * strftime("%s") can't be used (not in ISO C),
-				 * I hope this works as a replacement,
+				 * This should work as a replacement,
 				 */
 				sprintf(timebuf, "%d", (int) now.tv_sec
 						- tz.tz_minuteswest * 60);

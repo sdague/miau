@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -71,6 +71,8 @@
 #define HAS_LOG(channel, cat)	\
 			(((channel)->log != NULL) && \
 				(((channel)->log->type & cat) == cat))
+
+
 
 extern llist_list log_list;
 extern int global_logtype;

@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -102,7 +102,7 @@ log_add_rule(
 			logptr->filename = strdup(file);
 		}
 	}
-} 
+} /* void log_add_rule(char *, char *, int) */
 
 
 
@@ -121,7 +121,7 @@ log_del_rules(
 		llist_delete(node, &log_list);
 	LLIST_WALK_F;
 
-}
+} /* void log_del_rules() */
 
 
 
@@ -186,7 +186,7 @@ log_open(
 	
 	/* ...and start logging. */
 	log_write_entry(channel, LOGM_LOGOPEN, log_get_timestamp());
-}
+} /* void log_open(channel_type *) */
 
 
 
@@ -199,7 +199,8 @@ log_close(
        )
 {
 	if (channel->log != NULL) {
-		log_write_entry(channel, LOGM_LOGCLOSE, log_get_timestamp());
+		log_write_entry(channel, LOGM_LOGCLOSE,
+				log_get_timestamp());
 		fclose(channel->log->file);
 		
 		FREE(channel->log);
@@ -209,7 +210,7 @@ log_close(
 		enduserdebug("trying to log_close channel with no log");
 	}
 #endif /* ENDUSERDEBUG */
-}
+} /* void log_close(channel_type *) */
 
 
 
@@ -245,7 +246,7 @@ log_write_entry(
 
 	fprintf(chptr->log->file, "%s", buffer);
 	fflush(chptr->log->file);
-}
+} /* void log_write_entry(channel_type *, char *, ...) */
 
 
 
@@ -285,7 +286,8 @@ log_write_entry_all(
 			log_write_entry(data, "%s", buffer);
 		}
 	LLIST_WALK_F;
-}
+} /* void log_write_entry_all(int, char *, ...) */
+
 
 
 #endif /* LOGGING */
@@ -293,8 +295,8 @@ log_write_entry_all(
 
 
 /*
- * creates a timestamp in the form:
- *    Sun Jan 02 11:53:33 2002
+ * Creates a timestamp like:
+ *	Sun Jan 02 11:53:33 2002
  */
 char *
 log_get_timestamp(
@@ -309,4 +311,4 @@ log_get_timestamp(
 	strftime(stamp, 99, "%a %b %d %H:%M:%S %Y", form);
 	
 	return stamp;
-}
+} /* char *log_get_timestamp() */

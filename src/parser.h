@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,15 +38,8 @@
 
 
 
-
-int parse_int(const char *data, const int min);
-int parse_boolean(const char *data);
-char *assign_param(char *target, char *source);
 void add_server(const char *name, int port, const char *pass, int timeout);
 int parse_cfg(const char *cfgfile);
-void parse_error();
-char *trim(char *data, const int mode);
-char *trimquotes(char *data);
 
 
 

@@ -174,6 +174,9 @@ typedef struct {
 typedef struct {
 #ifdef QUICKLOG
 	int	qloglength;
+#  ifdef QLOGSTAMP
+	int	timestamp;	/* Timestamp type in quicklog. */
+#  endif /* QLOGSTAMP */
 	int	flushqlog;	/* Flush quicklog on fakeconnect() ? */
 #endif /* QUICKLOG */
 #ifdef DCCBOUNCE

@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,7 @@ _xstrcmp(
 		const char	*s1,
 		const char	*s2
 		DEBUG_ADDPARMS
-	    )
+	)
 {
 	if (s1 != NULL && s2 != NULL) {
 		return strcmp(s1, s2);
@@ -43,7 +43,7 @@ _xstrcmp(
 #endif
 		return 1;
 	}
-}
+} /* int _xstrcmp(const char *, const char * DEBUG_ADDPARMS) */
 
 
 
@@ -51,9 +51,9 @@ int
 _xstrncmp(
 		const char	*s1,
 		const char	*s2,
-		size_t n
+		size_t		n
 		DEBUG_ADDPARMS
-	     )
+	 )
 {
 	if (s1 != NULL && s2 != NULL) {
 		return strncmp(s1, s2, n);
@@ -63,7 +63,7 @@ _xstrncmp(
 #endif
 		return 1;
 	}
-}
+} /* int _xstrncmp(const char *, const char *, size_t n DEBUG_ADDPARMS) */
 
 
 
@@ -72,7 +72,7 @@ _xstrcasecmp(
 		const char	*s1,
 		const char	*s2
 		DEBUG_ADDPARMS
-		)
+	    )
 {
 	if (s1 != NULL && s2 != NULL) {
 		return strcasecmp(s1, s2);
@@ -82,7 +82,7 @@ _xstrcasecmp(
 #endif
 		return 1;
 	}
-}
+} /* int _xstrcasecmp(const char *, const char * DEBUG_ADDPARMS) */
 
 
 
@@ -92,7 +92,7 @@ _xstrncasecmp(
 		const char	*s2,
 		size_t		n
 		DEBUG_ADDPARMS
-		)
+	     )
 {
 	if (s1 != NULL && s2 != NULL) {
 		return strncasecmp(s1, s2, n);
@@ -102,7 +102,7 @@ _xstrncasecmp(
 #endif
 		return 1;
 	}
-}
+} /* int _xstrncasecmp(const char *, const char *, size_t DEBUG_ADDPARMS) */
 
 
 
@@ -111,7 +111,7 @@ _xstrcpy(
 		char		*dest,
 		const char	*src
 		DEBUG_ADDPARMS
-	      )
+	)
 {
 	if (dest != NULL && src != NULL) {
 		return strcpy(dest, src);
@@ -121,7 +121,7 @@ _xstrcpy(
 #endif
 		return 0;
 	}
-}
+} /* char *_xstrcpy(char *, const char * DEBUG_ADDPARMS) */
 
 
 
@@ -131,7 +131,7 @@ _xstrncpy(
 		const char	*src,
 		size_t		n
 		DEBUG_ADDPARMS
-	       )
+	 )
 {
 	if (dest != NULL && src != NULL) {
 		return strncpy(dest, src, n);
@@ -141,14 +141,14 @@ _xstrncpy(
 #endif
 		return 0;
 	}
-}
+} /* char *_xstrncpy(char *, const char *, size_t n DEBUG_ADDPARMS) */
 
 
 
 void *
 xmalloc(
 		size_t	size
-	     )
+       )
 {
 	void	*ret = malloc(size);
 	if (ret == NULL) {
@@ -156,7 +156,7 @@ xmalloc(
 		escape();
 	}	
 	return ret;
-}
+} /* void *xmalloc(size_t) */
 
 
 
@@ -164,7 +164,7 @@ void *
 xcalloc(
 		size_t	nmemb,
 		size_t	size
-	     )
+       )
 {
 	void *ret = calloc(nmemb, size);
 	if (ret == NULL) {
@@ -172,34 +172,19 @@ xcalloc(
 		escape();
 	}
 	return ret;
-}
+} /* void *xcalloc(size_t, size_t) */
 
 
 
 void
 xfree(
 		void	*ptr
-	  )
+     )
 {
 	if (ptr != NULL) {
 		free(ptr);
 	}
-}
-
-
-
-/*
-void
-xnullfree(
-		void	**ptr
-	      )
-{
-	if (*ptr != NULL) {
-		free(*ptr);
-	}
-	*ptr = NULL;
-}
-*/
+} /* void xfree(void *) */
 
 
 
@@ -207,7 +192,7 @@ void *
 xrealloc(
 		void	*ptr,
 		size_t	size
-	      )
+	)
 {
 	void *ret = realloc(ptr, size);
 	if (ret == NULL && size > 0) {
@@ -215,7 +200,7 @@ xrealloc(
 		escape();
 	}
 	return ret;
-}
+} /* void *xrealloc(void *, size_t) */
 
 
 
@@ -238,5 +223,5 @@ enduserdebug(
 				log_get_timestamp(), buf0);
 		irc_mwrite(&c_clients, "%s", buf1);
 	}
-}
+} /* void enduserdebug(char *, ...) */
 #endif /* ENDUSERDEBUG */

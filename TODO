@@ -7,10 +7,6 @@ TODO:
 - supress echoed post-JOIN messages that certain clients are not interested
   about
 
-- option to have quicklog with timestamp
-	- we would have to make miau "say" those logged lines...
-	- have this as an compile-time option ?
-
 - autojoin channels only if not dropping from server too ofter
 
 - check other functions related to tables/ignore, there might be other

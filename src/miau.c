@@ -83,32 +83,35 @@ void dump_status();
 status_type 		status;
 cfg_type cfg = {
 #ifdef QUICKLOG
-	30,	/* qloglength */
-	1,	/* flushqlog */
+	30,	/* qloglength: 30 minutes */
+#  ifdef QLOGSTAMP
+	0,	/* timestamp: no timestamp */
+#  endif /* QLOGSTAMP */
+	1,	/* flushqlog: flush */
 #endif /* QUICKLOG */
 #ifdef DCCBOUNCE
-	0,	/* dccbounce */
+	0,	/* dccbounce: no */
 #endif /* DCCBOUNCE */
 #ifdef AUTOMODE
-	30,	/* automodedelay */
+	30,	/* automodedelay: 30 seconds */
 #endif /* AUTOMODE */
 #ifdef PRIVMSGLOG
 	1,
 #endif /* PRIVMSGLOG */
-	0,	/* listenport */
-	1,	/* getnick */
-	60,	/* getnickinterval */
-	0,	/* antiidle */
-	1,	/* nevergiveup */
-	0,	/* jumprestricted */
-	90,	/* stonedtimeout */
-	1,	/* rejoin */
-	30,	/* connecttimeout */
-	10,	/* reconnectdelay */
-	0,	/* leave */
-	9,	/* maxnicklen */
-	3,	/* maxclients */
-	1,	/* usequitmsg */
+	0,	/* listenport: 0 */
+	1,	/* getnick: disconnected */
+	60,	/* getnickinterval: 60 seconds */
+	0,	/* antiidle: no */
+	1,	/* nevergiveup: yes, never give up */
+	0,	/* jumprestricted: no */
+	90,	/* stonedtimeout: 90 seconds */
+	1,	/* rejoin: yes */
+	30,	/* connecttimeout: 30 seconds */
+	10,	/* reconnectdelay: 10 seconds */
+	0,	/* leave: no */
+	9,	/* maxnicklen: 9 chars */
+	3,	/* maxclients: 3 clients */
+	1,	/* usequitmsg: yes */
 
 	DEFAULT_NICKFILL,	/* nickfillchar */
 	
@@ -421,6 +424,9 @@ dump_status(
 	dump_string("config:");
 #ifdef QUICKLOG
 	dump_status_int("qloglength", cfg.qloglength);
+#  ifdef QLOGSTAMP
+	dump_status_int("timestamp", cfg.timestamp);
+#  endif /* QLOGSTAMP */
 	dump_status_int("flushqlog", cfg.flushqlog);
 #endif /* QUICKLOG */
 #ifdef DCCBOUNCE
@@ -1126,6 +1132,7 @@ check_timers(
 	 */
 	if (! status.got_nick && cfg.getnick != 0 && i_server.connected == 2
 			&& msgtimer > 0) {
+		/* FIXME: don't trust bits of cfg.getnick anymore */
 		if (proceed_timer(&timers.nickname, 0,
 					cfg.getnickinterval) == 2) {
 			if ((c_clients.connected <= 0 && (cfg.getnick & 1)) ||
@@ -2278,6 +2285,23 @@ main(
 #ifdef MKPASSWD
 	char	salt[3];
 #endif
+#ifdef XXX
+// remove me
+	qlogentry	*t = (qlogentry *) malloc(sizeof(qlogentry));
+command_setup();
+for (cfg.timestamp = 1; cfg.timestamp < 3; cfg.timestamp++) {
+printf("--- %d\n", cfg.timestamp);
+	time(&t->timestamp);
+	t->text = strdup(":wind!~wind@127.0.0.1 PRIVMSG #miau :taihteby");
+	add_timestamp(t);
+	t->text = strdup(":wind!~wind@127.0.0.1 PRIVMSG #miau :omg lol stfu n00b");
+	add_timestamp(t);
+	t->text = strdup(":wind!~wind@127.0.0.1 PRIVMSG #miau :\1ACTION :: xiits ::\1");
+	add_timestamp(t);
+printf("\n");
+}
+exit(0);
+#endif /* XXX */
 
 	fprintf(stdout, "%s%s", BANNER1, BANNER2);
 

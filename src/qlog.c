@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 #include "qlog.h"
 
 #include "miau.h"
+#include "commands.h"
 #include "channels.h"
 #include "tools.h"
 #include "llist.h"
@@ -29,6 +30,12 @@
 #ifdef QUICKLOG
 extern clientlist_type	c_clients;
 llist_list		qlog;
+
+
+
+#ifdef QLOGSTAMP
+void add_timestamp(qlogentry *);
+#endif /* QLOGSTAMP */
 
 
 
@@ -70,12 +77,16 @@ qlog_replay(
 		const int	keep
 	   )
 {
-	/* First remove possible outdated lines. */
 	qlog_drop_old();
 
 	/* Walk thru quicklog. */
 	LLIST_WALK_H(qlog.head, qlogentry *);
 		if (client != NULL) {
+#ifdef QLOGSTAMP
+			if (cfg.timestamp != TS_NONE) {
+				add_timestamp(data);
+			}
+#endif /* QLOGSTAMP */
 			irc_write(client, "%s", data->text);
 		}
 		if (! keep) {
@@ -85,6 +96,83 @@ qlog_replay(
 		}
 	LLIST_WALK_F;
 } /* void qlog_replay(connection_type *, const int) */
+
+
+
+#ifdef QLOGSTAMP
+void
+add_timestamp(
+		qlogentry	*data
+	     )
+{
+	int		i = -1;
+	int		l;
+	char		*p;
+#define TSLEN	12
+	static char	temp[TSLEN];
+	
+	p = strchr(data->text, (int) ' ');
+	if (p != NULL) {
+		i = pos(p + 1, ' ');
+		if (i < TSLEN) {
+			strncpy(temp, p + 1, i);
+			temp[i] = '\0';
+			i = command_find(temp);
+		}
+	}
+	
+	/* Is this something we can handle? */
+	if (! (i == CMD_PRIVMSG
+				|| i == CMD_NOTICE
+				|| i == CMD_QUIT
+				|| i == CMD_PART
+				|| i == CMD_KICK
+				|| i == CMD_KILL)) {
+		return;
+	}
+
+	/* Get place to insert timestamp. */
+	if (cfg.timestamp == TS_BEGINNING) {
+		p = strchr(p + 1, (int) ':');
+		if (p != NULL) {
+			if (p[1] == '\0') {
+				p = NULL;
+			} else if (p[1] == '\1') {
+				p = strchr(p, (int) ' ');
+			}
+		}
+		/* Confused? Don't break already broken things any further. */
+		if (p == NULL) {
+			return;
+		}
+		strftime(temp, TSLEN, "[%H:%M:%S] ",
+				localtime(&data->timestamp));
+		p++;
+	} else if (cfg.timestamp == TS_END) {
+		char *t;
+		p = strchr(p + 1, ':');
+		if (p == NULL) {
+			return;
+		}
+		t = strrchr(p + 1, '\1');
+		if (t != NULL) {
+			p = t;
+		} else {
+			p = data->text + strlen(data->text);
+		}
+		strftime(temp, TSLEN, " [%H:%M:%S]",
+				localtime(&data->timestamp));
+	}
+	
+	/* Insert timestamp. */
+	i = p - data->text;
+	l = strlen(data->text);
+	data->text = xrealloc(data->text, l + TSLEN); // one extra for '\0'
+	p = data->text + i;
+	memmove(p + TSLEN - 1, p, l - i);
+	strncpy(p, temp, TSLEN - 1);
+} /* void add_timestamp(qlogentry *) */
+#endif /* QLOGSTAMP */
 
 
 

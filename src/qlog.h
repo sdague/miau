@@ -31,7 +31,15 @@
 
 #ifdef QUICKLOG
 
+#  ifdef QLOGSTAMP 
+#define TS_TYPES	"nbe"
+#define TS_NONE		0
+#define TS_BEGINNING	1
+#define TS_END		2
+#  endif /* QLOGSTAMP */
+
 llist_list	qlog;
+
 
 
 /* Entry per line in quicklog. */

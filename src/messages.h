@@ -197,7 +197,7 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
  * Client-side -messages.
  */
 #ifdef CTCPREPLIES
-#define VERSIONREPLY "\1VERSION miau v"VERSION" ("MIAU_URL")\1"
+#define VERSIONREPLY "\1VERSION miau v"VERSION" \""VERSIONNAME"\" -- "MIAU_URL"\1"
 #define TIMEREPLY "\1TIME %s\1"
 #define USERINFOREPLY "\1USERINFO none of your business\1"
 #define CLIENTINFOREPLY "\1CLIENTINFO none of your business\1"

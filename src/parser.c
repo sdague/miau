@@ -20,12 +20,16 @@
 #include "perm.h"
 #include "tools.h"
 #include "channels.h"
+#ifdef QUICKLOG
+#  include "qlog.h"
+#endif /* QUICKLOG */
 #ifdef LOGGING
 #  include "log.h"
 #endif /* LOGGING */
 #ifdef ONCONNECT
 #  include "onconnect.h"
 #endif /* ONCONNECT */
+
 
 
 static int	virgin = 1;	/* CFG_CHANNELS has effect only at start up. */
@@ -35,23 +39,37 @@ int	listid = CFG_NOLIST;	/* List ID. */
 
 
 
+/* Prototypes. */
+void assign_int(int *target, const char *data, const int min);
+void assign_boolean(int *target, const char *data);
+void assign_param(char **target, char *source);
+void parse_error();
+char *trim(char *data, const int mode);
+char *trimquotes(char *data);
+void assign_option(int *target, const char *, char *);
+int parse_option(const char *, char *);
+
+
+
 /*
- * Return pointer to new value.
+ * Writes "source" over "target".
  *
- * New value is trimmed out of extra spaces.
+ * Old data if freed and new data is trimmed.
  */
-char *
+void
 assign_param(
-		char	*target,
+		char	**target,
 		char	*source
 	    )
 {
-	if (target != NULL) {
-		free(target);
-	}
+	xfree(*target);
 	source = trim(source, SPACES);
-	return (strlen(source) != 0 ? strdup(source) : NULL);
-} /* char *assign_param(char *, char *) */
+	if (source[0] == '\0') {
+		*target = NULL;
+	} else {
+		*target = strdup(source);
+	}
+} /* void assign_param(char **, char *) */
 
 
 
@@ -127,7 +145,7 @@ trim(
 	int	inside = 0;
 	char	*ptr;
 	
-	/* Skip whitespaces. */
+	/* Skip whitespaces (minus linefeeds, they cannot exist). */
 	while (*data == ' ' || *data == '\t') { data++; }
 
 	if (mode == LINE) {
@@ -158,59 +176,107 @@ trim(
 
 
 /*
- * Get an integer out of data.
- *
- * Return parsed integer.
+ * Get an integer out of data. Set it over target.
  */
-int
-parse_int(
+void
+assign_int(
+		int		*target,
 		const char	*data,
 		const int	min
-	 )
+	  )
 {
-	int	n;
+	int n = min; /* Default to min. */
 
 	if (data != NULL) {
-		n = atoi(data);
-	
-		/*
-		 * We could do something like this, but we really don't care
-		 * about errors this time... Lets just use atoi().
-		 *
 		n = strtol(data, (char **) NULL, 10);
 		if (errno == ERANGE) {
-			report("bad value");
+			parse_error();
+			return;
 		}
-		 */
 		
 		if (n < min) { n = min; }
-	} else {
-		n = min;
 	}
 
-	return n;
-} /* int parse_int(const char *, const int) */
+	*target = n;
+} /* void assign_int(int *, const char *, const int) */
 
 
 
 /*
  * Parse boolean value out of data.
  *
- * Return 0 or 1 if 'data' represented false or true respectively.
- *
- * Strings beginning with 'y', 't' and '1' are concidered as 'true' and the
- * rest, 'false'.
+ * "true", "yes", "on", and "1" gives 1,
+ * "false, "no", off", and "0" gives 0,
+ * everything else prints an error.
  */
-int
-parse_boolean(
+void
+assign_boolean(
+		int		*target,
 		const char	*data
 	     )
 {
-	if (*data == 'y' || *data == 't' || *data == '1') {
-		return 1;
+	if (parse_option(data, "true\0yes\0on\0""1\0\0") != -1) {
+		*target = 1;
+	} else if (parse_option(data, "false\0no\0off\0""0\0\0") != -1) {
+		*target = 0;
+	} else {
+		parse_error();
 	}
-	return 0;
-} /* int parse_boolean(const char *) */
+} /* void assign_boolean(int *, const char *) */
+
+
+
+/*
+ * Assign option. See parse_option(...).
+ *
+ * This prints error if val was not found.
+ */
+void
+assign_option(
+		int		*target,
+		const char	*val,
+		char		*options
+	     )
+{
+	int t = parse_option(val, options);
+	if (t == -1) {
+		parse_error();
+	} else {
+		*target = t;
+	}
+} /* void assign_option(int *, const char*, char *) */
+
+
+
+/*
+ * Parse option.
+ *
+ * Find "val" in "options", which is null-separated, (double) null-terminated
+ * list of possible options. Index of word in "options" will define returned
+ * value.
+ *
+ * Returns -1 if "val" is not found.
+ */
+int
+parse_option(
+		const char	*val,
+		char		*options
+	    )
+{
+	int i = 0;
+	/* Bad input means error in config. */
+	if (val == NULL || val[0] == '\0') {
+		return -1;
+	}
+	while (*options != '\0') {
+		if (xstrcmp(val, options) == 0) {
+			return i;
+		}
+		options = strchr(options, (int) '\0') + 1;
+		i++;
+	}
+	return -1;
+} /* int parse_option(const char*, char *) */
 
 
 
@@ -274,81 +340,91 @@ parse_param(
 	val = trimquotes(val);
 
 	if (xstrcmp(data, "realname") == 0) {		/* realname */
-		cfg.realname = assign_param(cfg.realname, val);
+		assign_param(&cfg.realname, val);
 	} else if (xstrcmp(data, "username") == 0) {	/* username */
-		cfg.username = assign_param(cfg.username, val);
+		assign_param(&cfg.username, val);
 #ifdef _NEED_CMDPASSWD
 	} else if (xstrcmp(data, "cmdpasswd") == 0) {	/* cmdpasswd */
-		cfg.cmdpasswd = assign_param(cfg.cmdpasswd, val);
+		assign_param(&cfg.cmdpasswd, val);
 #endif /* _NEED_CMDPASSWD */
 #ifdef QUICKLOG
 	} else if (xstrcmp(data, "qloglength") == 0) {	/* qloglength */
-		cfg.qloglength = parse_int(val, 0);
+		assign_int(&cfg.qloglength, val, 0);
+#  ifdef QLOGSTAMP
+	} else if (xstrcmp(data, "timestamp") == 0) {	/* timestamp */
+		/* See qlog.h for options' order. */
+		/* Double-terminate just to be sure. */
+		assign_option(&cfg.timestamp, val,
+				"none\0beginning\0end\0\0");
+#  endif /* QLOGSTAMP */
 	} else if (xstrcmp(data, "flushqlog") == 0) {	/* flushqlog */
-		cfg.flushqlog = parse_boolean(val);
+		assign_boolean(&cfg.flushqlog, val);
 #endif /* QUICKLOG */
 #ifdef LOGGING
 	} else if (xstrcmp(data, "logpostfix") == 0) {	/* logpostfix */
-		cfg.logpostfix = assign_param(cfg.logpostfix, val);
+		assign_param(&cfg.logpostfix, val);
 #endif /* LOGGING */
 #ifdef PRIVMSGLOG
 	} else if (xstrcmp(data, "logging") == 0) {	/* logging */
-		cfg.logging = parse_boolean(val);
+		assign_boolean(&cfg.logging, val);
 #endif /* PRIVMSGLOG */
 	} else if (xstrcmp(data, "listenport") == 0) {	/* listenport */
-		cfg.listenport = parse_int(val, 0);
+		assign_int(&cfg.listenport, val, 0);
 	} else if (xstrcmp(data, "listenhost") == 0) {	/* listenhost */
-		cfg.listenhost = assign_param(cfg.listenhost, val);
+		assign_param(&cfg.listenhost, val);
 	} else if (xstrcmp(data, "password") == 0) {	/* password */
-		cfg.password = assign_param(cfg.password, val);
+		assign_param(&cfg.password, val);
 	} else if (xstrcmp(data, "leave") == 0) {	/* leave */
-		cfg.leave = parse_boolean(val);
+		assign_boolean(&cfg.leave, val);
 	} else if (xstrcmp(data, "leavemsg") == 0) {	/* leavemsg */
-		cfg.leavemsg = assign_param(cfg.leavemsg, val);
+		assign_param(&cfg.leavemsg, val);
 	} else if (xstrcmp(data, "awaymsg") == 0) {	/* awaymsg */
-		cfg.awaymsg = assign_param(cfg.awaymsg, val);
+		assign_param(&cfg.awaymsg, val);
 	} else if (xstrcmp(data, "usequitmsg") == 0) {	/* usequitmsg */
-		cfg.usequitmsg = parse_boolean(val);
+		assign_boolean(&cfg.usequitmsg, val);
 	} else if (xstrcmp(data, "getnick") == 0) {	/* getnick */
-		cfg.getnick = parse_int(val, 0);
+		/* See miau.h for options' order. */
+		/* Double-terminate just to be sure. */
+		assign_option(&cfg.getnick, val,
+				"never\0detached\0attached\0always\0\0");
 	} else if (xstrcmp(data, "getnickinterval") == 0) {/* getnickinterval */
-		cfg.getnickinterval = parse_int(val, 0);
+		assign_int(&cfg.getnickinterval, val, 0);
 	} else if (xstrcmp(data, "bind") == 0) {	/* bind */
-		cfg.bind = assign_param(cfg.bind, val);
+		assign_param(&cfg.bind, val);
 #ifdef AUTOMODE
 	} else if (xstrcmp(data, "automodedelay") == 0) { /* automodedelay */
-		cfg.automodedelay = parse_int(val, 0);
+		assign_int(&cfg.automodedelay, val, 0);
 #endif /* AUTOMODE */
 	} else if (xstrcmp(data, "antiidle") == 0) {	/* antiide */
-		cfg.antiidle = parse_int(val, 0);
+		assign_int(&cfg.antiidle, val, 0);
 	} else if (xstrcmp(data, "nevergiveup") == 0) {	/* nevergiveup */
-		cfg.nevergiveup = parse_boolean(val);
+		assign_boolean(&cfg.nevergiveup, val);
 	} else if (xstrcmp(data, "norestricted") == 0) { /* norestricted */
-		cfg.jumprestricted = parse_boolean(val);
+		assign_boolean(&cfg.jumprestricted, val);
 	} else if (xstrcmp(data, "stonedtimeout") == 0) { /* stonedtimeout*/
-		cfg.stonedtimeout = parse_int(val, MINSTONEDTIMEOUT);
+		assign_int(&cfg.stonedtimeout, val, MINSTONEDTIMEOUT);
 	} else if (xstrcmp(data, "connecttimeout") == 0) { /* connecttimeout */
-		cfg.connecttimeout = parse_int(val, MINCONNECTTIMEOUT);
+		assign_int(&cfg.connecttimeout, val, MINCONNECTTIMEOUT);
 	} else if (xstrcmp(data, "reconnectdelay") == 0) { /* reconnectdelay */
-		cfg.reconnectdelay = parse_int(val, MINRECONNECTDELAY);
+		assign_int(&cfg.reconnectdelay, val, MINRECONNECTDELAY);
 	} else if (xstrcmp(data, "rejoin") == 0) {	/* rejoin */
-		cfg.rejoin = parse_boolean(val);
+		assign_boolean(&cfg.rejoin, val);
 	} else if (xstrcmp(data, "forwardmsg") == 0) {	/* forwardmsg */
-		cfg.forwardmsg = assign_param(cfg.forwardmsg, val);
+		assign_param(&cfg.forwardmsg, val);
 	} else if (xstrcmp(data, "maxclients") == 0) {	/* maxclients */
-		cfg.maxclients = parse_int(val, 1);
+		assign_int(&cfg.maxclients, val, 1);
 #ifdef DCCBOUNCE
 	} else if (xstrcmp(data, "dccbounce") == 0) {	/* dccbounce */
-		cfg.dccbounce = parse_boolean(val);
+		assign_boolean(&cfg.dccbounce, val);
 	} else if (xstrcmp(data, "dccbindhost") == 0) {
-		cfg.dccbindhost = assign_param(cfg.dccbindhost, val);
+		assign_param(&cfg.dccbindhost, val);
 #endif /* DCCBOUNCE */
 	} else if (xstrcmp(data, "nickfillchar") == 0) { /* nickfillchar */
 		cfg.nickfillchar = val[0];
 	} else if (xstrcmp(data, "usermode") == 0) {	/* usermode */
-		cfg.usermode = assign_param(cfg.usermode, val);
+		assign_param(&cfg.usermode, val);
 	} else if (xstrcmp(data, "maxnicklen") == 0) {	/* maxnicklen */
-		cfg.maxnicklen = parse_int(val, 3);
+		assign_int(&cfg.maxnicklen, val, 3);
 	} else {
 		parse_error();
 	}
@@ -468,9 +544,10 @@ parse_list_line(
 			
 		case CFG_SERVERS:
 			if (paramcount <= 4) {
-				add_server(param[0], parse_int(param[1], 0),
-						param[2], parse_int(param[3],
-							0));
+				int t0, t1;
+				assign_int(&t0, param[1], 0);
+				assign_int(&t1, param[3], 0);
+				add_server(param[0], t0, param[2], t1);
 				ok = 1;
 			}
 			break;
@@ -609,8 +686,8 @@ parse_list_line(
 		if (paramcount == 1) {
 			add_perm(permlist, strdup(param[0]), 1);
 		} else if (paramcount == 2) {
-			add_perm(permlist, strdup(param[0]),
-					parse_boolean(param[1]));
+			assign_boolean(&n, param[1]);
+			add_perm(permlist, strdup(param[0]), n);
 		}
 	}
 

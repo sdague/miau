@@ -1,9 +1,9 @@
-AC_INIT([miau], [0.5.1])
+AC_INIT([miau], [0.5.2])
 AC_CONFIG_SRCDIR([src/miau.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2])
 AH_TEMPLATE([VERSIONNAME], [long version name])
-AC_DEFINE([VERSIONNAME], ["y2k-compatible"])
+AC_DEFINE([VERSIONNAME], ["fluffy little fellow"])
 
 # option, explanation, define
 AC_DEFUN([MY_ARG_ENABLE], [
@@ -26,7 +26,7 @@ AC_DEFUN([MY_ARG_DISABLE], [
 AH_TEMPLATE([VSNPRINTF_WORKAROUND], [quick hack to vsnprintf])
 AC_ARG_WITH([vsnprintf-workaround],
 	AC_HELP_STRING([--with-vsnprintf-workaround],
-		[use a quick hack to ignore missing vsnprintf (default is no)]),
+		[use a quick hack to ignore missing vsnprintf]),
 	[vsnprintf_workaround=yes], [vsnprintf_workaround=no])
 AC_ARG_WITH([dont-check-select],
 	AC_HELP_STRING([--with-dont-check-select],
@@ -34,10 +34,10 @@ AC_ARG_WITH([dont-check-select],
 	[dont_check_select=yes], [dont_check_select=no])
 
 AC_ARG_ENABLE([local], AC_HELP_STRING([--enable-local],
-	[install miau locally, not system-wide (default is no)]),
+	[install miau locally, not system-wide]),
 	[ac_local=yes], [ac_local=no])
 AC_ARG_ENABLE([ipv6], AC_HELP_STRING([--enable-ipv6],
-	[enable ipv6-support (default is no)]))
+	[enable ipv6-support]))
 
 MY_ARG_ENABLE([dccbounce], [enable DCC-bouncing capability], [DCCBOUNCE])
 MY_ARG_ENABLE([automode], [enable automode -capability],
@@ -53,6 +53,7 @@ MY_ARG_ENABLE([empty-awaymsg], [allow empty AWAY messages], [EMPTYAWAY])
 
 MY_ARG_DISABLE([ascii-art], [disable fancy ascii-art], [ASCIIART])
 MY_ARG_DISABLE([quicklog], [disable quicklog -feature], [QUICKLOG])
+MY_ARG_DISABLE([qlogstamp], [disable quicklog timestamps], [QLOGSTAMP])
 MY_ARG_DISABLE([privmsglog], [disable privmsg logging -feature], [PRIVMSGLOG])
 # MY_ARG_DISABLE([qlogtomsglog], [disable quicklog to messagelog -feature],
 #	[QLOGTOMSGLOG])
