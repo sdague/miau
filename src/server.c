@@ -1,4 +1,4 @@
-/*
+/* $Id$
  * -------------------------------------------------------
  * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *      (C) 2002 Lee Hardy <lee@leeh.co.uk>
@@ -758,8 +758,12 @@ server_reply(
 			status.awaystate &= ~AWAY;
 			set_away(NULL);	/* No special message. */
 
-			/* ASAP, see if we should join channels. */
+			/* See if we should join channels. */
 			timers.join = JOINTRYINTERVAL;
+			/* Also reset channel's join-count. */
+			LLIST_WALK_H(passive_channels.head, channel_type *);
+				data->jointries = cfg.jointries;
+			LLIST_WALK_F;
 
 			for (n = 0; n < RPL_ISUPPORT_LEN; n++) {
 				FREE(i_server.isupport[n]);
@@ -958,9 +962,14 @@ server_reply(
 				break;
 			}
 
-			if (chptr->joining == 1) {
-				/* Ok, nothing to worry about. */
-				chptr->joining = 0;
+			if (chptr->jointries > 0) {
+				/*
+				 * Automatic join, suppress error.
+				 * Nice things, btw, when last try was made
+				 * to join the channel, jointries was set to
+				 * 0 which means we get to pass the message
+				 * to the client.
+				 */
 				*pass = 0;
 			}
 			break;

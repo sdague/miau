@@ -147,6 +147,15 @@
 #burstsize = "3"
 
 
+# jointries = "number": Number of tries to join channel after dropping from
+#		server etc. miau tries to join channels once a minute.
+#
+# Default: 30
+#
+# Example:
+#jointries = "1440"
+
+
 # bind = "host": Host/IP miau uses for outgoing connections.
 #
 # Default: none

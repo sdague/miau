@@ -121,6 +121,7 @@ channel_add(
 		 * default.
 		 */
 		chptr->key = strdup(key == NULL ? "-" : key);
+		chptr->jointries = cfg.jointries;
 #ifdef AUTOMODE
 		chptr->oper = -1;		/* Don't know our status. */
 #endif /* AUTOMODE */
@@ -327,6 +328,7 @@ channel_join_list(
 		passive_channels.head : active_channels.head;
 	char	*chans = NULL;
 	char	*keys = NULL;
+	int	try_joining = 0;
 
 	/* Join old_channels if client was defined. */
 	if (client != NULL) {
@@ -355,17 +357,40 @@ channel_join_list(
 	
 	LLIST_WALK_H(first, channel_type *);
 		if (list == LIST_PASSIVE) {
-			/* We're trying to join this just a second later. */
-			data->joining = 1;
-			/* Add channel and key in queue. */
-			chans = (char *) xrealloc(chans, strlen(data->name) +
-					strlen(chans) + 2);
-			keys = (char *) xrealloc(keys, strlen(keys) +
-					strlen(data->key) + 2);
-			strcat(chans, ",");
-			strcat(chans, data->name);
-			strcat(keys, ",");
-			strcat(keys, data->key);
+			/*
+			 * Rejoining? Reset jointries. Set jointries to 1
+			 * is cfg.jointries is 0 -- this allows us to try to
+			 * join channels in miaurc once. Otherwise use
+			 * cfg.jointries as it is.
+			 */
+			if (rejoin == 1 && cfg.jointries == 0) {
+				data->jointries = 1;
+			} else if (rejoin == 1) {
+				data->jointries = cfg.jointries;
+			}
+			
+			if (data->jointries > 0) {
+				try_joining = 1;
+				data->jointries--;
+				/* Add channel and key in queue. */
+				chans = (char *) xrealloc(chans,
+						strlen(data->name)
+						+ strlen(chans) + 2);
+				keys = (char *) xrealloc(keys, strlen(keys)
+						+ strlen(data->key) + 2);
+				strcat(chans, ",");
+				strcat(chans, data->name);
+				strcat(keys, ",");
+				strcat(keys, data->key);
+			} else if (cfg.jointries == 0) {
+				/*
+				 * If cfg.jointries is 0, remove channel from
+				 * list after unsuccesfull attempt to join it.
+				 */
+				channel_rem(channel_find(data->name,
+							LIST_PASSIVE),
+						LIST_PASSIVE);
+			}
 		} else {
 			/* Tell client to join this channel. */
 			irc_write(client, ":%s!%s JOIN :%s",
@@ -428,7 +453,7 @@ channel_join_list(
 	}
 #endif /* QUICKLOG */
 
-	if (chans != NULL && list == LIST_PASSIVE) {
+	if (try_joining == 1) {
 		report(rejoin ? MIAU_REINTRODUCE : MIAU_JOINING, chans + 1);
 		irc_write(&c_server, "JOIN %s %s", chans + 1, keys + 1);
 	}

@@ -438,6 +438,8 @@ parse_param(
 		assign_int(&cfg.floodtimer, val, 0);
 	} else if (xstrcmp(data, "burstsize") == 0) {	/* burstsize */
 		assign_int(&cfg.burstsize, val, 1);
+	} else if (xstrcmp(data, "jointries") == 0) {	/* jointries */
+		assign_int(&cfg.jointries, val, 0);
 	} else {
 		parse_error();
 	}

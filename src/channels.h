@@ -42,7 +42,7 @@ typedef struct {
 	char		*topicwho;	/* Topic set by ... */
 	char		*topicwhen;	/* Topic set in ... */
 	char		*key;		/* Channel key. */
-	int		joining;	/* Trying to join atm. */
+	int		jointries;	/* Will try to join # times. */
 #ifdef AUTOMODE
 	/*
 	 * oper:

@@ -224,6 +224,10 @@ How many messages can be sent at once. When configuring flood-protection, this
 variable defined how many messages can be sent at once (in a burst). See also
 @command{floodtimer}.
 
+@item @command{jointries = "number"}
+Number of tries to join channel after dropping from server etc. miau tries to
+join channels once a minute.
+
 @item @command{bind = "host"}
 Host/IP miau uses for outgoing connections.
 

@@ -7,6 +7,8 @@
   * Fixed parser to handle CR-LF -linefeeds.
   * Added miaurc-options "floodtimer" and "burstsize" for configuring
     flood-protection.
+  * Added an option for defining how many times miau should try to rejoin the
+    channel. (Counter is reset on reconnect/attach.)
 
 
 0.5.3 - "hairball"

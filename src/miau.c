@@ -1,4 +1,4 @@
-/*
+/* $Id$
  * -------------------------------------------------------
  * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
@@ -87,6 +87,7 @@ cfg_type cfg = {
 	0,	/* listenport: 0 */
 	2,	/* floodtimer */
 	5,	/* burstsize */
+	30,	/* jointries */
 	1,	/* getnick: disconnected */
 	60,	/* getnickinterval: 60 seconds */
 	0,	/* antiidle: no */
@@ -549,6 +550,7 @@ dump_status(
 		dump_add("    {");
 		dump_status_char("name", data->name);
 		dump_status_char("key", data->key);
+		dump_status_int("jointries", data->jointries);
 #ifdef AUTOMODE
 		dump_status_int("oper", data->oper);
 #endif /* AUTOMODE */
@@ -1236,7 +1238,8 @@ check_timers(
 			&& ! (c_clients.connected == 0 && cfg.leave == 1)) {
 		/*
 		 * Perhaps we don't need to define tryjoininterval.
-		 * Let's just try joining unjoined channels once a minute.
+		 * Let's just try joining unjoined channels once a minute
+		 * -- unless we're done trying of course.
 		 */
 		if (proceed_timer(&timers.join, 0, JOINTRYINTERVAL) == 2) {
 			channel_join_list(LIST_PASSIVE, 0, NULL);
