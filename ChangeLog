@@ -9,7 +9,8 @@
     flood-protection.
   * Added an option for defining how many times miau should try to rejoin the
     channel. (Counter is reset on reconnect/attach.)
-  * Major internal changes
+  * Preparing for major internal changes + clean-up for future
+  * Sends proper QUIT-message at SIGTERM
 
 
 0.5.3 - "hairball"
