@@ -128,9 +128,9 @@ sock_open(
 	int	i;
 
 #ifdef IPV6
-	if ((i = socket(AF_INET6, SOCK_STREAM, 0)) < 0)
+	if ((i = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP)) < 0)
 #else
-	if ((i = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	if ((i = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 #endif
 	{
 		net_errstr = strerror(errno);
