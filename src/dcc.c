@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -15,15 +15,17 @@
  */
 
 
+#include <config.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "dcc.h"
+#include "error.h"
 #include "table.h"
 #include "irc.h"
 #include "miau.h"
 #include "messages.h"
 #include "tools.h"
-#include "dcc.h"
 
 
 
