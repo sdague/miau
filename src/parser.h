@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,16 +20,20 @@
 
 #define MAXNUMOFPARAMS	4
 
-#define CFG_INVALID	-1
-#define CFG_NOLIST	0
-#define CFG_NICKNAMES	1
-#define CFG_SERVERS	2
-#define CFG_CONNHOSTS	3
-#define CFG_IGNORE	4
-#define CFG_AUTOMODELIST	5
-#define CFG_CHANLOG		6
-#define CFG_CHANNELS	7
-#define CFG_ONCONNECT	8
+enum {
+	CFG_INVALID = -1,
+	CFG_NOLIST,
+	CFG_NICKNAMES,
+	CFG_SERVERS,
+	CFG_CONNHOSTS,
+	CFG_IGNORE,
+	CFG_AUTOMODELIST,
+	CFG_CHANLOG,
+	CFG_CHANNELS,
+	CFG_ONCONNECT,
+	CFG_ENCODINGS
+};
+
 
 #define SPACES		0
 #define LINE		1
