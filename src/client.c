@@ -214,14 +214,7 @@ client_read(
 				keyhelp++;
 			}
 		}
-		chptr = channel_add(chan, LIST_PASSIVE);
-		if (chptr != NULL) {
-			if (key != NULL) {
-				xfree(chptr->key);
-				chptr->key = strdup(key);
-			}
-		}
-
+		chptr = channel_add(chan, key, LIST_PASSIVE);
 		chan = chanhelp;
 		key = keyhelp;
 	}

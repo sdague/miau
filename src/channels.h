@@ -64,7 +64,7 @@ extern llist_list	active_channels;
 extern llist_list	passive_channels;
 extern llist_list	old_channels;
 
-channel_type *channel_add(const char *channel, const int list);
+channel_type *channel_add(const char *channel, const char *key, const int list);
 void channel_rem(channel_type *chptr, const int list);
 void channel_drop_all(const int keeplog);
 channel_type *channel_find(const char *channel, const int list);

@@ -664,7 +664,7 @@ parse_list_line(
 					}
 					/* channel_add will set up us a key. */
 					channel = channel_add(param[0],
-							LIST_PASSIVE);
+							param[1], LIST_PASSIVE);
 				}
 				ok = 1;
 			}

@@ -54,6 +54,7 @@ extern clientlist_type	c_clients;
 channel_type *
 channel_add(
 		const char	*channel,
+		const char	*key,
 		const int	list
 	   )
 {
@@ -115,11 +116,11 @@ channel_add(
 		chptr = (channel_type *) xcalloc(1, sizeof(channel_type));
 		chptr->name = strdup(channel);
 		/*
-		 * * We don't need to touch other variabels - calloc did the
+		 * We don't need to touch other variabels - calloc did the
 		 * job. This is neat, since a few values are set to 0 by
 		 * default.
 		 */
-		chptr->key = strdup("-");	/* Not keyword protected. */
+		chptr->key = strdup(key == NULL ? "-" : key);
 #ifdef AUTOMODE
 		chptr->oper = -1;		/* Don't know our status. */
 #endif /* AUTOMODE */
@@ -150,7 +151,7 @@ channel_add(
 #endif /* CHANLOG */
 
 	return chptr;
-} /* channel_type *channel_add(const char *, const int) */
+} /* channel_type *channel_add(const char *, const char *, const int) */
 
 
 

@@ -1050,7 +1050,7 @@ server_reply(
 			/* Was that me ? */
 			if (xstrcasecmp(status.nickname, nick) == 0) {
 				/* Add channel to active list. */
-				channel_add(param1 + n, LIST_ACTIVE);
+				channel_add(param1 + n, param2, LIST_ACTIVE);
 			}
 
 			/* Get pointer to this channel. */
