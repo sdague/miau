@@ -93,7 +93,7 @@ chanlog_add_rule(
 		 */
 		if (file == NULL || multi) {
 			char	*file;
-			file = xmalloc(strlen(chan)
+			file = xmalloc(strlen(LOGDIR) + strlen(chan)
 					+ strlen(cfg.logpostfix) + 2);
 			sprintf(file, LOGDIR"/%s%s", chan, cfg.logpostfix);
 			logptr->filename = file;

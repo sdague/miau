@@ -303,7 +303,7 @@ server_commands(
 
 		server_drop((param == NULL) ? SERV_ERR : param);
 		irc_mwrite(&c_clients, MIAU_CLOSINGLINK,
-				"", (param == NULL) ? SERV_ERR : param);
+				(param == NULL) ? SERV_ERR : param);
 		drop_newclient(NULL);
 		error(IRC_SERVERERROR, (param == NULL) ? "unknown" : param);
 

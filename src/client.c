@@ -99,8 +99,8 @@ client_drop_real(
 		if (reason[0] == ':') {
 			irc_write(client, "ERROR %s", reason);
 		} else {
-			irc_write(client, MIAU_CLOSINGLINK,
-					dying ? CLNT_DIE : "",
+			irc_write(client, dying
+					? MIAU_USERKILLED : MIAU_CLOSINGLINK,
 					reason);
 		}
 	}

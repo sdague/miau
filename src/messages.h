@@ -74,7 +74,8 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #define MIAU_GOTNICK	"Got nick '%s'!"
 #define MIAU_NEWSESSION	"---------- NEW SESSION ----------"
 #define MIAU_STARTINGLOG	"miau version "VERSION" - starting log..."
-#define MIAU_CLOSINGLINK	"ERROR: Closing link: %s%s"
+#define MIAU_CLOSINGLINK	"ERROR: Closing link: %s"
+#define MIAU_USERKILLED	"ERROR: "CLNT_DIE" %s"
 
 #define MIAU_VERSION	"- miau version "VERSION" - \""VERSIONNAME"\" -"
 #define MIAU_372_RUNNING	"- Running on server %s with nickname %s"
@@ -213,10 +214,8 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #define CLNT_NEWCLIENT	"New connection established!"
 #define CLNT_RESTRICTED	"restricted connection"
 #define CLNT_SERVLIST	"Servers:"
-#define CLNT_NONICKS	"WARNING: No nicknames!"
-#define CLNT_NONICKFILL	"No nicks nor nickfill defined, using default nickfill."
-#define CLNT_NOSERVERS	"WARNING: No servers!"
-#define CLNT_NOCONNHOSTS	"WARNING: No allowed hosts! Be warned."
+#define CLNT_NOSERVERS	PARSE_NOSERV
+#define CLNT_MIAURCBEENWARNED	"Incomplete miaurc! YOU HAVE BEEN WARNED!"
 #define CLNT_CURRENT	"Current server is %d%s."
 #define CLNT_ANDCONNECTING	" (connecting)"
 #define CLNT_CONNECTING	"Connecting to server..."
