@@ -548,7 +548,7 @@ int
 server_read(
 	   )
 {
-	char	*backup = 0;
+	char	*backup = NULL;
 	char	*origin, *command, *param1, *param2;
 	int	rstate;
 	int	pass = 0;
