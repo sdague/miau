@@ -88,3 +88,37 @@ is_perm(
 
 	return allowed;
 } /* int is_perm(permlist_type *, char *name) */
+
+
+
+#ifdef DUMPSTATUS
+char *
+perm_dump(
+		permlist_type	*list
+	 )
+{
+#define BUFSIZE	65536
+	static char buf[BUFSIZE];
+	int len, t;
+	llist_node	*node;
+
+	len = 0;
+	buf[0] = '\0';
+	strcat(buf, "    ");
+	for (node = list->list.head; node != NULL; node = node->next) {
+		t = strlen(((perm_type *) node->data)->name);
+		if (len + t + 10 < BUFSIZE) {
+			len += t + 3;
+			strcat(buf, ((perm_type *) node->data)->name);
+			strcat(buf, "=  ");
+			buf[len - 2] = '0' + ((perm_type *)
+					node->data)->allowed;
+			buf[len] = '\0';
+		} else {
+			return buf;
+		}
+	}
+
+	return buf;
+} /* char *perm_dump(permlist_type *) */
+#endif /* DUMPSTATUS */
