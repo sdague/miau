@@ -32,6 +32,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #endif /* VSNPRINTF_WORKAROUND */
 
 void upcase(char *what);
+void lowcase(char *what);
 void randname(char *randchar, char *oldname, int length);
 
 int pos(const char *str, const char what);

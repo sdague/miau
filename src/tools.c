@@ -63,6 +63,24 @@ upcase(
 
 
 /*
+ * Convert to lower case.
+ */
+void
+lowcase(
+		char	*what
+       )
+{
+	char *doit;
+	if (what) {
+		for (doit = what; doit && *doit; doit++) {
+			*doit = (char) tolower((int) *doit);
+		}
+	}
+} /* void lowcase(char *) */
+
+
+
+/*
  * Generates a random string or new nick out of the old one.
  */
 void
