@@ -46,9 +46,9 @@ llist_list	qlog;
 typedef struct {
 	char	*text;
 	time_t	timestamp;
-#ifdef PRIVMSGLOG
+#ifdef INBOX
 	int	privmsg;
-#endif /* PRIVMSGLOG */
+#endif /* INBOX */
 } qlogentry;
 
 

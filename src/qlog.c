@@ -205,7 +205,7 @@ qlog_drop_old(
 
 	line = (qlogentry *) qlog.head->data;
 	while (line != NULL && line->timestamp <= oldest) {
-#ifdef PRIVMSGLOG
+#ifdef INBOX
 		if (line->privmsg == 1) {
 			char *message;
 
@@ -222,13 +222,15 @@ qlog_drop_old(
 #  endif /* ENDUSERDEBUG */
 				strtok(line->text, " ");
 			
-				fprintf(messagelog, "%s <%s> %s\n",
-						gettimestamp(line->timestamp),
+				fprintf(inbox, "%s <%s> %s\n", 
+						get_timestamp(
+							line->timestamp,
+							TIMESTAMP_SHORT),
 						line->text + 1, message + 1);
-				fflush(messagelog);
+				fflush(inbox);
 			}
 		}
-#endif /* PRIVMSGLOG */		
+#endif /* INBOX */
 
 		xfree(line->text);
 		xfree(line);
