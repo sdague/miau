@@ -34,7 +34,7 @@
 #define SPACES		0
 #define LINE		1
 
-#define READBUFSIZE	16384
+#define READBUFSIZE	65536
 
 
 
