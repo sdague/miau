@@ -716,7 +716,7 @@ parse_list_line(
 int
 parse_cfg(
 		const char	*cfgfile
-	     )
+	 )
 {
 	FILE		*file;
 	int		filelen;
@@ -725,7 +725,7 @@ parse_cfg(
 	char		*bufptr;
 	char		*nextptr;
 
-	buf = malloc(READBUFSIZE);
+	buf = xmalloc(READBUFSIZE);
 
 	line = 1;
 	file = fopen(cfgfile, "r");
