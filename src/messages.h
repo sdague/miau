@@ -22,6 +22,7 @@
 /*
  * General
  */
+#define IRCLF	"\r\n"
 
 #ifdef MKPASSWD
 #define OPT_CRYPT	"    -c\t\tCreate crypted password\n"
@@ -50,15 +51,17 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #define MIAU_ERRCFG	"Unable to open miaurc in %s!"
 #define MIAU_ERRNEEDARG	"Option -%c requires an argument!"
 #define MIAU_ERRNOHOME	"$HOME is not set! (set it or use -d)"
-#define MIAU_ERRFILE	"Can't write to %s!"
-#define MIAU_ERRCHDIR	"Can't chdir to %s!"
+#define MIAU_ERRFILE	"Can't write to \"%s\"!"
+#define MIAU_ERRCHDIR	"Can't chdir to \"%s\"!"
+#define MIAU_ERRLOGDIR	"\"%s\" not a directory!"
+#define MIAU_ERRCREATELOGDIR	"Can't create \"%s\"!"
 #define MIAU_ERREXIT	"Terminating..."
 #define MIAU_SIGTERM	"Caught sigterm, terminating..."
 #define MIAU_OUTOFSERVERS	"Out of servers, terminating..."
 #define MIAU_OUTOFSERVERSNEVER	"Out of servers, retrying..."
 #define MIAU_ERRFORK	"Unable to fork!"
 #define MIAU_FORKED	"miau's forked. (pid %d)"
-#define MIAU_ERRMSGFILE	"Can't open msgfile, logging disabled."
+#define MIAU_ERRINBOXFILE	"Can't open inbox, inbox disabled."
 #define MIAU_LEAVING	"Leaving channels."
 #define MIAU_REINTRODUCE	"Reintroducing channels."
 #define MIAU_JOINING	"Autojoining channels (%s)."
@@ -168,7 +171,7 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #define CLNT_CLIENTS	"%d client(s) connected."
 
 #define CLNT_HAVEMSGS	"\2You have messages waiting.\2 (/miau read)"
-#define CLNT_HAVENOMSGS	"You have no messages."
+#define CLNT_INBOXEMPTY	"Your inbox is empty."
 #define CLNT_KILLEDMSGS	"Killed your messages."
 
 #define CLNT_CAUGHT	"Client from '%s'."
@@ -205,8 +208,8 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #endif /* CTCPREPLIES */
 
 #define CLNT_COMMANDS	"Available commands: HELP READ DEL JUMP REHASH RESET DIE PRINT" CMD_UPTIME CMD_PINGSTAT CMD_DUMP
-#define CLNT_MSGLOGSTART	"Playing messagelog..."
-#define CLNT_MSGLOGEND	"End of messagelog."
+#define CLNT_INBOXSTART	"Playing inbox..."
+#define CLNT_INBOXEND	"End of inbox."
 #define CLNT_NEWCLIENT	"New connection established!"
 #define CLNT_RESTRICTED	"restricted connection"
 #define CLNT_SERVLIST	"Servers:"
@@ -234,18 +237,19 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 /*
  * Logging,
  */
-#define LOGM_JOIN	"%s *** %s!%s has joined %s\n"
-#define LOGM_PART	"%s *** %s has left %s (%s)\n"
-#define LOGM_QUIT	"%s *** %s has quit (%s%s%s)\n"
-#define LOGM_KICK	"%s *** %s was kicked by %s (%s)\n"
-#define LOGM_MODE	"%s *** %s sets mode %s\n"
+#define LOGM_JOIN	"%s --> %s (%s) has joined %s\n"
+#define LOGM_PART	"%s <-- %s has left %s (%s)\n"
+#define LOGM_QUIT	"%s <-- %s has quit (%s%s%s)\n"
+#define LOGM_KICK	"%s <-- %s was kicked by %s (%s)\n"
+#define LOGM_MODE	"%s --- %s sets mode %s\n"
 #define LOGM_MESSAGE	"%s <%s> %s\n"
+#define LOGM_ACTION	"%s * %s %s\n"
 #define LOGM_NOTICE	"%s -%s:%s- %s\n"
-#define LOGM_TOPIC	"%s *** %s changes topic to '%s'\n"
-#define LOGM_NICK	"%s *** %s is now known as %s\n"
-#define LOGM_MIAU	"%s *** client has %sconnected\n"
-#define LOGM_LOGOPEN	"Begin logging at %s\n"
-#define LOGM_LOGCLOSE	"Ending logging at %s\n\n"
+#define LOGM_TOPIC	"%s --- %s has changed the topic to: %s\n"
+#define LOGM_NICK	"%s --- %s is now known as %s\n"
+#define LOGM_MIAU	"%s --- client %sconnected\n"
+#define LOGM_LOGOPEN	"**** BEGIN LOGGING AT %s\n"
+#define LOGM_LOGCLOSE	"**** ENDING LOGGING AT %s\n\n"
 
 /*
  * quicklog,
