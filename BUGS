@@ -10,22 +10,12 @@ Bugs:
 
 Bugs-to-be:
 
-Mar 24 22:03:15 --- Disconnecting from stoned server.
-Mar 24 22:03:26 --- Trying server 'irc.hes.de.euirc.net' on port 6667...
-Mar 24 22:03:56 --- Unable to connect to 'irc.hes.de.euirc.net'! ((null))
-Mar 24 22:06:35 --- Unable to connect to 'irc.hes.de.euirc.net'! (Illegal seek)
-Mar 24 22:06:35 --- Servers:
 
-Mar 24 22:03:15 - Disconnecting from stoned server.
-Mar 24 22:03:26 + Trying server 'irc.hes.de.euirc.net' on port 6667...
-Mar 24 22:03:56 - Unable to connect to 'irc.hes.de.euirc.net'! ((null))
-debug: Interrupted system call
-Mar 24 22:06:35 - Unable to connect to 'irc.hes.de.euirc.net'! (Illegal seek)
-Mar 24 22:06:45 + Trying server 'irc.ffm.de.euirc.net' on port 6667...
-Mar 24 22:06:45 + TCP-connection to 'irc.ffm.de.euirc.net' established!
-Mar 24 22:06:56 + Connected to 'irc.ffm.de.euirc.net'.
+after "server closed connection" miau reconnected and sent
+  "P:irc.kolumbus.fi 433 * wind :Nickname is already in use."
+to client. After this, miau kind of ... froze.
 
-Sent MIAU PRINT at 22:04:00.
-
-Found this error when I mis-routed irc.hes.de.euirc.net so that it couldn't be
-reached.
+rejoin/leave set to default, a few channels defined in miaurc
+  - client-quit parts some channels in miaurc, some it doesn't
+  - all channels not mentioned in miaurc were parted
+  - channels we _were_ left on was commented out in miaurc!
