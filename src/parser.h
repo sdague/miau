@@ -27,7 +27,7 @@
 #define CFG_CONNHOSTS	3
 #define CFG_IGNORE	4
 #define CFG_AUTOMODELIST	5
-#define CFG_LOG		6
+#define CFG_CHANLOG		6
 #define CFG_CHANNELS	7
 #define CFG_ONCONNECT	8
 

@@ -316,8 +316,8 @@ parse_param(
 			listid = CFG_AUTOMODELIST;
 #endif /* AUTOMODE */
 #ifdef CHANLOG
-		} else if (xstrcmp(data, "log") == 0) {		/* log */
-			listid = CFG_LOG;
+		} else if (xstrcmp(data, "chanlog") == 0) {	/* chanlog */
+			listid = CFG_CHANLOG;
 #endif /* CHANLOG */
 		} else if (xstrcmp(data, "channels") == 0) {	/* channels */
 			listid = CFG_CHANNELS;
@@ -585,7 +585,7 @@ parse_list_line(
 #endif /* AUTOMODE */
 			
 #ifdef CHANLOG
-		case CFG_LOG:
+		case CFG_CHANLOG:
 			if (paramcount < 2 || paramcount > 3) {
 				break;
 			}
