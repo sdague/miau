@@ -162,21 +162,26 @@ chanlog_open(
 
 	/* Didn't find a direct match. Use global logtype. */
 	if (channel->log == NULL && global_logtype) {
-		char	*p;
+		char *p;
+		char *lowchan;
+
+		/* Convert channel to lowercase. */
+		lowchan = strdup(channel->name);
+		lowcase(lowchan);
 
 		channel->log = (struct channel_log *)
 			xcalloc(sizeof(struct channel_log), 1);
 
-		p = xmalloc(strlen(LOGDIR) + strlen(channel->name)
+		p = xmalloc(strlen(LOGDIR) + strlen(lowchan)
 				+ strlen(cfg.logpostfix) + 2);
-		sprintf(p, LOGDIR"/%s%s", channel->name, cfg.logpostfix);
+		sprintf(p, LOGDIR"/%s%s", lowchan, cfg.logpostfix);
 		channel->log->file = fopen(p, "a");
+		xfree(p);
+		xfree(lowchan);
 
 		if (channel->log->file == NULL) {
 			return;
 		}
-		xfree(p);
-
 
 		channel->log->type = global_logtype;
 	}
