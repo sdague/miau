@@ -1,6 +1,8 @@
 0.5.2 - "fluffy little fellow"
 
 * Implemented timestamping for quicklog events (QLOGSTAMP).
+  Option in miaurc: "timestamp", defines location of timestamp in quicklog
+  events. May be one of "beginning", "end", or "none".
 
 * "getnick" option (in miaurc) now takes "never", "detached", "attached" and
   "always" as an argument.
