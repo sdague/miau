@@ -1,4 +1,4 @@
-0.5.3 - "hairball full of bugs"
+0.5.3 - "hairball"
 
 * After timeouted connect, miau no longer freezes until send() times out.
   How did I do this - after adding the timer?-)
@@ -22,6 +22,9 @@
 
 * Fixed proceed_timer_safe -- it was possible to make it never trigger return
   code 2.
+
+* Lots of portability-cleanup (strict typecasting, got rid of (most?)
+  "if (foo)"s etc.)
 
 
 0.5.2 - "fluffy little fellow"
