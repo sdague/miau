@@ -18,5 +18,7 @@ to client. After this, miau kind of ... froze.
 
 
 After attaching to miau, user was on channels #tko-äly (user wanted to be on
-this channel) and #tko-.ly where "." was a character which X-Chat-Aqua didn't
-display. X-Chat-Aqua couldn't part "#tko-ly" because it wasn't on such channel.
+this channel) and #tko-.ly where "." was a character which X-Chat Aqua didn't
+display. X-Chat Aqua couldn't part "#tko-ly" because it wasn't on such channel.
+  This could be a bug in X-Chat Aqua - there already was another bug that was
+  one of XCA's instead of miau's.
