@@ -19,15 +19,6 @@
 
 
 
-/* We need DUMPSTATUS when testing */
-#ifdef TESTING
-#ifndef DUMPSTATUS
-#define DUMPSTATUS
-#endif /* ifndef DUMPSTATUS */
-#endif /* ifdef TESTING */
-
-
-
 #include <config.h>
 #include "list.h"
 
