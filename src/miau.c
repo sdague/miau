@@ -890,8 +890,6 @@ rehash(
 	xfree(oldrealname);
 	xfree(oldusername);
 	xfree(oldlistenhost);
-
-//	dump_status(); // XXX -- DEBUG
 } /* void rehash() */
 
 
@@ -1980,8 +1978,6 @@ run(
 			server = (server_type *) i_server.current->data;
 			server_set_fallback(i_server.current);
 
-// printf("p=%p name='%s'\n", server, server->name); // XXX -- DEBUG
-			
 			/* Not connected to server. */
 			report(SERV_TRYING, server->name, server->port);
 			servers.fresh = 0;
@@ -2036,7 +2032,6 @@ run(
 					break;
 					
 				case CONN_CONNECT:
-printf("'%s' '%s'\n", server->name, strerror(errno));
 					error(SOCK_ERRCONNECT, server->name,
 							strerror(errno));
 					server_drop(NULL);
@@ -2394,15 +2389,6 @@ main(
 #ifdef MKPASSWD
 	char	salt[3];
 #endif
-#ifdef XXX
-char *t;
-t = log_prepare_entry("wind", "\1ACTION foobar\1");
-if (t) printf("'%s' (%d %d/%d/%d/%d)\n", t, t[0], t[strlen(t)], t[strlen(t) - 1], t[strlen(t) - 2], t[strlen(t) - 3]);
-t = log_prepare_entry("wind", "foobar");
-if (t) printf("'%s' (%d %d/%d/%d/%d)\n", t, t[0], t[strlen(t)], t[strlen(t) - 1], t[strlen(t) - 2], t[strlen(t) - 3]);
-command_free();
-exit(0);
-#endif /* XXX */
 
 	fprintf(stdout, "%s%s", BANNER1, BANNER2);
 
@@ -2491,7 +2477,6 @@ exit(0);
 			exit(0);
 		}
 	}
-//	dump_status(); // XXX -- DEBUG
 	run();
 	return 0;
 } /* int main(int, char *[]) */
