@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -680,26 +680,6 @@ irc_clear_queue(
 		llist_delete(msg_queue.head, &msg_queue);
 	}
 } /* void irc_clear_queue() */
-
-
-
-void
-irc_privmsg(
-		connection_type	*connection,
-		char		nickname[],
-		char		*format,
-		...
-	   )
-{
-	va_list	va;
-	char	buffer[BUFFERSIZE];
-
-	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 10, format, va);
-	va_end(va);
-
-	irc_write(connection, "PRIVMSG %s :%s", nickname, buffer);
-} /* void irc_privmsg(connection_type *, char[], char *, ...) */
 
 
 

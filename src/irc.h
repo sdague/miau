@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -73,8 +73,6 @@ int irc_read( connection_type *connection );
 int irc_connect(connection_type *connection, server_type *server,
 		char *nickname, char *username, char *realname, char *bindto);
 
-void irc_privmsg( connection_type *connection, char nickname[],
-		char *format, ... );
 int irc_mnotice(clientlist_type *clients, char nickname[], char *format, ...);
 void irc_notice(connection_type *connection, char nickname[],
 		char *format, ...);
