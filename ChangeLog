@@ -13,7 +13,7 @@
   events. May be one of "beginning", "end", or "none".
 
 * Implemented channel logging like logging for private messages (PRIVLOG).
-  Channel log is now CHANLOG.
+  Channel log is now CHANLOG. "log" in miaurc is now "chanlog".
 
 * Logfiles finally handle "\1ACTION ...\1"s properly.
 
