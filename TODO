@@ -1,5 +1,7 @@
 TODO:
 
+- let users to define flood-protection parameters (requested feature)
+
 - reintroduce channels in specific order (order defined in miaurc)
 	- alphabetical order
 	- channels in miaurc, then channels from client in given order
