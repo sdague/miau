@@ -7,8 +7,8 @@ Name:		miau
 Version:	%{ver}
 Release:	%{release}
 Copyright:	GPL
-Source:		http://SOMEWHERE/miau-%{ver}.tar.gz
-URL:		http://www.cs.helsinki.fi/u/tsaviran/miau/
+Source:		http://miau.sourceforge.net/files.html
+URL:		http://miau.sourceforge.net/
 Group:		Applications/Net
 BuildRoot:	%{_tmppath}/%{name}-root
 
