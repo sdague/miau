@@ -1,5 +1,7 @@
 TODO:
 
+- send irc-hostmask instead of local "hostmask" (when echoing to other clients)
+
 - reintroduce channels in specific order (order defined in miaurc)
 	- alphabetical order
 	- channels in miaurc, then channels from client in given order
@@ -58,6 +60,8 @@ TODO:
 - Reduce malloc()s and free()s by using static char[]s. As IRC limits length
   of messages, this _can_ be done. Hmm, do all server comply to this? They
   must, really.
+
+- rewrite the whole thing...
 
 
 NOTES TO SELF:
