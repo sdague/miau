@@ -38,6 +38,7 @@ Unconfirmed bugs (and those I couldn't reproduce):
 	  "P:irc.kolumbus.fi 433 * wind :Nickname is already in use."
 	  to client. After this, miau kind of ... froze. I didn't wait long,
 	  though, send() (or something else) might have timed out later on.
+	- "--- #tko-äly warpman cs80220.pp.htv.fi *.tut.fi warpman G :irc.cs.hut.fi 433 * wind :Nickname is already in use."
 	- on other occasion, xchat printed "#channel :foobar" - when xchat
 	  receives bogus data from the server, it prints it out unhandeled
 	  just like that.
