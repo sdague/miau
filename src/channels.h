@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -24,6 +24,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if ENCODING == iconv
+#include <iconv.h>
+#endif /* if ENCODING == iconv */
 
 
 #define LIST_PASSIVE	0
@@ -57,6 +60,9 @@ typedef struct {
 	int		hasqlog;	/* Channel has qlog. */
 #endif /* QUICKLOG */
 	struct channel_log	*log;
+#if ENCODING == iconv
+	iconv_t		converter;
+#endif /* if ENCODING == iconv */
 } channel_type;
 
 struct			llist_list;
