@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2004-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 
 #include "list.h"
 #include "common.h"
+#include "error.h"
 #include <stdio.h>
 
 
@@ -292,7 +293,7 @@ list_delete(
 #ifdef ENDUSERDEBUG
 	if (list == NULL) {
 		enduserdebug("Trying to delete stuff from empty list");
-		return;
+		return NULL;
 	}
 #endif
 
