@@ -1,4 +1,31 @@
+# $Id$
+
 AM_YFLAGS = -d
 bin_PROGRAMS = miau
-miau_SOURCES = ascii.c automode.c channels.c chanlog.c client.c commands.c common.c dcc.c llist.c ignore.c irc.c log.c match.c miau.c onconnect.c parser.c perm.c privlog.c qlog.c remote.c server.c table.c tools.c
-miau_SOURCES += ascii.h automode.h channels.h chanlog.h client.h commands.h common.h dcc.h llist.h ignore.h irc.h log.h match.h miau.h onconnect.h parser.h perm.h privlog.h qlog.h remote.h server.h table.h tools.h conntype.h messages.h
+miau_SOURCES = ascii.c ascii.h \
+		automode.c automode.h \
+		channels.c channels.h \
+		chanlog.c chanlog.h \
+		client.c client.h \
+		commands.c commands.h \
+		common.c common.h \
+		dcc.c dcc.h \
+		encoding.c encoding.h \
+		error.c error.h \
+		list.c list.h \
+		llist.c llist.h \
+		ignore.c ignore.h \
+		irc.c irc.h \
+		log.c log.h \
+		match.c match.h \
+		matchlist.c matchlist.h \
+		miau.c miau.h \
+		onconnect.c onconnect.h \
+		parser.c parser.h \
+		perm.c perm.h \
+		privlog.c privlog.h \
+		qlog.c qlog.h \
+		remote.c remote.h \
+		server.c server.h \
+		table.c table.h \
+		tools.c tools.h
