@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -23,14 +23,14 @@
 
 
 typedef struct {
-    char *hostname;
-    int ttl;
-    int type;
+	char	*hostname;
+	int	ttl;
+	int	type;
 } ignore_type;
 
 typedef struct {
-    ignore_type **data;
-    int amount;
+	ignore_type	**data;
+	int		amount;
 } ignores_type;
 
 static void del_ignorebynumber(int i);
@@ -38,21 +38,23 @@ ignores_type ignores;
 
 
 
-void add_ignore(
+void
+add_ignore(
 		char	*hostname,
 		int	ttl,
 		int	type
-	       )
+	  )
 {
 	int i, indx;
 
-	if (! hostname) return;
+	if (hostname == NULL) return;
 
 	/* Already in table ? */
 	for (i = 0; i < ignores.amount; i++) {
-		if (ignores.data[i] && xstrcmp(ignores.data[i]->hostname,
-					hostname) == 0 &&
-				ignores.data[i]->type == type) {
+		if (ignores.data[i] != NULL
+				&& xstrcmp(ignores.data[i]->hostname,
+					hostname) == 0
+				&& ignores.data[i]->type == type) {
 			return;
 		}
 	}
@@ -62,54 +64,79 @@ void add_ignore(
 	ignores.data[indx]->hostname = strdup(hostname);
 	ignores.data[indx]->ttl = ttl;
 	ignores.data[indx]->type = type;
-}
+} /* void add_ignore(char *, int, int) */
 
 
 
-void del_ignore( char *hostname )
+void
+del_ignore(
+		char	*hostname
+	  )
 {
-    int i;
-    for( i = 0; i < ignores.amount; i++ )
-        if( ignores.data[ i ] && ( xstrcmp( ignores.data[ i ]->hostname, hostname ) == 0 ) ) {
-            xfree( ignores.data[ i ]->hostname );
-            ignores.data = ( ignore_type ** )rem_item( ( void ** )ignores.data, i, &ignores.amount );
-        }
-}
+	int i;
+	for (i = 0; i < ignores.amount; i++) {
+		if (ignores.data[i] != NULL
+				&& (xstrcmp(ignores.data[i]->hostname,
+						hostname) == 0)) {
+			xfree(ignores.data[i]->hostname);
+			ignores.data = (ignore_type **) rem_item((void **)
+					ignores.data, i, &ignores.amount);
+		}
+	}
+} /* void del_ignore(char *) */
 
 
 
-void del_ignorebynumber(
+void
+del_ignorebynumber(
 		int	i
 		)
 {
-	if (i < ignores.amount && ignores.data[i]) {
+	if (i < ignores.amount && ignores.data[i] != NULL) {
 		xfree(ignores.data[i]->hostname);
 		ignores.data = (ignore_type **) rem_item((void **) ignores.data,
 				i, &ignores.amount);
 	}
-}
+} /* void del_ignorebynumber(int) */
 
 
 
-void process_ignores()
+void
+process_ignores(
+	       )
 {
-    int i;
-    for( i = 0; i < ignores.amount; i++ ) {
-        if( ignores.data[ i ] ) {
-            if( ignores.data[ i ]->ttl ) ignores.data[ i ]->ttl--;
-            else del_ignorebynumber( i );
-        }
-    }
-}
+	int i;
+	for (i = 0; i < ignores.amount; i++) {
+		if (ignores.data[i] != NULL) {
+			if (ignores.data[i]->ttl != 0) {	/* > 0 */
+				ignores.data[i]->ttl--;
+			} else {
+				del_ignorebynumber(i);
+			}
+		}
+	}
+} /* void process_ignores() */
 
-int is_ignore( char *hostname, int type )
+
+
+int
+is_ignore(
+		char	*hostname,
+		int	type
+	 )
 {
-    int i;
-    for( i = 0; i < ignores.amount; i++ )
-        if( ignores.data[ i ] &&
-            ( xstrcmp( ignores.data[ i ]->hostname, hostname ) == 0 ) &&
-            ( ignores.data[ i ]->type == type ) ) return 1;
-    return 0;
-}
+	int i;
+	for (i = 0; i < ignores.amount; i++) {
+		if (ignores.data[i] != NULL
+				&& (xstrcmp(ignores.data[i]->hostname,
+						hostname) == 0)
+				&& (ignores.data[i]->type == type)) {
+			return 1;
+		}
+	}
+	return 0;
+} /* int is_ignore(char *, int) */
+
+
 
 #endif /* CTCPREPLIES */
