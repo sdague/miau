@@ -4,6 +4,8 @@ TODO:
 	- alphabetical order
 	- channels in miaurc, then channels from client in given order
 
+- pack both ipv4- and ipv6-binaries in debian package
+
 - Only try cfg.joinretries -times to join channel. (Reset at irc_connect?)
 
 - miaurc should have an option for ctcp-replies (if CTCPREPLIES is defined)
