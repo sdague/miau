@@ -95,7 +95,7 @@ add_server(
 	server->name = strdup(name);
 	server->port = port;
 	server->password = (pass == NULL) ? NULL : strdup(pass);
-	server->timeout = timeout;
+	server->timeout = (timeout > 0) ? timeout : 0;
 	server->working = 1;
 	node = llist_create(server);
 	llist_add_tail(node, &servers.servers);
