@@ -1,11 +1,15 @@
 Bugs:
 
-- if channels are defined, leave and rejoin are set to true, miau joins
+- If quicklog expired for channel we got kicked out while detached, miau tells
+  client to join this channel. The problem is that user is _not_ on this
+  channel.
+
+- If channels are defined, leave and rejoin are set to true, miau joins
   channels at startup although it should not.
 
 - irc.c/irc_write_real() { send() } may lock up if rehashed while connecting
 
-- fails silently if cannot write into ~/.miau/log
+- Fails silently if cannot write into ~/.miau/log
 	- stdout is redirected into file we cannot write to!       
 
 
