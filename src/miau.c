@@ -168,7 +168,7 @@ int	ping_got = 0;
  */
 void
 free_resources(
-		)
+	      )
 {
 	LLIST_EMPTY(nicknames.nicks.head, &nicknames.nicks);
 	empty_perm(&ignorelist);
@@ -179,6 +179,10 @@ free_resources(
 #ifdef ONCONNECT
 	LLIST_EMPTY(onconnect_actions.head, &onconnect_actions);
 #endif /* ONCONNECT */
+	
+	FREE(cfg.username);
+	FREE(cfg.realname);
+	FREE(cfg.password);
 
 	FREE(cfg.usermode);
 	FREE(cfg.awaymsg);
@@ -248,9 +252,6 @@ escape(
 	for (n = 0; n < RPL_SERVERVER_LEN; n++) { xfree(i_server.greeting[n]); }
 
 	/* Free configuration parameters. */
-	xfree(cfg.username);
-	xfree(cfg.realname);
-	xfree(cfg.password);
 	xfree(cfg.home);
 #ifdef LOGGING
 	xfree(cfg.logpostfix);
@@ -434,6 +435,18 @@ dump_status(
 #endif /* QUICKLOG */
 	dump_string("-- miau status --");
 	dump_string("config:");
+	dump_add("    nicknames = {");
+	LLIST_WALK_H(nicknames.nicks.head, char *);
+		dump_status_char("nick", data);
+	LLIST_WALK_F;
+	dump_add(" }");
+	dump_dump();
+	dump_status_char("realname", cfg.realname);
+	dump_status_char("username", cfg.username);
+	dump_status_int("listenport", cfg.listenport);
+	dump_status_char("listenhost", cfg.listenhost);
+	dump_status_char("bind", cfg.bind);
+
 #ifdef QUICKLOG
 	dump_status_int("qloglength", cfg.qloglength);
 #  ifdef QLOGSTAMP
@@ -451,7 +464,6 @@ dump_status(
 #ifdef INBOX
 	dump_status_int("inbox", cfg.inbox);
 #endif /* INBOX */
-	dump_status_int("listenport", cfg.listenport);
 	dump_status_int("getnick", cfg.getnick);
 	dump_status_int("getnickinterval", cfg.getnickinterval);
 	dump_status_int("antiidle", cfg.antiidle);
@@ -467,6 +479,22 @@ dump_status(
 	dump_status_char("logpostfix", cfg.logpostfix);
 #endif /* LOGGING */
 	dump_dump();
+
+	dump_string("connhosts:");
+	dump_string(perm_dump(&connhostlist));
+	dump_dump();
+
+	dump_string("servers:");
+	LLIST_WALK_H(servers.servers.head, server_type *);
+		dump_add("    {");
+		dump_status_char("host", data->name);
+		dump_status_int("port", data->port);
+		dump_status_int("working", data->working);
+		dump_status_char("pass", data->password);
+		dump_status_int("timeout", data->timeout);
+		dump_add(" }");
+		dump_dump();
+	LLIST_WALK_F;
 
 	dump_string("status:");
 	dump_status_char("nickname", status.nickname);
@@ -711,24 +739,30 @@ void
 rehash(
       )
 {
-	char		*oldnick;
-	char		*oldlistenhost;
+	/*
+	 * Save old configuration so we can complain about missing entris and
+	 * detect changes (like changing realname) that require further actions.
+	 *
+	 * We don't need to backup current nick, it's in status.nickname.
+	 */
 	char		*oldrealname;
 	char		*oldusername;
+	char		*oldpassword;
 	int		oldlistenport;
+	char		*oldlistenhost;
 	llist_node	*node;
 
-	oldnick = strdup(status.nickname);
-	
-	oldusername = strdup(cfg.username);
+	/* First backup some essential stuff. */
 	oldrealname = strdup(cfg.realname);
+	oldusername = strdup(cfg.username);
+	oldpassword = strdup(cfg.password);
 	oldlistenport = cfg.listenport;
-	oldlistenhost = (cfg.listenhost != NULL) ?
-		strdup(cfg.listenhost) : NULL;
+	oldlistenhost = (cfg.listenhost != NULL)
+		? strdup(cfg.listenhost) : NULL;
 
-	/* Free non-must parameters plus nicknames. */
+	/* Free non-must parameters. */
 	free_resources();
-
+	cfg.listenport = 0;
 	
 #ifdef CHANLOG
 	/* Close open logfiles. */
@@ -738,7 +772,24 @@ rehash(
 	global_logtype = 0;	/* No logging by default. */
 #endif /* CHANLOG */
 	
+	/* Re-read miaurc and check results. */
 	read_cfg();
+	if (check_config() != 0) {
+		irc_mwrite(&c_clients, ":miau NOTICE %s :%s",
+				status.nickname,
+				CLNT_MIAURCBEENWARNED);
+	}
+		
+
+	/*
+	 * realname, username, password and listenport are required and we want
+	 * to revert then back if they're not configured. We need to duplicate
+	 * them as oldvalues will be freed later.
+	 */
+	if (cfg.realname == NULL) { cfg.realname = strdup(oldrealname); }
+	if (cfg.username == NULL) { cfg.username = strdup(oldusername); }
+	if (cfg.password == NULL) { cfg.password = strdup(oldpassword); }
+	if (cfg.listenport == 0) { cfg.listenport = oldlistenport; }
 	
 #ifdef CHANLOG
 	/* Open logs. */
@@ -758,30 +809,27 @@ rehash(
 	}
 #endif /* QUICKLOG */
 
+	/* By default, we don't know anything about server. */
 	servers.fresh = 1;
 
 	/*
 	 * If there was no nicks defined in configuration-file, save current
-	 * nick to the list and warn clients.
+	 * nick to the list. Warnings have been send already.
 	 */
 	if (nicknames.nicks.head == NULL) {
 		node = llist_create(strdup(status.nickname));
 		llist_add(node, &nicknames.nicks);
-		irc_mwrite(&c_clients, ":miau NOTICE %s :%s", 
-				status.nickname,
-				CLNT_NONICKS);
+		/* We're happy with the nick we have. */
+		status.got_nick = 1;
+
 		if (cfg.nickfillchar == '\0') {
-			irc_mwrite(&c_clients, ":miau NOTICE %s :%s",
-					status.nickname,
-					CLNT_NONICKFILL);
 			cfg.nickfillchar = DEFAULT_NICKFILL;
-			/* We're happy with the nick we have. */
-			status.got_nick = 1;
 		}
 	}
 
 	/* Ok, we know we _do_ have a nick. Lets see if it's a good one. */
-	if (xstrcasecmp(oldnick, (char *) nicknames.nicks.head->data) != 0) {
+	if (xstrcasecmp((char *) nicknames.nicks.head->data,
+				status.nickname) != 0) {
 		status.got_nick = 0;
 		timers.nickname = cfg.getnickinterval;
 	}
@@ -836,18 +884,10 @@ rehash(
 		server_next(0);
 	}
 
-	xfree(oldnick);
+	/* Free backuped stuff. */
 	xfree(oldrealname);
 	xfree(oldusername);
 	xfree(oldlistenhost);
-
-	check_servers();
-
-	if (connhostlist.list.head == NULL) {
-		irc_mwrite(&c_clients, ":miau NOTICE %s :%s", 
-				status.nickname,
-				CLNT_NOCONNHOSTS);
-	}
 } /* void rehash() */
 
 
@@ -1100,7 +1140,7 @@ check_timers(
 
 	if (i_newclient.connected) {
 		/* Client is connecting... */
-		switch (proceed_timer(&c_newclient.timer, 0, 20)) {
+		switch (proceed_timer(&c_newclient.timer, 0, 30)) {
 			case 0:
 				
 			case 1:
@@ -2237,32 +2277,38 @@ init(
 
 
 /*
- * Check configuration.
+ * Check configuration and report errors.
+ *
+ * Returns number of errors.
  */
 int
 check_config(
 	    )
 {
-	int	err = 0;
+	int err = 0;
 #define REPORTERROR(x) { error(PARSE_MK, x); err++; }
 	
 	if (! nicknames.nicks.head)	REPORTERROR("nicknames");
-	if (! cfg.username)		REPORTERROR("username");
 	if (! cfg.realname)		REPORTERROR("realname");
+	if (! cfg.username)		REPORTERROR("username");
 	if (! cfg.password)		REPORTERROR("password");
 	if (! cfg.listenport)		REPORTERROR("listenport");
 	if (! connhostlist.list.head)	REPORTERROR("connhosts");
-	if (! cfg.listenhost && cfg.bind) cfg.listenhost = cfg.bind;
+	/*
+	 * Actually, we did we do this?
+	 * 
+	if (! cfg.listenhost && cfg.bind) cfg.listenhost = strdup(cfg.bind);
+	 */
+
+	check_servers();
 
 	if (servers.amount == 1) {
-		error(PARSE_NOSERV);
 		err++;
-		status.reconnectdelay = CONN_DISABLED;
 	} else {
 		status.reconnectdelay = cfg.reconnectdelay;
 	}
 
-	return (err == 0);
+	return err;
 } /* int check_config() */
 
 
@@ -2357,7 +2403,7 @@ exit(0);
 		switch( c ) {
 #ifdef MKPASSWD
 		        case 'c':
-		            srand(time( NULL ));
+		            srand(time(NULL));
         		    randname(salt, NULL, 2);
 		            printf(MIAU_THISPASS, crypt(getpass(MIAU_ENTERPASS),
 						    salt));
@@ -2386,7 +2432,7 @@ exit(0);
 	setup_home(miaudir);
 
 	read_cfg();
-	if (! check_config()) {
+	if (check_config() != 0) {
 		escape();
 	}
 
@@ -2403,6 +2449,7 @@ exit(0);
 		
 		if (pid == 0) {
 			if (! freopen(FILE_LOG, "a", stdout)) {
+//				freopen(stdout, "a", stdout);	// XXX
 				error(MIAU_ERRFILE, cfg.home);
 				escape();
 			}
