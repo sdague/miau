@@ -302,7 +302,7 @@ Time between idle-timer resets in minutes. Set to 0 to disable.
 @item @command{qloglength = "minutes"}
 Age of oldest entry in quicklog in minutes. Set to zero to disable quicklog.
 
-Note: private messages get also logged into quicklog, but if @command{logging}
+Note: private messages get also logged into quicklog, but if @command{inbox}
 is enabled, they are moved to messagelog instead of simply dropping of from
 quicklog.
 
@@ -330,7 +330,7 @@ running a single client, you probably want to leave this to @command{false}.
 
 This option might not be compiled in.
 
-@item @command{logging = "state"}
+@item @command{inbox = "state"}
 Enables logging private messages when no clients are connected to miau.
 
 Note: if quicklog is enabled (see @command{qloglength}), private messages are

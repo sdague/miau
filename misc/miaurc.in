@@ -318,7 +318,7 @@
 #flushqlog = "true"
 
 
-# logging = "state": Enables logging private messages when no clients are
+# inbox = "state": Enables logging private messages when no clients are
 #		connected to miau.
 #
 # This option might not be compiled in.
@@ -326,7 +326,7 @@
 # Default: true
 #
 # Example:
-#logging = "true"
+#inbox = "true"
 
 
 # nevergiveup = "state": If set to true, miau will reset "working"-status of
