@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -22,18 +22,19 @@
 #ifdef _NEED_TABLE
 
 
-void **add_item(
+void
+**add_item(
 		void	**data,
 		int	elementsize,
 		int	*entries,
 		int	*indx
-	       )
+	  )
 {
 	int	i;
 	int	ind = -1;
 
 	for (i = 0; i < *entries; i++) {
-		if (! data[i]) {
+		if (data[i] == NULL) {
 			ind = i; /* xfree pointer found */
 #ifdef DEBUG
 			printf("using empty pointer at index %d.\n", ind);
@@ -56,14 +57,15 @@ void **add_item(
 	*indx = ind;
 
 	return data;
-}
+} /* void **add_item(void **, int, int *, int *) */
 
 
 
-void **compact_table(
+void **
+compact_table(
 		void	**data,
 		int	*entries
-		)
+	     )
 {
 #ifdef DEBUG
 	int	x = 0;
@@ -87,15 +89,16 @@ void **compact_table(
 	}
 #endif
 	return data;
-}
+} /* void **compact_table(void **, int *) */
 
 
 
-void **rem_item(
+void **
+rem_item(
 		void	**data,
 		int	number,
 		int	*entries
-	       )
+	)
 {
 	if (number >= 0 && number < *entries) {
 #ifdef DEBUG
@@ -131,6 +134,8 @@ void **free_table(
 	}
 
 	return 0;
-}
+} /* void **rem_item(void **, int, int *) */
+
+
 
 #endif /* _NEED_TABLE */
