@@ -1,5 +1,5 @@
 /* $Id */
-/* gcc -DTESTING -g -I.. -Wall -Werror test_matchlist.c matchlist.c match.c list.c tools.c common.c && valgrind --leak-check=yes --show-reachable=yes ./a.out */
+/* gcc -DTESTING -DDUMPSTATUS -g -I.. -Wall -Werror test_matchlist.c matchlist.c match.c list.c tools.c common.c error.c && valgrind --leak-check=yes --leak-resolution=high --num-callers=512 --show-reachable=yes ./a.out */
 
 #include <stdio.h>
 #include "matchlist.h"
