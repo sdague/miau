@@ -1,6 +1,6 @@
 /*
  * -------------------------------------------------------
- * Copyright (C) 2002-2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -81,6 +81,10 @@ llist_node **llist_get_indexed(const llist_list *list);
 #define LLIST_WALK_CONTINUE \
 		node = nextnode; \
 		continue;
+/* Setting nextnode to NULL is just a pre-caution. */
+#define LLIST_WALK_BREAK \
+		nextnode = NULL; \
+		break;
 
 
 
