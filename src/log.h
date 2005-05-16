@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2004-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 
 #ifdef LOGGING
-char *log_prepare_entry(const char *, const char *);
+char *log_prepare_entry(const char *nick, const char *msg);
 #endif /* LOGGING */
 
 

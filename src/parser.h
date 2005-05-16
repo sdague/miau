@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

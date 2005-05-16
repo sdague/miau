@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2000 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,8 @@
 #ifdef _NEED_TABLE
 
 
-#ifndef _TABLE_H
-#define _TABLE_H
+#ifndef TABLE_H_
+#define TABLE_H_
 
 
 void **add_item(void **data, int elementsize, int *entries, int *indx);
@@ -32,6 +32,6 @@ void **compact_table(void **data, int *entries);
 void **free_table(void **data, int *entries, int clear);
 
 
-#endif /* _TABLE_H */
+#endif /* ifndef TABLE_H_ */
 
-#endif /* _NEED_TABLE */
+#endif /* ifdef _NEED_TABLE */

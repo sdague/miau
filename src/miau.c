@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -44,6 +44,8 @@
 #endif /* ifdef ENCODING */
 #include "matchlist.h"
 
+#include <stdlib.h>
+
 
 
 #ifdef INBOX
@@ -51,31 +53,31 @@ FILE	*inbox = NULL;
 #endif /* INBOX */
 
 
-static int read_newclient();
-static int check_config();
+static int read_newclient(void);
+static int check_config(void);
 
 static void fakeconnect(connection_type *newclient);
-static void sig_term();
-static void create_listen();
-static void rehash();
-static void run();
-static void pre_init();
-static void init();
-static void connect_timeout();
+static void sig_term(int a);
+static void create_listen(void);
+static void rehash(int a);
+static void run(void);
+static void pre_init(void);
+static void init(void);
+static void connect_timeout(int a);
 
-static void read_cfg();
-static void check_timers();
-static void miau_welcome();
+static void read_cfg(void);
+static void check_timers(void);
+static void miau_welcome(void);
 static int proceed_timer(int *timer, const int warn, const int exceed);
 static int proceed_timer_safe(int *timer, const int warn, const int exceed,
 		const int repeat);
-static void escape();
-static void setup_atexit();
+static void escape(void);
+static void setup_atexit(void);
 
 static void setup_home(char *s);
 
 #ifdef DUMPSTATUS
-void dump_status();
+void dump_status(void);
 #endif /* DUMPSTATUS */
 
 
@@ -173,8 +175,7 @@ int	ping_got = 0;
  * Should be called from escape() and from rehash().
  */
 static void
-free_resources(
-	      )
+free_resources(void)
 {
 	LLIST_EMPTY(nicknames.nicks.head, &nicknames.nicks);
 	empty_perm(&ignorelist);
@@ -209,7 +210,7 @@ free_resources(
 	qlog_replay(NULL, 0);
 #endif /* QUICKLOG */
 	xfree(status.awaymsg);
-} /* static void free_resources() */
+} /* static void free_resources(void) */
 
 
 
@@ -217,8 +218,7 @@ free_resources(
  * Finish things up and quit miau.
  */
 static void
-escape(
-      )
+escape(void)
 {
 	int		n;
 
@@ -303,7 +303,7 @@ escape(
 	
 	/* We're done. */
 	error(MIAU_ERREXIT);
-} /* static void escape() */
+} /* static void escape(void) */
 
 
 
@@ -311,8 +311,7 @@ escape(
  * (Re)read configuration file.
  */
 static void
-read_cfg(
-	)
+read_cfg(void)
 {
 	int	ret;
 	
@@ -345,18 +344,17 @@ read_cfg(
 	}
 
 	report(MIAU_READ_RC);
-} /* static void read_cfg() */
+} /* static void read_cfg(void) */
 
 
 
 static void
-sig_term(
-	)
+sig_term(int a)
 {
 	server_drop(MIAU_SIGTERM);
 	error(MIAU_SIGTERM);
 	exit(EXIT_SUCCESS);
-} /* static void sig_term() */
+} /* static void sig_term(int a) */
 
 
 
@@ -365,19 +363,16 @@ static char	*dumpdata;
 static int	foocount = 0;
 
 static void
-dump_add(
-		char	*data
-	)
+dump_add(char *data)
 {
 	int addlen = strlen(data);
 	dumpdata = (char *) xrealloc(dumpdata, strlen(dumpdata) + addlen + 1);
 	strncat(dumpdata, data, addlen);
 	foocount += addlen;
-} /* static void dump_add(char *) */
+} /* static void dump_add(char *data) */
 
 static void
-dump_dump(
-	 )
+dump_dump(void)
 {
 	if (dumpdata[0] != '\0') {
 		fprintf(stderr, "%s\n", dumpdata);
@@ -385,22 +380,18 @@ dump_dump(
 		dumpdata[0] = '\0';
 		foocount = 0;
 	}
-} /* static void dump_dump() */
+} /* static void dump_dump(void) */
 
 static void
-dump_finish(
-	   )
+dump_finish(void)
 {
 	if (dumpdata[0] != '\0') {
 		dump_dump();
 	}
-} /* static void dump_finish() */
+} /* static void dump_finish(void) */
 
 static void
-dump_status_int(
-		const char	*id,
-		const int	val
-	       )
+dump_status_int(const char *id, const int val)
 {
 	char	buf[BUFFERSIZE];
 	sprintf(buf, "    %s=%d", id, val);
@@ -408,13 +399,10 @@ dump_status_int(
 		dump_dump();
 	}
 	dump_add(buf);
-} /* static void dump_status_int(const char, conat int) */
+} /* static void dump_status_int(const char *id, conat int val) */
 
 static void
-dump_status_char(
-		const char	*id,
-		const char	*val
-		)
+dump_status_char(const char *id, const char *val)
 {
 	char	buf[BUFFERSIZE];
 	sprintf(buf, "    %s='%s'", id, val);
@@ -422,20 +410,17 @@ dump_status_char(
 		dump_dump();
 	}
 	dump_add(buf);
-} /* static void dump_status_char(const char, const char) */
+} /* static void dump_status_char(const char *id, const char *val) */
 
 static void
-dump_string(
-		const char	*data
-	   )
+dump_string(const char *data)
 {
 	fprintf(stderr, "%s\n", data);
 	irc_mnotice(&c_clients, status.nickname, "%s", data);
-} /* static void dump_string(const char *) */
+} /* static void dump_string(const char *data) */
 
 void
-dump_status(
-	   )
+dump_status(void)
 {
 	dumpdata = (char *) xmalloc(1);
 	dumpdata[0] = '\0';
@@ -620,15 +605,13 @@ dump_status(
 
 	dump_finish();
 	xfree(dumpdata);
-} /* void dump_status() */
+} /* void dump_status(void) */
 #endif /* DUMPSTATUS */
 
 
 
 void
-drop_newclient(
-		char	*reason
-		)
+drop_newclient(char *reason)
 {
 	if (i_newclient.connected) {
 		if (reason) {
@@ -639,7 +622,7 @@ drop_newclient(
 		i_newclient.connected = 0;
 		status.init = 0;
 	}
-} /* void drop_newclient(char *) */
+} /* void drop_newclient(char *reason) */
 
 
 
@@ -649,14 +632,10 @@ drop_newclient(
  * Wrapper for proceed_timer_safe with 0 as last parameter.
  */
 static int
-proceed_timer(
-		int		*timer,
-		const int	warn,
-		const int	exceed
-		)
+proceed_timer(int *timer, const int warn, const int exceed)
 {
 	return proceed_timer_safe(timer, warn, exceed, 0);
-} /* static int proceed_timer(int *, const int, const int) */
+} /* static int proceed_timer(int *timer, const int warn, const int exceed) */
 
 
 
@@ -666,12 +645,8 @@ proceed_timer(
  * Return 1 if timer > warn, 2 if timer > exceed, otherwise 0.
  */
 static int
-proceed_timer_safe(
-		int		*timer,
-		const int	warn,
-		const int	exceed,
-		const int	repeat
-		)
+proceed_timer_safe(int *timer, const int warn, const int exceed,
+		const int repeat)
 {
 	(*timer)++;
 	/* Exceed */
@@ -689,8 +664,8 @@ proceed_timer_safe(
 	}
 	
 	return 0;
-} /* static int proceed_timer_safe(int *, const int, const int, const int) */
-
+} /* static int proceed_timer_safe(int *timer, const int warn, const int exceed,
+		const int repeat) */
 
 
 /*
@@ -699,8 +674,7 @@ proceed_timer_safe(
  * If old socket exists, close it. If something goes wrong, go down, hard.
  */
 static void
-create_listen(
-	     )
+create_listen(void)
 {
 	if (listensocket) {
 		rawsock_close(listensocket);
@@ -734,7 +708,7 @@ create_listen(
 	} else {
 		report(SOCK_LISTENOK, cfg.listenport);
 	}
-} /* static void create_listen() */
+} /* static void create_listen(void) */
 
 
 
@@ -742,13 +716,12 @@ create_listen(
  * Function noting connect() timeouted. Called thru alert().
  */
 static void
-connect_timeout(
-	       )
+connect_timeout(int a)
 {
 	error(SOCK_ERRCONNECT, ((server_type *)
 				i_server.current->data)->name, SOCK_ERRTIMEOUT);
 	sock_close(&c_server);
-} /* static void connect_timeout() */
+} /* static void connect_timeout(int a) */
 
 
 
@@ -759,8 +732,7 @@ connect_timeout(
  * idea and we should reset all values to default...
  */
 static void
-rehash(
-      )
+rehash(int a)
 {
 	/*
 	 * Save old configuration so we can complain about missing entris and
@@ -911,7 +883,7 @@ rehash(
 	xfree(oldrealname);
 	xfree(oldusername);
 	xfree(oldlistenhost);
-} /* static void rehash() */
+} /* static void rehash(int a) */
 
 
 
@@ -921,9 +893,7 @@ rehash(
  * If appropriate, leave channels and set user away.
  */
 void
-clients_left(
-		const char	*reason
-	    )
+clients_left(const char *reason)
 {
 	char	*chans;	/* Channels we're going to part/leave. */
 	char	*channel;
@@ -1026,7 +996,7 @@ clients_left(
 	xfree(chans);
 
 	set_away(awaymsg); /* Try setting user away with given message. */
-} /* void clients_left(const char *) */
+} /* void clients_left(const char *reason) */
 
 
 
@@ -1034,8 +1004,7 @@ clients_left(
  * Check timers.
  */
 static void
-check_timers(
-	    )
+check_timers(void)
 {
 	llist_node	*client;
 	llist_node	*client_next;
@@ -1320,14 +1289,12 @@ check_timers(
 		dcc_timer();
 	}
 #endif /* DCCBOUNCE */
-} /* static void check_timers() */
+} /* static void check_timers(void) */
 
 
 
 void
-get_nick(
-		char	*format
-	)
+get_nick(char *format)
 {
 	char	*oldnick;
 	char	*badnick = strdup(status.nickname);
@@ -1389,7 +1356,7 @@ get_nick(
 	}
 	xfree(badnick);
 	status.got_nick = 0;
-} /* void get_nick(char *) */
+} /* void get_nick(char *format) */
 
 
 
@@ -1397,9 +1364,7 @@ get_nick(
  * User has connected to bouncer.
  */
 static void
-fakeconnect(
-		connection_type	*newclient
-	   )
+fakeconnect(connection_type *newclient)
 {
 	int		i;
 #ifdef ASCIIART
@@ -1558,7 +1523,7 @@ fakeconnect(
 		 */
 		channel_join_list(LIST_ACTIVE, 0, newclient);
 	}
-} /* static void fakeconnect(connection_type *) */
+} /* static void fakeconnect(connection_type *newclient) */
 
 
 
@@ -1569,14 +1534,13 @@ fakeconnect(
  * send them this welcome-message when jumping off the server.
  */
 static void
-miau_welcome(
-	    )
+miau_welcome(void)
 {
 	irc_mwrite(&c_clients, ":miau 001 %s :%s %s!user@host",
 			status.nickname,
 			MIAU_WELCOME,
 			status.nickname);
-} /* static void miau_welcome() */
+} /* static void miau_welcome(void) */
 
 
 
@@ -1584,9 +1548,7 @@ miau_welcome(
  * Set user away if...
  */
 void
-set_away(
-		const char	*msg
-	)
+set_away(const char *msg)
 {
 	/*
 	 * Not connected or no provided away-message and cfg.awaymsg unset?
@@ -1635,13 +1597,12 @@ set_away(
 	irc_write(&c_server, "AWAY :%s", (status.awaymsg != NULL)
 			? status.awaymsg : cfg.awaymsg);
 	status.awaystate |= AWAY;
-} /* void set_away(const char *) */
+} /* void set_away(const char *msg) */
 
 
 
 static int
-read_newclient(
-	      )
+read_newclient(void)
 {
 	connection_type	*newclient;
 	llist_node	*node;
@@ -1743,7 +1704,7 @@ read_newclient(
 		}
 	}
 	return c_status;
-} /* static int read_newclient() */
+} /* static int read_newclient(void) */
 
 
 
@@ -1751,11 +1712,7 @@ read_newclient(
  * Handle commands provided to miau from attached IRC-client.
  */
 void
-miau_commands(
-		char		*command,
-		char		*param,
-		connection_type	*client
-	     )
+miau_commands(char *command, char *param, connection_type *client)
 {
 	int	corr = 0;
 	int	i;
@@ -1776,7 +1733,7 @@ miau_commands(
 
 	if (xstrcmp( command, "REHASH") == 0) {
 		corr++;
-		rehash();
+		rehash(0);
 	}
 
 #ifdef INBOX
@@ -1998,7 +1955,7 @@ miau_commands(
 	if (! corr) {
 		irc_notice(client, status.nickname, CLNT_COMMANDS);
 	}
-} /* void miau_commands(char *, char *, connection_type	*) */
+} /* void miau_commands(char *command, char *param, connection_type *client) */
 
 
 
@@ -2008,8 +1965,7 @@ miau_commands(
  * Checks if there's data coming from sockets etc.
  */
 static void
-run(
-   )
+run(void)
 {
 	llist_node	*client;
 	llist_node	*client_next;
@@ -2238,13 +2194,12 @@ run(
 		
 		check_timers();
 	}
-} /* static void run() */
+} /* static void run(void) */
 
 
 
 static void
-pre_init(
-	)
+pre_init(void)
 {
 	/* Initialize structure for nicknames. */
 	nicknames.nicks.head = NULL;
@@ -2272,13 +2227,12 @@ pre_init(
 #ifdef ENCODING
 	encodings.head = encodings.tail = NULL;
 #endif /* ifdef ENCODING */
-} /* static void pre_init() */
+} /* static void pre_init(void) */
 
 
 
 static void
-init(
-    )
+init(void)
 {
 	struct sigaction	sv;
 
@@ -2341,7 +2295,7 @@ init(
 		report(MIAU_ERRINBOXFILE);
 	}
 #endif /* INBOX */
-} /* static void init() */
+} /* static void init(void) */
 
 
 
@@ -2351,8 +2305,7 @@ init(
  * Returns number of errors.
  */
 static int
-check_config(
-	    )
+check_config(void)
 {
 	int err = 0;
 #define REPORTERROR(x) { error(PARSE_MK, x); err++; }
@@ -2378,7 +2331,7 @@ check_config(
 	}
 
 	return err;
-} /* static int check_config() */
+} /* static int check_config(void) */
 
 
 
@@ -2386,9 +2339,7 @@ check_config(
  * Setup home and create directories if they don't exist already.
  */
 static void
-setup_home(
-		char	*s
-	  )
+setup_home(char *s)
 {
 	struct stat ds;
 	int t;
@@ -2436,13 +2387,12 @@ setup_home(
 			exit(ERR_CODE_HOME);
 		}
 	}
-} /* static void setup_home(char *) */
+} /* static void setup_home(char *s) */
 
 
 
 static void
-setup_atexit(
-	    )
+setup_atexit(void)
 {
 	int r;
 	
@@ -2452,15 +2402,12 @@ setup_atexit(
 		escape();
 		exit(EXIT_FAILURE);
 	}
-} /* static void setup_atexit() */
+} /* static void setup_atexit(void) */
 
 
 
 int
-main(
-		int	paramc,
-		char	**params
-    )
+main(int paramc, char **params)
 {
 	int	pid = 0;
 	FILE	*pidfile;
@@ -2570,4 +2517,4 @@ main(
 	}
 
 	return EXIT_SUCCESS;
-} /* int main(int, char *[]) */
+} /* int main(int paramc, char **params) */

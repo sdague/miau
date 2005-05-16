@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2000 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify

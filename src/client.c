@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *      (C) 2002 Lee Hardy <lee@leeh.co.uk>
  *      (C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -50,13 +50,8 @@ char	*work = NULL;	/* Temporary copy of input. */
  * If client == NULL, drop all clients.
  */
 void
-client_drop(
-		connection_type	*client,
-		char		*reason,
-		const int	msgtype,
-		const int	echo,
-		const char	*awaymsg
-	   )
+client_drop(connection_type *client, char *reason, const int msgtype,
+		const int echo, const char *awaymsg)
 {
 	if (client == NULL) {
 		/* Drop all clients. */
@@ -93,12 +88,8 @@ client_drop(
  * Drop client from bouncer.
  */
 void
-client_drop_real(
-		connection_type	*client,
-		char		*reason,
-		const int	echo,
-		const int	dying
-		)
+client_drop_real(connection_type *client, char *reason, const int echo,
+		const int dying)
 {
 	llist_node	*node;
 	/* We could skip testing reason, but lets play safe. */
@@ -123,9 +114,7 @@ client_drop_real(
 
 
 int
-client_read(
-		connection_type	*client
-	   )
+client_read(connection_type *client)
 {
 	int	c_status;
 	char	*command, *param1, *param2;
@@ -406,8 +395,7 @@ client_read(
  * can ask this memory to be freed without returning to client_read().
  */
 void
-client_free(
-	   )
+client_free(void)
 {
 	xfree(work);
-} /* void_client_free() */
+} /* void_client_free(void) */

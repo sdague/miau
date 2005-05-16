@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2004-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +13,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _PRIVLOG_H
-#define _PRIVLOG_H
+#ifndef PRIVLOG_H_
+#define PRIVLOG_H_
 
 #include <config.h>
 
@@ -59,16 +59,16 @@ typedef struct {
 
 
 
-int privlog_write(const char *, const int, const char *);
-void privlog_close_old();
-void privlog_close_all();
-int privlog_has_open();
+int privlog_write(const char *nick, const int in_out, const char *message);
+void privlog_close_old(void);
+void privlog_close_all(void);
+int privlog_has_open(void);
 #ifdef DUMPSTATUS
-llist_list *privlog_get_list();
+llist_list *privlog_get_list(void);
 #endif /* DUMPSTATUS */
 
 
 
 #endif /* PRIVLOG */
 
-#endif /* _PRIVLOG_H */
+#endif /* ifndef PRIVLOG_H_ */

@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fii>
  *	(C) 2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -30,11 +30,7 @@
 
 
 int
-_xstrcmp(
-		const char	*s1,
-		const char	*s2
-		DEBUG_ADDPARMS
-	)
+_xstrcmp(const char *s1, const char *s2  DEBUG_ADDPARMS)
 {
 	if (s1 != NULL && s2 != NULL) {
 		return strcmp(s1, s2);
@@ -49,12 +45,7 @@ _xstrcmp(
 
 
 int
-_xstrncmp(
-		const char	*s1,
-		const char	*s2,
-		size_t		n
-		DEBUG_ADDPARMS
-	 )
+_xstrncmp(const char *s1, const char *s2, size_t n  DEBUG_ADDPARMS)
 {
 	if (s1 != NULL && s2 != NULL) {
 		return strncmp(s1, s2, n);
@@ -69,11 +60,7 @@ _xstrncmp(
 
 
 int
-_xstrcasecmp(
-		const char	*s1,
-		const char	*s2
-		DEBUG_ADDPARMS
-	    )
+_xstrcasecmp(const char *s1, const char *s2  DEBUG_ADDPARMS)
 {
 	if (s1 != NULL && s2 != NULL) {
 		return strcasecmp(s1, s2);
@@ -88,12 +75,7 @@ _xstrcasecmp(
 
 
 int
-_xstrncasecmp(
-		const char	*s1,
-		const char	*s2,
-		size_t		n
-		DEBUG_ADDPARMS
-	     )
+_xstrncasecmp(const char *s1, const char *s2, size_t n  DEBUG_ADDPARMS)
 {
 	if (s1 != NULL && s2 != NULL) {
 		return strncasecmp(s1, s2, n);
@@ -109,11 +91,7 @@ _xstrncasecmp(
 
 
 char *
-_xstrcpy(
-		char		*dest,
-		const char	*src
-		DEBUG_ADDPARMS
-	)
+_xstrcpy(char *dest, const char *src  DEBUG_ADDPARMS)
 {
 	if (dest != NULL && src != NULL) {
 		return strcpy(dest, src);
@@ -128,12 +106,7 @@ _xstrcpy(
 
 
 char *
-_xstrncpy(
-		char		*dest,
-		const char	*src,
-		size_t		n
-		DEBUG_ADDPARMS
-	 )
+_xstrncpy(char *dest, const char *src, size_t n  DEBUG_ADDPARMS)
 {
 	if (dest != NULL && src != NULL) {
 		return strncpy(dest, src, n);
@@ -148,10 +121,7 @@ _xstrncpy(
 
 
 char *
-_xstrdup(
-		const char	*s
-		DEBUG_ADDPARMS
-       )
+_xstrdup(const char *s  DEBUG_ADDPARMS)
 {
 	char *p;
 	if (s != NULL) {
@@ -172,9 +142,7 @@ _xstrdup(
 
 
 void *
-xmalloc(
-		size_t	size
-       )
+xmalloc(size_t size)
 {
 	void *ret = malloc(size);
 	if (ret == NULL) {
@@ -187,10 +155,7 @@ xmalloc(
 
 
 void *
-xcalloc(
-		size_t	nmemb,
-		size_t	size
-       )
+xcalloc(size_t nmemb, size_t size)
 {
 	void *ret = calloc(nmemb, size);
 	if (ret == NULL) {
@@ -203,9 +168,7 @@ xcalloc(
 
 
 void
-xfree(
-		void	*ptr
-     )
+xfree(void *ptr)
 {
 	if (ptr != NULL) {
 		free(ptr);
@@ -215,10 +178,7 @@ xfree(
 
 
 void *
-xrealloc(
-		void	*ptr,
-		size_t	size
-	)
+xrealloc(void *ptr, size_t size)
 {
 	void *ret = realloc(ptr, size);
 	if (ret == NULL && size > 0) {

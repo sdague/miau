@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,7 @@ permlist_type	automodelist;
  * Process mode queues.
  */
 void
-automode_do(
-	   )
+automode_do(void)
 {
 	channel_type	*channel;	/* Channel the modes are for. */
 	char		modes[4];	/* Buffer for three modes */
@@ -85,7 +84,7 @@ automode_do(
 	LLIST_WALK_F;	/* walk channels */
 
 	xfree(nicks);
-} /* void automode_do() */
+} /* void automode_do(void) */
 
 
 
@@ -93,11 +92,7 @@ automode_do(
  * Add nick to be auto-opped.
  */
 void
-automode_queue(
-		const char	*nick,
-		const char	*hostname,
-		channel_type	*channel
-	      )
+automode_queue(const char *nick, const char *hostname, channel_type *channel)
 {
 	automode_type	*modeact;
 	char		*mask;
@@ -130,9 +125,7 @@ automode_queue(
 
 
 void
-automode_clear(
-		llist_list	*queue
-	      )
+automode_clear(llist_list *queue)
 {
 	LLIST_WALK_H(queue->head, automode_type *);
 		AUTOMODE_DROP(data, node, queue);
@@ -149,10 +142,7 @@ automode_clear(
  * If channel == NULL, don't care about channel.
  */
 void
-automode_drop_nick(
-		const char	*nick,
-		const char	mode
-		)
+automode_drop_nick(const char *nick, const char mode)
 {
 	LLIST_WALK_H(active_channels.head, channel_type *);
 		automode_drop_channel(data, nick, mode);
@@ -162,11 +152,7 @@ automode_drop_nick(
 
 
 void
-automode_drop_channel(
-		channel_type	*channel,
-		const char	*nick,
-		const char	mode
-		)
+automode_drop_channel(channel_type *channel, const char *nick, const char mode)
 {
 	int nick_ok, mode_ok;
 	LLIST_WALK_H(channel->mode_queue.head, automode_type *);
@@ -187,11 +173,7 @@ automode_drop_channel(
  * Returns pointer to automode_type if found, otherwise NULL:
  */
 llist_node *
-automode_lookup(
-		const char	*nick,
-		channel_type	*channel,
-		const char	mode
-	       )
+automode_lookup(const char *nick, channel_type *channel, const char mode)
 {
 	llist_node	*ptr;
 	automode_type	*modeact;

@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2000 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _IGNORE_H
-#define _IGNORE_H
+#ifndef IGNORE_H_
+#define IGNORE_H_
 
 #ifdef CTCPREPLIES
 
@@ -25,9 +25,9 @@
 
 void add_ignore(char *hostname, int ttl, int type);
 void del_ignore(char *hostname);
-void process_ignores();
+void process_ignores(void);
 int is_ignore(char *hostname, int type);
 
 #endif /* CTCPREPLIES */
 
-#endif /* _IGNORE_H */
+#endif /* IGNORE_H_ */

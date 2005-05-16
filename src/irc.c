@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -53,24 +53,8 @@ llist_list	msg_queue;	/* Message queue */
 
 
 
-/*
 void
-dump_msg_queue(
-	      )
-{
-	int n = 0;
-	printf("\nmsg_queue (msgtimer = %d):\n", msgtimer);
-	LLIST_WALK_H(msg_queue.head, char *);
-		printf("\t%d: %s", n++, data);
-	LLIST_WALK_F;
-}
-*/
-
-
-
-void
-track_highest(
-	     )
+track_highest(void)
 {
 	int	i;
 	highest_socket = 0;
@@ -79,14 +63,12 @@ track_highest(
 			highest_socket = track_socks[i];
 		}
 	}
-} /* void track_highest() */
+} /* void track_highest(void) */
 
 
 
 void
-track_add(
-		int	s
-	 )
+track_add(int s)
 {
 	int	i = 0;
 	while (track_socks[i] && i < TRACK) {
@@ -96,14 +78,12 @@ track_add(
 		track_socks[i] = s;
 	}
 	track_highest();
-} /* void track_add(int) */
+} /* void track_add(int s) */
 
 
 
 void
-track_del(
-		int	s
-	 )
+track_del(int s)
 {
 	int	i;
 	for (i = 0; i < TRACK; i++) {
@@ -112,7 +92,7 @@ track_del(
 		}
 	}
 	track_highest();
-} /* void track_del(int) */
+} /* void track_del(int s) */
 
 
 
@@ -122,8 +102,7 @@ track_del(
  * Returns number of opened socket or -1 if something went wrong.
  */
 int
-sock_open(
-	 )
+sock_open(void)
 {
 	int	i;
 
@@ -140,40 +119,34 @@ sock_open(
 	sock_setreuse(i);
 	/* local reuse by default */
 	return i;
-} /* int sock_open() */
+} /* int sock_open(void) */
 
 
 
 int
-rawsock_close(
-		int	sock
-	     )
+rawsock_close(int sock)
 {
 	if (! sock) return 1;
 
 	track_del(sock);
 	close(sock);
 	return 1;
-} /* int rawsock_close(int) */
+} /* int rawsock_close(int sock) */
 
 
 
 int
-sock_close(
-		connection_type	*connection
-	  )
+sock_close(connection_type *connection)
 {
 	rawsock_close(connection->socket);
 	connection->socket = 0;
 	return 1;
-} /* int sock_close(connection_type *) */
+} /* int sock_close(connection_type *connection) */
 
 
 
 int
-sock_setnonblock(
-		int	sock
-		)
+sock_setnonblock(int sock)
 {
 	if (fcntl(sock, F_SETFL, O_NONBLOCK) < 0) {
 		net_errstr = strerror(errno);
@@ -181,14 +154,12 @@ sock_setnonblock(
 	} else {
 		return 1;
 	}
-} /* int sock_setnonblock() */
+} /* int sock_setnonblock(int sock) */
 
 
 
 int
-sock_setblock(
-		int	sock
-	     )
+sock_setblock(int sock)
 {
 	int	flags;
 
@@ -206,14 +177,12 @@ sock_setblock(
 	}
 
 	return 1;
-} /* int sock_setblock(int) */
+} /* int sock_setblock(int sock) */
 
 
 
 int
-sock_setreuse(
-		int	sock
-	     )
+sock_setreuse(int sock)
 {
 	int	i = 1;
 	
@@ -224,14 +193,12 @@ sock_setreuse(
 	} else {
 		return 1;
 	}
-} /* int sock_setreuse(int) */
+} /* int sock_setreuse(int sock) */
 
 
 
 struct hostent *
-name_lookup(
-		char	*host
-	   )
+name_lookup(char *host)
 {
 #ifdef IPV6
 	hostinfo = gethostbyname2(host, AF_INET6);
@@ -253,17 +220,13 @@ name_lookup(
 	net_errstr = "unable to resolve";
 #endif
 	return NULL;
-} /* struct hostent *name_lookup(char *) */
+} /* struct hostent *name_lookup(char *host) */
 
 
 
 #ifdef IPV6
 int
-sock_bind(
-		int	sock,
-		char	*bindhost,
-		int	port
-	 )
+sock_bind(int sock, char *bindhost, int port)
 {
 	/* We'd better cast &addr to void * to keep Digital-UNIX happy. */
 	bzero((void *) &addr, sizeof(struct sockaddr_in6));
@@ -290,15 +253,12 @@ sock_bind(
 	}
 
 	return 1;
-} /* int sock_bind(int, char *, int) */
+} /* int sock_bind(int sock, char *bindhost, int port) */
 
 
 
 int
-sock_bindlookedup(
-		int	sock,
-		int	port
-		)
+sock_bindlookedup(int sock, int port)
 {
 	/* We'd better cast &addr to void * to keep Digital-UNIX happy. */
 	bzero((void *) &addr, sizeof(struct sockaddr_in6));
@@ -321,16 +281,12 @@ sock_bindlookedup(
 	}
 
 	return 1;
-} /* int sock_bindlookedup(int, int) */
+} /* int sock_bindlookedup(int sock, int port) */
 
 #else
 
 int
-sock_bind(
-		int	sock,
-		char	*bindhost,
-		int	port
-	 )
+sock_bind(int sock, char *bindhost, int port)
 {
 	/* We'd better cast &addr to void * to keep Digital-UNIX happy. */
 	bzero((void *) &addr, sizeof(struct sockaddr_in));
@@ -357,15 +313,12 @@ sock_bind(
 	}
 
 	return 1;
-} /* int sock_bind(int, char *, int) */
+} /* int sock_bind(int sock, char *bindhost, int port) */
 
 
 
 int
-sock_bindlookedup(
-		int	sock,
-		int	port
-		)
+sock_bindlookedup(int sock, int port)
 {
 	/* We'd better cast &addr to void * to keep Digital-UNIX happy. */
 	bzero((void *) &addr, sizeof(struct sockaddr_in));
@@ -388,16 +341,14 @@ sock_bindlookedup(
 	}
 	
 	return 1;
-} /* int sock_bindlookedup(int, int) */
+} /* int sock_bindlookedup(int sock, int port) */
 
 #endif
 
 
 
 int
-sock_listen(
-		int	sock
-	   )
+sock_listen(int sock)
 {
 	if (! sock_setnonblock(sock)) {
 		return 0;
@@ -409,7 +360,7 @@ sock_listen(
 	}
 	
 	return 1;
-} /* int sock_listen(int) */
+} /* int sock_listen(int sock) */
 
 
 
@@ -421,11 +372,7 @@ sock_listen(
  * will be closed and function returns -1.
  */
 int
-sock_accept(
-		int	sock,
-		char	**s,
-		int	checkperm
-	       )
+sock_accept(int sock, char **s, int checkperm)
 {
 	int	temp;
 	int	store;
@@ -483,7 +430,7 @@ sock_accept(
 		close(store);
 		return -1;
 	}
-} /* int sock_accept(int, char **, int) */
+} /* int sock_accept(int sock, char **s, int checkperm) */
 
 
 
@@ -491,11 +438,7 @@ sock_accept(
  * Send data to all connected clients.
  */
 int
-irc_mwrite(
-		clientlist_type	*clients,
-		char		*format,
-		...
-	  )
+irc_mwrite(clientlist_type *clients, char *format, ...)
 {
 	llist_node	*client;
 	va_list		va;
@@ -521,7 +464,7 @@ irc_mwrite(
 	}
 
 	return (ret != 0);
-} /* int irc_mwrite(clientlist_type *, char *, ...) */
+} /* int irc_mwrite(clientlist_type *clients, char *format, ...) */
 
 
 
@@ -531,11 +474,7 @@ irc_mwrite(
  * We need this to make sure PONGs are not delayed for too long.
  */
 int
-irc_write_head(
-		connection_type	*connection,
-		char		*format,
-		...
-	 )
+irc_write_head(connection_type *connection, char *format, ...)
 {
 	va_list	va;
 	char	buffer[BUFFERSIZE];
@@ -546,16 +485,12 @@ irc_write_head(
 	strcat(buffer, "\r\n");
 
 	return irc_write_smart(connection, buffer, HEAD);
-} /* int irc_write_head(connection_type *, char *, ...) */
+} /* int irc_write_head(connection_type *connection, char *format, ...) */
 
 
 
 int
-irc_write(
-		connection_type	*connection,
-		char		*format,
-		...
-	 )
+irc_write(connection_type *connection, char *format, ...)
 {
 	va_list	va;
 	char	buffer[BUFFERSIZE];
@@ -566,8 +501,7 @@ irc_write(
 	strcat(buffer, "\r\n");
 
 	return irc_write_smart(connection, buffer, TAIL);
-} /* int irc_write(connection_type *, char *, ...) */
-
+} /* int irc_write(connection_type *connection, char *format, ...) */
 
 
 /*
@@ -578,11 +512,7 @@ irc_write(
  * counter. Otherwise put message in queue.
  */
 int
-irc_write_smart(
-		connection_type	*connection,
-		char		*buffer,
-		const int	queue
-	       )
+irc_write_smart(connection_type *connection, char *buffer, const int queue)
 {
 	if (connection != &c_server) {
 		return irc_write_real(connection, buffer);
@@ -603,15 +533,13 @@ irc_write_smart(
 		}
 		return strlen(buffer);
 	}
-} /* int irc_write_smart(connection_type *connection, char *) */
+} /* int irc_write_smart(connection_type *connection, char *buffer,
+		const int queue) */
 
 
 
 int
-irc_write_real(
-		connection_type	*connection,
-		char		*buffer
-	      )
+irc_write_real(connection_type *connection, char *buffer)
 {
 #ifdef DEBUG
 /* if (connection->socket == c_server.socket) */
@@ -619,7 +547,7 @@ irc_write_real(
 	fflush(stdout);
 #endif
 	return send(connection->socket, buffer, strlen(buffer), 0);
-} /* int irc_write_real(connection_type *, char *) */
+} /* int irc_write_real(connection_type *connection, char *buffer) */
 
 
 
@@ -632,8 +560,7 @@ irc_write_real(
  * control counter.
  */
 void
-irc_process_queue(
-		)
+irc_process_queue(void)
 {
 	char	*buf;
 	/*
@@ -661,7 +588,7 @@ irc_process_queue(
 		/* Finally decrease flood control counter. */
 		msgtimer--;
 	}
-} /* void irc_process_queue() */
+} /* void irc_process_queue(void) */
 
 
 
@@ -672,14 +599,13 @@ irc_process_queue(
  * when miau disconnects from the server or when miau is being shut down.
  */
 void
-irc_clear_queue(
-	       )
+irc_clear_queue(void)
 {
 	while (msg_queue.head != NULL) {
 		xfree(msg_queue.head->data);
 		llist_delete(msg_queue.head, &msg_queue);
 	}
-} /* void irc_clear_queue() */
+} /* void irc_clear_queue(void) */
 
 
 
@@ -687,12 +613,7 @@ irc_clear_queue(
  * Send data to all connected clients.
  */
 int
-irc_mnotice(
-		clientlist_type	*clients,
-		char		nickname[],
-		char		*format,
-		...
-	   )
+irc_mnotice(clientlist_type *clients, char nickname[], char *format, ...)
 {
 	llist_node	*client;
 	va_list		va;
@@ -714,17 +635,13 @@ irc_mnotice(
 	}
 
 	return ret;
-} /* int irc_mnotice(clientlist_type *, char[], char *, ...) */
+} /* int irc_mnotice(clientlist_type *clients, char nickname[],
+		char *format, ...) */
 
 
 
 void
-irc_notice(
-		connection_type	*connection,
-		char		nickname[],
-		char		*format,
-		...
-	  )
+irc_notice(connection_type *connection, char nickname[], char *format, ...)
 {
 	va_list	va;
 	char	buffer[BUFFERSIZE];
@@ -734,7 +651,8 @@ irc_notice(
 	va_end(va);
 
 	irc_write(connection, "NOTICE %s :%s", nickname, buffer);
-} /* void irc_notice(connection_type *, char[], char *, ...) */
+} /* void irc_notice(connection_type *connection, char nickname[],
+		char *format, ...) */
 
 
 
@@ -748,9 +666,7 @@ irc_notice(
  * Returns number of bytes received, -1 if there was an error.
  */
 int
-irc_read(
-		connection_type	*connection
-	)
+irc_read(connection_type *connection)
 {
 	int	ret;
 
@@ -775,7 +691,7 @@ irc_read(
 	connection->offset = 0;
 	connection->timer = 0;		/* Got data, reset timer. */
 	return 1;
-} /* int irc_read(connection_type *) */
+} /* int irc_read(connection_type *connection) */
 
 
 
@@ -792,14 +708,8 @@ irc_read(
  *	CONN_OTHER	Setting to nonblocking failed
  */
 int
-irc_connect(
-		connection_type *connection,
-		server_type	*server,
-		char		*nickname,
-		char		*username,
-		char		*realname,
-		char		*bindto
-	   )
+irc_connect(connection_type *connection, server_type *server, char *nickname,
+		char *username, char *realname, char *bindto)
 {
 	int		randport = 0;
 	int		ri, attempts;
@@ -872,5 +782,5 @@ irc_connect(
 	}
 	
 	return CONN_OK;
-} /* int irc_connect(connection_type *, server_type *, char *, char *, char *,
-	char *) */
+} /* int irc_connect(connection_type *connection, server_type *server,
+		char *nickname, char *username, char *realname, char *bindto) */

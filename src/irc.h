@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _IRC_H
-#define _IRC_H
+#ifndef IRC_H_
+#define IRC_H_
 
 #include "miau.h"
 
@@ -141,4 +141,4 @@ void irc_notice(connection_type *connection, char nickname[],
 #define RPL_ENDOFWHOIS		318
 
 
-#endif
+#endif /* ifndef IRC_H_ */

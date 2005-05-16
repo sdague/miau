@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,10 +28,7 @@
 #ifdef ENDUSERDEBUG
 #define ENDUSER_BUF_SIZE	8196
 void
-enduserdebug(
-		char	*format,
-		...
-	    )
+enduserdebug(char *format, ...)
 {
 	va_list va;
 	char buf0[ENDUSER_BUF_SIZE];
@@ -53,10 +50,7 @@ enduserdebug(
 
 
 void
-report(
-		char	*format,
-		...
-      )
+report(char *format, ...)
 {
 	char	buffer[256];
 	va_list	va;
@@ -74,10 +68,7 @@ report(
 
 
 void
-error(
-		char	*format,
-		...
-     )
+error(char *format, ...)
 {
 	char	buffer[256];
 	va_list	va;

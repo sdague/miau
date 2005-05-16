@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -92,11 +92,7 @@ dcccall dcccalls[] = {
 
 
 int
-dcc_bouncedata(
-		int	a,
-		int	b,
-		int	*wrflag
-	      )
+dcc_bouncedata(int a, int b, int *wrflag)
 {
 	static char	buffer[2048];
 	int		rret, wret;
@@ -125,13 +121,12 @@ dcc_bouncedata(
 	}
 	
 	return 1;
-} /* int dcc_bouncedata(int, int, int *) */
+} /* int dcc_bouncedata(int a, int b, int *wrflag) */
 
 
 
 int
-dcc_addbounce(
-	     )
+dcc_addbounce(void)
 {
 	int	dccindex;
 	dccs.data = (dccbounce **) add_item((void **) dccs.data,
@@ -142,14 +137,12 @@ dcc_addbounce(
 	printf("added bounce %d\n", dccindex);
 #endif
 	return dccindex;
-} /* int dcc_addbounce() */
+} /* int dcc_addbounce(void) */
 
 
 
 void
-dcc_killbounce(
-		int	dccindex
-	      )
+dcc_killbounce(int dccindex)
 {
 	if (dccs.data[dccindex]->src) {
 		rawsock_close(dccs.data[dccindex]->src);
@@ -162,13 +155,12 @@ dcc_killbounce(
 #ifdef DEBUG
 	printf("killed bounce %d\n", dccindex);
 #endif
-} /* void dcc_killbounce(int) */
+} /* void dcc_killbounce(int dccindex) */
 
 
 
 void
-dcc_timer(
-	 )
+dcc_timer(void)
 {
 	int	i;
 	time_t	t;
@@ -186,15 +178,12 @@ dcc_timer(
 			continue;
 		}
 	}
-} /* void dcc_timer() */
+} /* void dcc_timer(void) */
 
 
 
 void
-dcc_socketsubscribe(
-		fd_set	*readset,
-		fd_set	*writeset
-		)
+dcc_socketsubscribe(fd_set *readset, fd_set *writeset)
 {
 	int	i;
 	
@@ -219,15 +208,12 @@ dcc_socketsubscribe(
 			FD_SET(dccs.data[i]->src, writeset);
 		}
 	}
-} /* void dcc_socketsubscribe(fd_set *, fd_set *) */
+} /* void dcc_socketsubscribe(fd_set *readset, fd_set *writeset) */
 
 
 
 void
-dcc_socketcheck(
-		fd_set	*readset,
-		fd_set	*writeset
-	       )
+dcc_socketcheck(fd_set *readset, fd_set *writeset)
 {
 	int	i;
 	int	sockopt;
@@ -343,7 +329,7 @@ dcc_socketcheck(
 			}
 		}
 	} /* for */
-} /* void dcc_socketcheck(fd_set *, fd_set *) */
+} /* void dcc_socketcheck(fd_set *readset, fd_set *writeset) */
 
 
 
@@ -356,10 +342,7 @@ dcc_realinitiate(
 
 
 char *
-dcc_initiate(
-		char	*param,
-		int	fromclient
-	    )
+dcc_initiate(char *param, int fromclient)
 {
 	dcccommand	dcc;
 	char		*dparam, *chop, *check;
@@ -423,15 +406,12 @@ dcc_initiate(
 	xfree(dparam);
 	
 	return param;;
-} /* char *dcc_initiate(char *, int) */
+} /* char *dcc_initiate(char *param, int fromclient) */
 
 
 
 int
-dcc_realinitiate(
-		char		*dest,
-		dcccommand	*dcc
-		)
+dcc_realinitiate(char *dest, dcccommand *dcc)
 {
 	unsigned int	address, port;
 	struct hostent	*host;
@@ -511,15 +491,12 @@ dcc_realinitiate(
 			dccindex);
 
 	return 1;
-} /* int dcc_realinitiate(char *, dcccommand *) */
+} /* int dcc_realinitiate(char *dest, dcccommand *dcc) */
 
 
 
 int
-dcc_resume(
-		char		*dest,
-		dcccommand	*dcc
-	  )
+dcc_resume(char *dest, dcccommand *dcc)
 {
 	int	i;
 	int	resume;
@@ -555,7 +532,7 @@ dcc_resume(
 	}
 	
 	return 0;
-} /* dcc_resume(char *, dcccommand *) */
+} /* dcc_resume(char *dest, dcccommand *dcc) */
 
 
 

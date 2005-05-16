@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
 
 
 
-#ifndef _REMOTE_H
-#define _REMOTE_H
+#ifndef REMOTE_H_
+#define REMOTE_H_
 
 
 
@@ -31,4 +31,4 @@ int remote_cmd(char *command, char *params, char *nick);
 
 
 
-#endif /* _REMOTE_H */
+#endif /* ifndef REMOTE_H_ */

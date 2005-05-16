@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CHANLOG_H
-#define _CHANLOG_H
+#ifndef CHANLOG_H_
+#define CHANLOG_H_
 
 #include <config.h>
 
@@ -84,7 +84,7 @@ struct chanlogentry
 
 
 void chanlog_add_rule(char *channel, char *file, int type);
-void chanlog_del_rules();
+void chanlog_del_rules(void);
 
 void chanlog_open(channel_type *channel);
 void chanlog_close(channel_type *channel);
@@ -96,4 +96,4 @@ void chanlog_write_entry_all(int type, char *format, ...);
 
 
 
-#endif /* _CHANLOG_H */
+#endif /* ifndef CHANLOG_H_ */

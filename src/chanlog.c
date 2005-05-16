@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -36,11 +36,7 @@ extern clientlist_type	c_clients;	/* Needed. No, really. */
  * Creates a logging entry in log_list.
  */
 void
-chanlog_add_rule(
-		char	*channels,
-		char	*file,
-		int	type
-		)
+chanlog_add_rule(char *channels, char *file, int type)
 {
 	char	*chan;
 	int	multi = 0;
@@ -114,8 +110,7 @@ chanlog_add_rule(
  * Delete all logging rules.
  */
 void
-chanlog_del_rules(
-		)
+chanlog_del_rules(void)
 {
 	LLIST_WALK_H(chanlog_list.head, struct chanlogentry *);
 		xfree(data->channel);
@@ -125,7 +120,7 @@ chanlog_del_rules(
 		llist_delete(node, &chanlog_list);
 	LLIST_WALK_F;
 
-} /* void chanlog_del_rules() */
+} /* void chanlog_del_rules(void) */
 
 
 
@@ -133,9 +128,7 @@ chanlog_del_rules(
  * Open a logfile.
  */
 void
-chanlog_open(
-		channel_type	*channel
-	    )
+chanlog_open(channel_type *channel)
 {
 	/*
 	 * Should have no need for this.
@@ -203,9 +196,7 @@ chanlog_open(
  * Close logfile and free resources.
  */
 void
-chanlog_close(
-		channel_type	*channel
-	     )
+chanlog_close(channel_type *channel)
 {
 	if (channel->log != NULL) {
 		chanlog_write_entry(channel, LOGM_LOGCLOSE, get_timestamp(
@@ -222,11 +213,7 @@ chanlog_close(
  * Writes a logging entry to the logfile.
  */
 void
-chanlog_write_entry(
-		channel_type	*chptr,
-		char		*format,
-		...
-		)
+chanlog_write_entry(channel_type *chptr, char *format, ...)
 {
 	char	buffer[1024];
 	va_list	va;
@@ -258,11 +245,7 @@ chanlog_write_entry(
  * Writes a logging entry to all matching logfiles.
  */
 void
-chanlog_write_entry_all(
-		int	type,
-		char	*format,
-		...
-		)
+chanlog_write_entry_all(int type, char *format, ...)
 {
 	char		buffer[1024];
 	va_list		va;

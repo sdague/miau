@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2004 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -39,11 +39,7 @@ ignores_type ignores;
 
 
 void
-add_ignore(
-		char	*hostname,
-		int	ttl,
-		int	type
-	  )
+add_ignore(char *hostname, int ttl, int type)
 {
 	int i, indx;
 
@@ -64,14 +60,12 @@ add_ignore(
 	ignores.data[indx]->hostname = strdup(hostname);
 	ignores.data[indx]->ttl = ttl;
 	ignores.data[indx]->type = type;
-} /* void add_ignore(char *, int, int) */
+} /* void add_ignore(char *hostname, int ttl, int type) */
 
 
 
 void
-del_ignore(
-		char	*hostname
-	  )
+del_ignore(char *hostname)
 {
 	int i;
 	for (i = 0; i < ignores.amount; i++) {
@@ -83,27 +77,24 @@ del_ignore(
 					ignores.data, i, &ignores.amount);
 		}
 	}
-} /* void del_ignore(char *) */
+} /* void del_ignore(char *hostname) */
 
 
 
 void
-del_ignorebynumber(
-		int	i
-		)
+del_ignorebynumber(int i)
 {
 	if (i < ignores.amount && ignores.data[i] != NULL) {
 		xfree(ignores.data[i]->hostname);
 		ignores.data = (ignore_type **) rem_item((void **) ignores.data,
 				i, &ignores.amount);
 	}
-} /* void del_ignorebynumber(int) */
+} /* void del_ignorebynumber(int i) */
 
 
 
 void
-process_ignores(
-	       )
+process_ignores(void)
 {
 	int i;
 	for (i = 0; i < ignores.amount; i++) {
@@ -115,15 +106,12 @@ process_ignores(
 			}
 		}
 	}
-} /* void process_ignores() */
+} /* void process_ignores(void) */
 
 
 
 int
-is_ignore(
-		char	*hostname,
-		int	type
-	 )
+is_ignore(char *hostname, int type)
 {
 	int i;
 	for (i = 0; i < ignores.amount; i++) {
@@ -135,7 +123,7 @@ is_ignore(
 		}
 	}
 	return 0;
-} /* int is_ignore(char *, int) */
+} /* int is_ignore(char *hostname, int type) */
 
 
 

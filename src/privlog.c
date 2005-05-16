@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2004-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2004-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +34,7 @@ void finalize_log(privlog_type *);
 
 
 FILE *
-open_file(
-		char	*nick
-	 )
+open_file(char *nick)
 {
 	char *lownick;
 	char *filename;
@@ -55,7 +53,7 @@ open_file(
 	xfree(lownick);
 
 	return file;
-} /* FILE *open_file(char *) */
+} /* FILE *open_file(char *nick) */
 
 
 
@@ -68,11 +66,7 @@ open_file(
  * (Logfiles are closed periodically in miau.c)
  */
 int
-privlog_write(
-		const char	*nick,
-		const int	in_out,
-		const char	*message
-	     )
+privlog_write(const char *nick, const int in_out, const char *message)
 {
 	const char *active;
 	char *t;
@@ -127,7 +121,8 @@ privlog_write(
 	fflush(line->file);
 
 	return 0;
-} /* int privlog_write(const char *, const int, const char *) */
+} /* int privlog_write(const char *nick, const int in_out,
+		const char *message) */
 
 
 
@@ -135,14 +130,13 @@ privlog_write(
  * Close all logfiles.
  */
 void
-privlog_close_all(
-		)
+privlog_close_all(void)
 {
 	LLIST_WALK_H(open_logs.head, privlog_type *);
 		finalize_log(data);
 		llist_delete(node, &open_logs);
 	LLIST_WALK_F;
-} /* void privlog_close_all() */
+} /* void privlog_close_all(void) */
 
 
 
@@ -153,9 +147,7 @@ privlog_close_all(
  * including structure for logfile.
  */
 void
-finalize_log(
-		privlog_type	*log
-	    )
+finalize_log(privlog_type *log)
 {
 	/*
 	 * Remove entry from list. This allows writing new headers into file
@@ -172,7 +164,7 @@ finalize_log(
 	}
 	xfree(log->nick);
 	xfree(log);
-} /* void finalize_log(privlog_type *) */
+} /* void finalize_log(privlog_type *log) */
 
 
 
@@ -180,8 +172,7 @@ finalize_log(
  * Close logfile.
  */
 void
-privlog_close_old(
-		)
+privlog_close_old(void)
 {
 	time_t close;
 	time_t loggrace;
@@ -201,26 +192,24 @@ privlog_close_old(
 			data->file = NULL;
 		}
 	LLIST_WALK_F;
-} /* void privlog_close_old() */
+} /* void privlog_close_old(void) */
 
 
 
 int
-privlog_has_open(
-		)
+privlog_has_open(void)
 {
 	return open_logs.head != NULL;
-} /* int privlog_has_open() */
+} /* int privlog_has_open(void) */
 
 
 
 #ifdef DUMPSTATUS
 llist_list *
-privlog_get_list(
-		)
+privlog_get_list(void)
 {
 	return &open_logs;
-} /* privlog_get_list() */
+} /* privlog_get_list(void) */
 #endif /* DUMPSTATUS */
 
 

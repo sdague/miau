@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *      (C) 2002 Lee Hardy <lee@leeh.co.uk>
  *      (C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -57,9 +57,7 @@ extern char		*forwardmsg;
  * Give client (and server) a reason, which may be set to NULL.
  */
 void
-server_drop(
-		char	*reason
-	   )
+server_drop(char *reason)
 {
 	llist_node	*node;
 	llist_node	*nextnode;
@@ -144,7 +142,7 @@ server_drop(
 #ifdef UPTIME
 	status.startup = 0;	/* Reset uptime-counter. */
 #endif /* UPTIME */
-} /* void server_drop(char *) */
+} /* void server_drop(char *reason) */
 
 
 
@@ -155,9 +153,7 @@ server_drop(
  * real information about the server we're connected to.
  */
 void
-server_set_fallback(
-		const llist_node	*safenode
-		)
+server_set_fallback(const llist_node *safenode)
 {
 	server_type	*fallback = (server_type *) servers.servers.head->data;
 	server_type	*safe = (server_type *) safenode->data;
@@ -182,7 +178,7 @@ server_set_fallback(
 		strdup(safe->password) : NULL;
 	fallback->working = 1;		/* TODO: Is this necessary ? */
 	fallback->timeout = safe->timeout;
-} /* void server_set_fallback(const llist_node *) */
+} /* void server_set_fallback(const llist_node *safenode) */
 
 
 
@@ -190,8 +186,7 @@ server_set_fallback(
  * Resets all servers to 'working'.
  */
 void
-server_reset(
-	    )
+server_reset(void)
 {
 	llist_node	*node;
 
@@ -199,7 +194,7 @@ server_reset(
 			node = node->next) {
 		((server_type *) node->data)->working = 1;
 	}
-} /* void server_reset() */
+} /* void server_reset(void) */
 
 
 
@@ -212,9 +207,7 @@ server_reset(
  * If disablecurrent != 0, old server will be marked as disfunctional.
  */
 void
-server_next(
-		const int	disablecurrent
-	   )
+server_next(const int disablecurrent)
 {
 	llist_node	*i = i_server.current;
 
@@ -271,16 +264,12 @@ server_next(
 				cfg.reconnectdelay);
 		timers.connect = 0;
 	}
-} /* void server_next(const int) */
+} /* void server_next(const int disablecurrent) */
 
 
 
 void
-server_commands(
-		char	*command,
-		char	*param,
-		int	*pass
-	       )
+server_commands(char *command, char *param, int *pass)
 {
 	upcase(command);
 
@@ -310,19 +299,13 @@ server_commands(
 
 		server_next(i_server.connected == 0);
 	}
-} /* void server_commands(char *, char *, int *) */
+} /* void server_commands(char *command, char *param, int *pass) */
 
 
 
 int
-parse_privmsg(
-		char		*param1,
-		char		*param2,
-		char		*nick,
-		char		*hostname,
-		const int	cmdindex,
-		int		*pass
-	     )
+parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
+		const int cmdindex, int *pass)
 {
 #ifdef CHANLOG
 	channel_type	*chptr;
@@ -543,13 +526,13 @@ parse_privmsg(
 	xfree(origin);
 
 	return isprivmsg;
-} /* int parse_privmsg(char *, char *, char *, char *, const int, int *) */
+} /* int parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
+		const int cmdindex, int *pass) */
 
 
 
 int
-server_read(
-	   )
+server_read(void)
 {
 	char	*backup = NULL;
 	char	*origin, *command, *param1, *param2;
@@ -618,7 +601,7 @@ server_read(
 	xfree(backup);
 	
 	return 0;
-} /* int server_read() */
+} /* int server_read(void) */
 
 
 
@@ -631,8 +614,7 @@ server_read(
  * list, set i_server.current to index of it.
  */
 void
-server_check_list(
-		)
+server_check_list(void)
 {
 	llist_node	*ptr;
 	
@@ -662,19 +644,13 @@ server_check_list(
 			servers.fresh = 0;
 		}
 	}
-} /* void server_check_list() */
+} /* void server_check_list(void) */
 
 
 
 void
-server_reply(
-		const int	command,
-		char		*original,
-		char		*origin,
-		char		*param1,
-		char		*param2,
-		int		*pass
-	    )
+server_reply(const int command, char *original, char *origin, char *param1,
+		char *param2, int *pass)
 {
 	channel_type	*chptr;
 	char		*work = NULL;
@@ -1285,15 +1261,13 @@ server_reply(
 	xfree(work);
 	xfree(nick);
 	xfree(hostname);
-} /* void server_reply(const int, char *, char *, char *, char *, int *) */
+} /* void server_reply(const int command, char *original, char *origin,
+		char *param1, char *param2, int *pass) */
 
 
 
 void
-parse_modes(
-		const char	*channel,
-		const char	*original
-	   )
+parse_modes(const char *channel, const char *original)
 {
 	channel_type	*chptr = channel_find(channel, LIST_ACTIVE);
 	char		*buf;
@@ -1394,5 +1368,4 @@ parse_modes(
 	}
 
 	xfree(buf);
-} /* void parse_modes(const char *, const char *) */
-
+} /* void parse_modes(const char *channel, const char *original) */

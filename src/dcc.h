@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2001 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _DCC_H
-#define _DCC_H
+#ifndef DCC_H_
+#define DCC_H_
 
 #include <config.h>
 #include <string.h>
@@ -25,8 +25,8 @@
 extern char *dcc_initiate(char* param, int fromclient);
 extern void dcc_socketsubscribe(fd_set* readset, fd_set* writeset);
 extern void dcc_socketcheck(fd_set* readset, fd_set* writeset);
-extern void dcc_timer(); /* To be called every second ! */
+extern void dcc_timer(void); /* To be called every second ! */
 
 #endif /* DCCBOUNCE */
 
-#endif /* _DCC_H */
+#endif /* DCC_H_ */

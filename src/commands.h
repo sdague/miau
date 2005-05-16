@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -44,8 +44,8 @@
 
 
 int command_find(char *p);
-void command_setup();
-void command_free();
+void command_setup(void);
+void command_free(void);
 
 
 

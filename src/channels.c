@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -53,11 +53,7 @@ extern clientlist_type	c_clients;
  * Adds a channel to miaus internal list.
  */
 channel_type *
-channel_add(
-		const char	*channel,
-		const char	*key,
-		const int	list
-	   )
+channel_add(const char *channel, const char *key, const int list)
 {
 	llist_list	*target = NULL;	/* List on which to add. */
 	llist_node	*ptr;
@@ -163,10 +159,7 @@ channel_add(
  * "list" defines list hannel is to be removed from.
  */
 void
-channel_rem(
-		channel_type	*chptr,
-		const int	list
-	   )
+channel_rem(channel_type *chptr, const int list)
 {
 	llist_list	*source;
 	llist_node	*node;
@@ -247,10 +240,7 @@ channel_rem(
  * "list" declares which list to search.
  */
 channel_type *
-channel_find(
-		const char	*channel,
-		const int	list
-	    )
+channel_find(const char *channel, const int list)
 {
 	llist_node	*node;
 	channel_type	*chptr;
@@ -278,10 +268,7 @@ channel_find(
  * Stores a topic for a channel we're in.
  */
 void
-channel_topic(
-		channel_type	*chptr,
-		char		*topic
-	     )
+channel_topic(channel_type *chptr, char *topic)
 {
 	xfree(chptr->topic);
 	xfree(chptr->topicwho);
@@ -301,11 +288,7 @@ channel_topic(
  * Stores who set the topic for a channel we're in.
  */
 void
-channel_when(
-		channel_type	*chptr,
-		char		*topicwho,
-		char		*topicwhen
-	    )
+channel_when(channel_type *chptr, char *topicwho, char *topicwhen)
 {
 	if (chptr->topic != NULL) {
 		xfree(chptr->topicwho);
@@ -319,11 +302,7 @@ channel_when(
 
 
 void
-channel_join_list(
-		const int	list,
-		const int	rejoin,
-		connection_type	*client
-		)
+channel_join_list(const int list, const int rejoin, connection_type *client)
 {
 	llist_node *first = (list == LIST_PASSIVE) ?
 		passive_channels.head : active_channels.head;
@@ -472,9 +451,7 @@ channel_join_list(
  * Creates a hash value based on the first 25 chars of a channel name.
  */
 unsigned int
-channel_hash(
-		char	*p
-		)
+channel_hash(char *p)
 {
 	int		i = 25;
 	unsigned int	hash = 0;

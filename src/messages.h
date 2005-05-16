@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -119,7 +119,7 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #define BANNER1 "\
 -=============================================================-\n\
  miau v"VERSION" \""VERSIONNAME"\" -- "MIAU_URL"\n\
- Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>\n\
+ Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>\n\
         (C) 2002 Lee Hardy <lee@leeh.co.uk>\n\
         (C) 1998-2002 Sebastian Kienzl <zap@riot.org>\n\
 -=============================================================-\n"

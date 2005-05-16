@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,7 @@
 
 #ifdef VSNPRINTF_WORKAROUND
 int
-vsnprintf(
-		char		*str,
-		size_t		size,
-		const char	*format,
-		va_list		ap
-	 )
+vsnprintf(char *str, size_t size, const char *format, va_list ap)
 {
 	/*
 	 * TODO:
@@ -46,7 +41,7 @@ vsnprintf(
 	 */
 
 	return vsprintf(str, format, ap);
-} /* int vsnprintf(char *, size_t, const char *, va_list) */
+} /* int vsnprintf(char *str, size_t size, const char *format, va_list ap) */
 #endif /* ifdef VSNPRINTF_WORKAROUND */
 
 
@@ -56,9 +51,7 @@ vsnprintf(
  * @str:	String to convert
  */
 void
-upcase(
-		char	*str
-      )
+upcase(char *str)
 {
 	char *ptr;
 	for (ptr = str; ptr != NULL && *ptr != '\0'; ptr++) {
@@ -73,9 +66,7 @@ upcase(
  * @str:	String to convert
  */
 void
-lowcase(
-		char	*str
-       )
+lowcase(char *str)
 {
 	char *ptr;
 	for (ptr = str; ptr != NULL && *ptr != '\0'; ptr++) {
@@ -97,11 +88,7 @@ lowcase(
  * This function doesn't work with multibyte characters.
  */
 void
-randname(
-		char		*target,
-		const size_t	length,
-		const char	fillchar
-	)
+randname(char *target, const size_t length, const char fillchar)
 {
 	size_t oldlen;
 	size_t i;
@@ -154,10 +141,7 @@ randname(
  * instead of "char c" so that this could be fixed without major rewriting.
  */
 int
-pos(
-		const char	*s,
-		const int	c
-   )
+pos(const char *s, const int c)
 {
 	/* It takes less space to do this than to use strchr. */
 	int i;
@@ -184,10 +168,7 @@ pos(
  * instead of "char c" so that this could be fixed without major rewriting.
  */
 int
-lastpos(
-		const char	*s,
-		const int	c
-       )
+lastpos(const char *s, const int c)
 {
 	/* It takes less space to do this than to use strchr. */
 	int i;
@@ -215,9 +196,7 @@ lastpos(
  * words left.
  */
 char *
-nextword(
-		char	*s
-	)
+nextword(char *s)
 {
 	int i;
 	
@@ -238,9 +217,7 @@ nextword(
  * Returns: Pointer to last word, NULL if there are no words before s.
  */
 char *
-lastword(
-		char	*s
-	)
+lastword(char *s)
 {
 	int i;
 	
@@ -256,13 +233,7 @@ lastword(
 
 #ifdef UPTIME
 void
-getuptime(
-		time_t	now,
-		int	*days,
-		int	*hours,
-		int	*minutes,
-		int	*seconds
-	 )
+getuptime(time_t now, int *days, int *hours, int *minutes, int *seconds)
 {
 	*days = now / 86400;
 	now %= 86400;
@@ -289,10 +260,7 @@ getuptime(
  *	Jan 02 11:53:33
  */
 const char *
-get_timestamp(
-		time_t			*t,
-		const timestamp_t	mode
-	     )
+get_timestamp(time_t *t, const timestamp_t mode)
 {
 	struct tm	*form;
 	static char	stamp[100];
@@ -313,7 +281,7 @@ get_timestamp(
 	}
 
 	return stamp;
-} /* char *get_timestamp(time_t, const timestamp_t mode) */
+} /* char *get_timestamp(time_t *t, const timestamp_t mode) */
 
 
 
@@ -325,8 +293,7 @@ get_timestamp(
  * Creates a timestamp like: "Jan 02 11:53:33"
  */
 const char *
-get_short_localtime(
-		)
+get_short_localtime(void)
 {
 	return get_timestamp(NULL, TIMESTAMP_SHORT);
-} /* const char *get_short_localtime() */
+} /* const char *get_short_localtime(void) */

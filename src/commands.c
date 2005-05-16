@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -72,9 +72,7 @@ static struct commandaddstruct cmd_add_table[] =
  * Hashes a command to a value.
  */
 static int
-command_hash(
-		const char	*p
-	    )
+command_hash(const char *p)
 {
 	int	hash_val = 0;
 
@@ -84,7 +82,7 @@ command_hash(
 	}
 
 	return (hash_val % MAX_CMD);
-} /* static int command_hash(const char *) */
+} /* static int command_hash(const char *p) */
 
 
 
@@ -92,9 +90,7 @@ command_hash(
  * Searches for a command in the command hash table.
  */
 int
-command_find(
-		char	*p
-	    )
+command_find(char *p)
 {
 	struct commandhash	*ptr;
 	int			cmdindex;
@@ -108,7 +104,7 @@ command_find(
 	}
 
 	return 0;
-} /* int command_find(char *) */
+} /* int command_find(char *p) */
 
 
 
@@ -116,10 +112,7 @@ command_find(
  * Adds a command to the command hash table.
  */
 void
-command_add(
-		const char	*cmd,
-		int	cmdvalue
-	   )
+command_add(const char *cmd, int cmdvalue)
 {
 	struct commandhash	*ptr;
 	struct commandhash	*temp_ptr;
@@ -148,7 +141,7 @@ command_add(
 	} else {
 		cmd_hash[cmdindex] = ptr;
 	}
-} /* void command_add(const char *, int) */
+} /* void command_add(const char *cmd, int cmdvalue) */
 
 
 
@@ -156,8 +149,7 @@ command_add(
  * Walks the commandsadd table and adds all the entries.
  */
 void
-command_setup(
-	     )
+command_setup(void)
 {
 	int	i;
 
@@ -168,7 +160,7 @@ command_setup(
 	for (i = 0; cmd_add_table[i].cmd; i++) {
 		command_add(cmd_add_table[i].cmd, cmd_add_table[i].mask);
 	}
-} /* void command_setup() */
+} /* void command_setup(void) */
 
 
 
@@ -176,8 +168,7 @@ command_setup(
  * Free memore allocated by command-hash.
  */
 void
-command_free(
-	    )
+command_free(void)
 {
 	int	i;
 	struct commandhash	*ptr;
@@ -189,4 +180,4 @@ command_free(
 			xfree(ptr);
 		}
 	}
-} /* void command_free() */
+} /* void command_free(void) */

@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2004-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,11 +47,7 @@ struct _match_type {
  * to do this. :-)
  */
 list_type *
-matchlist_add(
-		list_type	*list,
-		char		*rule,
-		void		*state
-	     )
+matchlist_add(list_type *list, char *rule, void *state)
 {
 	match_type *match;
 
@@ -71,10 +67,7 @@ matchlist_add(
  * Returns: pointer to list
  */
 list_type *
-matchlist_flush(
-		list_type	*list,
-		void		(free_cb)(void *)
-	       )
+matchlist_flush(list_type *list, void (free_cb)(void *))
 {
 	match_type *data;
 	list_type *ptr;
@@ -104,10 +97,7 @@ matchlist_flush(
  * Returns: pointer to data, (void *) -1 if nothing found.
  */
 void *
-matchlist_get(
-		list_type	*list,
-		const char	*cand
-	     )
+matchlist_get(list_type *list, const char *cand)
 {
 	match_type	*data;
 	list_type	*ptr;
@@ -127,9 +117,7 @@ matchlist_get(
 #ifdef DUMPSTATUS
 #define BUFSIZE	65536
 const char *
-matchlist_dump(
-		list_type	*list
-	      )
+matchlist_dump(list_type *list)
 {
 	static char	buf[BUFSIZE];
 	match_type	*data;

@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
 
 
 
-#ifndef _SERVER_H
-#define _SERVER_H
+#ifndef SERVER_H_
+#define SERVER_H_
 
 
 
@@ -55,14 +55,14 @@ typedef struct {
 
 void server_drop(char *reason);
 void server_set_fallback(const llist_node *safenode);
-void server_reset();
-void server_next();
-int server_read();
+void server_reset(void);
+void server_next(const int disablecurrent);
+int server_read(void);
 void server_commands(char *command, char *param, int *pass);
 int parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 		const int cmdindex, int *pass);
-int server_read();
-void server_check_list();
+int server_read(void);
+void server_check_list(void);
 void server_reply(const int command, char *original, char *origin,
 		char *param1, char *param2, int *pass);
 void parse_modes(const char *channel, const char *original);
@@ -74,4 +74,4 @@ extern connection_type	c_server;
 
 
 
-#endif /* _SERVER_H */
+#endif /* ifndef SERVER_H_ */

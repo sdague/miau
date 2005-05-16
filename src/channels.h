@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CHANNELS_H
-#define _CHANNELS_H
+#ifndef CHANNELS_H_
+#define CHANNELS_H_
 
 #include "conntype.h"
 #include "llist.h"
@@ -84,4 +84,4 @@ void channel_when(channel_type *, char *, char *);
 extern unsigned int channel_hash(char *);
 #endif /* OBSOLETE */
 
-#endif /* _CHANNELS_H */
+#endif /* ifndef CHANNELS_H_ */

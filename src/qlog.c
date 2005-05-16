@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,8 +47,7 @@ void qlog_add_timestamp(qlogentry *);
  * CPU-time as qlog can be checked just as well before replaying.
  */
 void
-qlog_check(
-	  )
+qlog_check(void)
 {
 	channel_type *chan;
 
@@ -66,7 +65,7 @@ qlog_check(
 			}
 		}
 	LLIST_WALK_F;
-} /* qlog_check() */
+} /* qlog_check(void) */
 
 		
 
@@ -74,10 +73,7 @@ qlog_check(
  * (Replay and) clean quicklog data.
  */
 void
-qlog_replay(
-		connection_type	*client,
-		const int	keep
-	   )
+qlog_replay(connection_type *client, const int keep)
 {
 	qlog_drop_old();
 
@@ -97,7 +93,7 @@ qlog_replay(
 			llist_delete(node, &qlog);
 		}
 	LLIST_WALK_F;
-} /* void qlog_replay(connection_type *, const int) */
+} /* void qlog_replay(connection_type *client, const int keep) */
 
 
 
@@ -106,9 +102,7 @@ qlog_replay(
  * Add timestamp in qlogentry.
  */
 void
-qlog_add_timestamp(
-		qlogentry	*data
-		)
+qlog_add_timestamp(qlogentry *data)
 {
 	int		i = -1;
 	int		len;
@@ -183,7 +177,7 @@ qlog_add_timestamp(
 	p = data->text + i;
 	memmove(p + TSLEN - 1, p, len - (int) i + 1); /* Move '\0' as well. */
 	strncpy(p, temp, TSLEN - 1); /* Don't copy '\0'. */
-} /* void qlog_add_timestamp(qlogentry *) */
+} /* void qlog_add_timestamp(qlogentry *data) */
 #endif /* QLOGSTAMP */
 
 
@@ -192,8 +186,7 @@ qlog_add_timestamp(
  * Remove old lines from quicklog.
  */
 void
-qlog_drop_old(
-	     )
+qlog_drop_old(void)
 {
 	qlogentry	*line;
 	time_t		oldest;
@@ -241,7 +234,7 @@ qlog_drop_old(
 			line = NULL;
 		}
 	}
-} /* void qlog_drop_old() */
+} /* void qlog_drop_old(void) */
 
 
 
@@ -249,11 +242,7 @@ qlog_drop_old(
  * Write lines to quick log.
  */
 void
-qlog_write(
-		const int	privmsg,
-		char		*format,
-		...
-	  )
+qlog_write(const int privmsg, char *format, ...)
 {
 	qlogentry	*line;
 	va_list		va;
@@ -272,14 +261,12 @@ qlog_write(
 	line->text = strdup(buf);
 	line->privmsg = privmsg;
 	llist_add_tail(llist_create(line), &qlog);
-} /* void qlog_write(const int, char *, ...) */
+} /* void qlog_write(const int privmsg, char *format, ...) */
 
 
 
 channel_type *
-qlog_get_channel(
-		const char	*msg
-		)
+qlog_get_channel(const char *msg)
 {
 	channel_type	*chan = NULL;
 	char		*b;
@@ -305,7 +292,7 @@ qlog_get_channel(
 	}
 
 	return chan;
-} /* channel_type *qlog_get_channel(const char *) */
+} /* channel_type *qlog_get_channel(const char *msg) */
 
 
 

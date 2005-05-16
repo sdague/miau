@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +13,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CLIENT_H
-#define _CLIENT_H
+#ifndef CLIENT_H_
+#define CLIENT_H_
 
 
 
@@ -55,7 +55,7 @@ typedef struct {
 void client_drop(connection_type *client, char *reason, const int error,
 		const int echo, const char *);
 int client_read(connection_type *client);
-void client_free();
+void client_free(void);
 
 
 
@@ -64,4 +64,4 @@ extern clientlist_type	c_clients;
 
 
 
-#endif /* _CLIENT_H */
+#endif /* ifndef CLIENT_H_ */

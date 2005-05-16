@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,9 +52,9 @@ typedef struct {
 } qlogentry;
 
 
-void qlog_check();
+void qlog_check(void);
 void qlog_replay(connection_type *client, const int keep);
-void qlog_drop_old();
+void qlog_drop_old(void);
 void qlog_write(const int privmsg, char *format, ...);
 
 channel_type *qlog_get_channel(const char *msg);

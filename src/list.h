@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ list_type *list_move_to(list_type *list, list_type *src, list_type *dest);
 */
 
 #ifdef USE_POOL
-void list_free();
+void list_free(void);
 #endif /* ifdef USE_POOL */
 
 #ifdef DUMPSTATUS

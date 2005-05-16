@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2004-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2004-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,10 +51,7 @@ static int		free_ptr = 0;
  * Returns: Pointer to list.
  */
 list_type *
-list_add_head(
-		list_type	*list,
-		void		*data
-	     )
+list_add_head(list_type *list, void *data)
 {
 	list_type *new;
 	
@@ -87,10 +84,7 @@ list_add_head(
  * Returns: Pointer to list.
  */
 list_type *
-list_add_tail(
-		list_type	*list,
-		void		*data
-	     )
+list_add_tail(list_type *list, void *data)
 {
 	list_type *new;
 	
@@ -128,11 +122,7 @@ list_add_tail(
  * If dest == NULL, node will be inserted as last.
  */
 list_type *
-list_insert_at(
-		list_type	*list,
-		list_type	*dest,
-		void		*data
-	      )
+list_insert_at(list_type *list, list_type *dest, void *data)
 {
 	list_type *new;
 
@@ -172,11 +162,7 @@ list_insert_at(
  * Returns: Pointer to list
  */
 list_type *
-list_insert_at(
-		list_type	*list,
-		list_type	*pos,
-		void		*data
-	      )
+list_insert_at(list_type *list, list_type *pos, void *data)
 {
 	list_type *new;
 
@@ -218,11 +204,7 @@ list_insert_at(
  * just before dest.
  */
 list_type *
-list_move_to(
-		list_type	*list,
-		list_type	*src,
-		list_type	*dest
-	    )
+list_move_to(list_type *list, list_type *src, list_type *dest)
 {
 	list_type *first;
 	list_type *ptr;
@@ -248,11 +230,7 @@ list_move_to(
  * Returns: Pointer to list
  */
 static list_type *
-insert_at_priv(
-		list_type	*list,
-		list_type	*pos,
-		list_type	*node
-	      )
+insert_at_priv(list_type *list, list_type *pos, list_type *node)
 {
 	/* Adding to head/tail? */
 	if (pos == list) {
@@ -283,10 +261,7 @@ insert_at_priv(
  * Data should be freed before calling this function.
  */
 list_type *
-list_delete(
-		list_type	*list,
-		list_type	*node
-	   )
+list_delete(list_type *list, list_type *node)
 {
 	list_type *first;
 
@@ -343,10 +318,7 @@ list_delete(
  * Returns: node or NULL if data was not found.
  */
 list_type *
-list_find(
-		list_type	*list,
-		void		*data
-	 )
+list_find(list_type *list, void *data)
 {
 	list_type *ptr;
 
@@ -362,10 +334,7 @@ list_find(
 
 
 list_type *
-list_move_first_to(
-		list_type	*list,
-		list_type	*dest
-		)
+list_move_first_to(list_type *list, list_type *dest)
 {
 	list_type *new;
 	list_type *moved;
@@ -404,8 +373,7 @@ list_move_first_to(
 
 #ifdef USE_POOL
 static list_type *
-get_node(
-	)
+get_node(void)
 {
 	if (free_ptr == 0) {
 		int i;
@@ -429,14 +397,12 @@ printf("pool now %p...%p\n", (void *) pool, (void *) (pool + pool_size + POOL_RE
 	free_ptr--;
 printf("use %p\n", (void *) pool_free[free_ptr]);
 	return pool_free[free_ptr];
-} /* static list_type *get_node() */
+} /* static list_type *get_node(void) */
 
 
 
 static void
-free_node(
-		list_type	*node
-	 )
+free_node(list_type *node)
 {
 	pool_free[free_ptr] = node;
 	free_ptr++;
@@ -451,12 +417,11 @@ free_node(
 
 
 void
-list_free(
-	 )
+list_free(void)
 {
 	xfree(pool_free);
 	xfree(pool);
-} /* void list_free() */
+} /* void list_free(void) */
 #endif /* ifdef USE_POOL */
 
 
@@ -464,9 +429,7 @@ list_free(
 #ifdef DUMPSTATUS
 #define LLIST_BUFSIZE	65536
 const char *
-list_dump(
-		list_type	*list
-	 )
+list_dump(list_type *list)
 {
 	static char buf[LLIST_BUFSIZE];
 	/*

@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -25,9 +25,7 @@
  * Return pointer to this node.
  */
 llist_node *
-llist_create(
-		void	*data
-	    )
+llist_create(void *data)
 {
 	llist_node	*node;
 
@@ -40,7 +38,7 @@ llist_create(
 	 */
 
 	return node;
-} /* llist_node *llist_create(void *) */
+} /* llist_node *llist_create(void *data) */
 
 
 
@@ -48,10 +46,7 @@ llist_create(
  * Add node to the beginning of the list.
  */
 void
-llist_add(
-		llist_node	*node,
-		llist_list	*list
-	 )
+llist_add(llist_node *node, llist_list *list)
 {
 	/* New node has no previous node. */
 	node->next = list->head;
@@ -64,7 +59,7 @@ llist_add(
 	}
 
 	list->head = node;
-} /* void llist_add(llist_node *, llist_list *) */
+} /* void llist_add(llist_node *node, llist_list *list) */
 
 
 
@@ -72,10 +67,7 @@ llist_add(
  * Add node to the end of list.
  */
 void
-llist_add_tail(
-		llist_node	*node,
-		llist_list	*list
-	      )
+llist_add_tail(llist_node *node, llist_list *list)
 {
 	node->next = NULL;
 	node->prev = list->tail;
@@ -87,7 +79,7 @@ llist_add_tail(
 	}
 
 	list->tail = node;
-} /* void llist_add_tail(llist_node *, llist_list *) */
+} /* void llist_add_tail(llist_node *node, llist_list *list) */
 
 
 
@@ -98,10 +90,7 @@ llist_add_tail(
  * node->data.
  */
 void
-llist_delete(
-		llist_node	*node,
-		llist_list	*list
-	    )
+llist_delete(llist_node *node, llist_list *list)
 {
 	/* Item is at head. */
 	if (node->prev == NULL) {
@@ -122,7 +111,7 @@ llist_delete(
 	 * llist_delete.
 	 */
 	xfree(node);
-} /* void llist_delete(llist_node *, llist_list *) */
+} /* void llist_delete(llist_node *node, llist_list *list) */
 
 
 
@@ -132,10 +121,7 @@ llist_delete(
  * Return pointer to this node.
  */
 llist_node *
-llist_find(
-		void		*data,
-		llist_list	*list
-	  )
+llist_find(void *data, llist_list *list)
 {
 	llist_node	*ptr;
 
@@ -146,7 +132,7 @@ llist_find(
 	}
 	
 	return NULL;
-} /* llist_node *llist_find(void *, llist_list *) */
+} /* llist_node *llist_find(void *data, llist_list *list) */
 
 
 
@@ -156,10 +142,7 @@ llist_find(
  * hand time after time.
  */
 void
-llist_empty(
-		llist_list	*list,
-		void		(* action) (void *)
-	   )
+llist_empty(llist_list *list, void (* action) (void *))
 {
 	llist_node	*node = list->head;
 	llist_node	*nextnode;
@@ -170,14 +153,12 @@ llist_empty(
 		llist_delete(node, list);
 		node = nextnode;
 	}
-} /* void llist_empty(llist_list *, void (* action) (void *) */
+} /* void llist_empty(llist_list *list, void (* action) (void *) */
 
 
 
 llist_node **
-llist_get_indexed(
-		const llist_list	*list
-		)
+llist_get_indexed(const llist_list *list)
 {
 	llist_node	**ret = xmalloc(sizeof(llist_node *));
 	llist_node	*ptr = list->head;
@@ -194,5 +175,5 @@ llist_get_indexed(
 	} while (ptr != NULL);
 
 	return ret;
-} /* llist_node **llist_get_indexed(const llist_list *) */
+} /* llist_node **llist_get_indexed(const llist_list *list) */
 #endif /* OBSOLETE */

@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,7 @@ llist_list	onconnect_actions;
 
 
 void
-onconnect_add(
-		const char	type,
-		const char	*target,
-		const char	*data
-	     )
+onconnect_add(const char type, const char *target, const char *data)
 {
 	char	*msg;
 
@@ -55,21 +51,19 @@ onconnect_add(
 
 
 void
-onconnect_flush(
-	       )
+onconnect_flush(void)
 {
-} /* void onconnect_flush() */
+} /* void onconnect_flush(void) */
 
 
 
 void
-onconnect_do(
-	    )
+onconnect_do(void)
 {
 	LLIST_WALK_H(onconnect_actions.head, char *);
 		irc_write(&c_server, data);
 	LLIST_WALK_F;
-} /* void onconnect_commit() */
+} /* void onconnect_commit(void) */
 
 
 #endif /* ONCONNECT */

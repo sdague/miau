@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -27,11 +27,7 @@
  * Skip adding if parameters are invalid.
  */
 void
-add_perm(
-		permlist_type	*list,
-		char		*name,
-		const int	allowed
-	)
+add_perm(permlist_type *list, char *name, const int allowed)
 {
 	perm_type	*perm;
 	llist_node	*node;
@@ -46,14 +42,12 @@ add_perm(
 	perm->allowed = allowed;
 	node = llist_create(perm);
 	llist_add_tail(node, &list->list);
-} /* void add_perm(permlist_type *, char *, const int) */
+} /* void add_perm(permlist_type *list, char *name, const int allowed) */
 
 
 
 void
-empty_perm(
-		permlist_type	*list
-	  )
+empty_perm(permlist_type *list)
 {
 	llist_node	*node;
 	llist_node	*next;
@@ -66,7 +60,7 @@ empty_perm(
 		llist_delete(node, &list->list);
 		node = next;
 	}
-} /* void empty_perm(permlist_type *) */
+} /* void empty_perm(permlist_type *list) */
 
 
 
@@ -74,10 +68,7 @@ empty_perm(
  * Is given mask permitted to ?
  */
 int
-is_perm(
-		permlist_type	*list,
-		char		*name
-       )
+is_perm(permlist_type *list, char *name)
 {
 	llist_node	*node;
 	int		allowed = 0;
@@ -98,15 +89,13 @@ is_perm(
 	}
 
 	return allowed;
-} /* int is_perm(permlist_type *, char *name) */
+} /* int is_perm(permlist_type *list, char *name) */
 
 
 
 #ifdef DUMPSTATUS
 char *
-perm_dump(
-		permlist_type	*list
-	 )
+perm_dump(permlist_type *list)
 {
 #define BUFSIZE	65536
 	static char buf[BUFSIZE];
@@ -131,5 +120,5 @@ perm_dump(
 	}
 
 	return buf;
-} /* char *perm_dump(permlist_type *) */
+} /* char *perm_dump(permlist_type *list) */
 #endif /* DUMPSTATUS */

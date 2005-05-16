@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -296,11 +296,13 @@ void miau_commands(char *command, char *param, connection_type *client);
 void set_away(const char *reason);
 
 void clients_left(const char *reason);
-void drop_newclient();
+void drop_newclient(char *reason);
 
 /* parse-section */
+/*
 extern int lineno;
 extern FILE *yyin;
+*/
 
 
 #endif /* ifndef MIAU_H_ */

@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -22,13 +22,8 @@
 #ifdef _NEED_TABLE
 
 
-void
-**add_item(
-		void	**data,
-		int	elementsize,
-		int	*entries,
-		int	*indx
-	  )
+void **
+add_item(void **data, int elementsize, int *entries, int *indx)
 {
 	int	i;
 	int	ind = -1;
@@ -57,15 +52,12 @@ void
 	*indx = ind;
 
 	return data;
-} /* void **add_item(void **, int, int *, int *) */
+} /* void **add_item(void **data, int elementsize, int *entries, int *indx) */
 
 
 
 void **
-compact_table(
-		void	**data,
-		int	*entries
-	     )
+compact_table(void **data, int *entries)
 {
 #ifdef DEBUG
 	int	x = 0;
@@ -89,16 +81,12 @@ compact_table(
 	}
 #endif
 	return data;
-} /* void **compact_table(void **, int *) */
+} /* void **compact_table(void **data, int *entries) */
 
 
 
 void **
-rem_item(
-		void	**data,
-		int	number,
-		int	*entries
-	)
+rem_item(void **data, int number, int *entries)
 {
 	if (number >= 0 && number < *entries) {
 #ifdef DEBUG
@@ -134,7 +122,7 @@ void **free_table(
 	}
 
 	return 0;
-} /* void **rem_item(void **, int, int *) */
+} /* void **rem_item(void **data, int number, int *entries) */
 
 
 

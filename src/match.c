@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -34,10 +34,7 @@
  * Return value: 1 if string matches patters, 0 if not.
  */
 int
-match(
-		const char	*string,
-		const char	*pattern
-     )
+match(const char *string, const char *pattern)
 {
 	char	*str, *pat;
 	int	str_p, pat_p;
@@ -100,13 +97,8 @@ match(
  * Return value: 1 if string matches patters, 0 if not.
  */
 int
-match_replace(
-		const char	*string,
-		const char	*pattern,
-		const char	*foo,
-		const int	foo_len,
-		const char	*replace
-	     )
+match_replace(const char *string, const char *pattern, const char *foo,
+		const int foo_len, const char *replace)
 {
 	char *pat;
 	int pat_len;

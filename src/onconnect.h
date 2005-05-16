@@ -1,6 +1,6 @@
-/*
+/* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +13,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _ONCONNECT_H
-#define _ONCONNECT_H
+#ifndef ONCONNECT_H_
+#define ONCONNECT_H_
 
 #include <config.h>
 #include "miau.h"
@@ -35,10 +35,10 @@ llist_list	onconnect_actions;
 
 
 void onconnect_add(const char type, const char *target, const char *data);
-void onconnect_flush();
-void onconnect_do();
+void onconnect_flush(void);
+void onconnect_do(void);
 
 
 #endif /* ONCONNECT */
 
-#endif /* _ONCONNECT_H */
+#endif /* ONCONNECT_H_ */

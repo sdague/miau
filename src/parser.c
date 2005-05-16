@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ int	listid = CFG_NOLIST;	/* List ID. */
 void assign_int(int *target, const char *data, const int min);
 void assign_boolean(int *target, const char *data);
 void assign_param(char **target, char *source);
-void parse_error();
+void parse_error(void);
 char *trim(char *data, const int mode);
 char *trimquotes(char *data);
 void assign_option(int *target, const char *, char *);
@@ -55,10 +55,7 @@ int parse_option(const char *, char *);
  * Old data if freed and new data is trimmed.
  */
 void
-assign_param(
-		char	**target,
-		char	*source
-	    )
+assign_param(char **target, char *source)
 {
 	xfree(*target);
 	source = trim(source, SPACES);
@@ -67,7 +64,7 @@ assign_param(
 	} else {
 		*target = strdup(source);
 	}
-} /* void assign_param(char **, char *) */
+} /* void assign_param(char **target, char *source) */
 
 
 
@@ -75,12 +72,7 @@ assign_param(
  * Add server to server-list.
  */
 void
-add_server(
-		const char	*name,
-		int		port,
-		const char	*pass,
-		int		timeout
-	  )
+add_server(const char *name, int port, const char *pass, int timeout)
 {
 	server_type	*server;
 	llist_node	*node;
@@ -104,7 +96,8 @@ add_server(
 	node = llist_create(server);
 	llist_add_tail(node, &servers.servers);
 	servers.amount++;
-} /* void add_server(const char *, int, const char *, int) */
+} /* void add_server(const char *name, int port, const char *pass,
+		int timeout) */
 
 
 
@@ -114,9 +107,7 @@ add_server(
  * Return pointer to trimmed string or NULL if there are no quotes.
  */
 char *
-trimquotes(
-		char	*data
-	  )
+trimquotes(char *data)
 {
 	int	l = strlen(data) - 1;
 	if (data[0] != '"' || data[l] != '"') {
@@ -125,7 +116,7 @@ trimquotes(
 	}
 	data[l] = '\0';
 	return data + 1;
-} /* char *trimquotes(char *) */
+} /* char *trimquotes(char *data) */
 
 
 
@@ -135,10 +126,7 @@ trimquotes(
  * Return pointer to trimmed string.
  */
 char *
-trim(
-		char		*data,
-		const int	mode
-    )
+trim(char *data, const int mode)
 {
 	int	inside = 0;
 	char	*ptr;
@@ -169,7 +157,7 @@ trim(
 	}
 	
 	return data;
-} /* char *trim(char *, const int) */
+} /* char *trim(char *data, const int mode) */
 
 
 
@@ -177,11 +165,7 @@ trim(
  * Get an integer out of data. Set it over target.
  */
 void
-assign_int(
-		int		*target,
-		const char	*data,
-		const int	min
-	  )
+assign_int(int *target, const char *data, const int min)
 {
 	int n = min; /* Default to min. */
 
@@ -196,7 +180,7 @@ assign_int(
 	}
 
 	*target = n;
-} /* void assign_int(int *, const char *, const int) */
+} /* void assign_int(int *target, const char *data, const int min) */
 
 
 
@@ -208,10 +192,7 @@ assign_int(
  * everything else prints an error.
  */
 void
-assign_boolean(
-		int		*target,
-		const char	*data
-	     )
+assign_boolean(int *target, const char *data)
 {
 	if (parse_option(data, "true\0yes\0on\0""1\0\0") != -1) {
 		*target = 1;
@@ -220,7 +201,7 @@ assign_boolean(
 	} else {
 		parse_error();
 	}
-} /* void assign_boolean(int *, const char *) */
+} /* void assign_boolean(int *target, const char *data) */
 
 
 
@@ -230,11 +211,7 @@ assign_boolean(
  * This prints error if val was not found.
  */
 void
-assign_option(
-		int		*target,
-		const char	*val,
-		char		*options
-	     )
+assign_option(int *target, const char *val, char *options)
 {
 	int t = parse_option(val, options);
 	if (t == -1) {
@@ -242,7 +219,7 @@ assign_option(
 	} else {
 		*target = t;
 	}
-} /* void assign_option(int *, const char*, char *) */
+} /* void assign_option(int *target, const char *val, char *options) */
 
 
 
@@ -256,10 +233,7 @@ assign_option(
  * Returns -1 if "val" is not found.
  */
 int
-parse_option(
-		const char	*val,
-		char		*options
-	    )
+parse_option(const char *val, char *options)
 {
 	int i = 0;
 	/* Bad input means error in config. */
@@ -274,7 +248,7 @@ parse_option(
 		i++;
 	}
 	return -1;
-} /* int parse_option(const char*, char *) */
+} /* int parse_option(const char *val, char *options) */
 
 
 
@@ -283,9 +257,7 @@ parse_option(
  * file.
  */
 void
-parse_param(
-		char	*data
-	   )
+parse_param(char *data)
 {
 	char	*t = strchr(data, '=');
 	char	*val;
@@ -451,7 +423,7 @@ parse_param(
 	} else {
 		parse_error();
 	}
-} /* void parse_param(char *) */
+} /* void parse_param(char *data) */
 
 
 
@@ -459,9 +431,7 @@ parse_param(
  * Parse list-item.
  */
 void
-parse_list_line(
-		char	*data
-	       )
+parse_list_line(char *data)
 {
 	permlist_type	*permlist = NULL;
 	char		**param;
@@ -729,7 +699,7 @@ parse_list_line(
 		xfree(param[paramcount]);
 	}
 	xfree(param);
-} /* void parse_list_line(char *) */
+} /* void parse_list_line(char *data) */
 
 
 
@@ -737,9 +707,7 @@ parse_list_line(
  * Parse configuration file.
  */
 int
-parse_cfg(
-		const char	*cfgfile
-	 )
+parse_cfg(const char *cfgfile)
 {
 	FILE		*file;
 	int		filelen;
@@ -791,13 +759,12 @@ parse_cfg(
 	virgin = 0;	/* Lost virginity. ;-) */
 
 	return 0;
-} /* int parse_cfg(const char *) */
+} /* int parse_cfg(const char *cfgfile) */
 
 
 
 void
-parse_error(
-	   )
+parse_error(void)
 {
 	error(PARSE_SE, line);
-} /* void parse_error() */
+} /* void parse_error(void) */
