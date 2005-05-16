@@ -40,7 +40,7 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}
 
 %changelog
-* Fri Nov  1 2002 Tommi Saviranta <tsaviran@cs.helsinki.fi>
+* Fri Nov  1 2002 Tommi Saviranta <wnd@iki.fi>
 - Branched muh to miau
 - A lot done ever since
 

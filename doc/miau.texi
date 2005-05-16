@@ -82,7 +82,7 @@ impossible to disconnect miau.
 
 @chapter Copyright
 
-miau has been written by Tommi Saviranta @email{tsaviran@@cs.helsinki.fi}.
+miau has been written by Tommi Saviranta @email{wnd@@iki.fi}.
 miau branched from muh, see http://mind.riot.org/muh/.
 miau is licensed under the GPL. See COPYING for details.
 
