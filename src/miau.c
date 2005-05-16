@@ -77,7 +77,7 @@ static void setup_atexit(void);
 static void setup_home(char *s);
 
 #ifdef DUMPSTATUS
-void dump_status(void);
+void dump_status(int a);
 #endif /* DUMPSTATUS */
 
 
@@ -420,7 +420,7 @@ dump_string(const char *data)
 } /* static void dump_string(const char *data) */
 
 void
-dump_status(void)
+dump_status(int a)
 {
 	dumpdata = (char *) xmalloc(1);
 	dumpdata[0] = '\0';
@@ -605,7 +605,7 @@ dump_status(void)
 
 	dump_finish();
 	xfree(dumpdata);
-} /* void dump_status(void) */
+} /* void dump_status(int a) */
 #endif /* DUMPSTATUS */
 
 
@@ -1846,7 +1846,7 @@ miau_commands(char *command, char *param, connection_type *client)
 #ifdef DUMPSTATUS
 	else if (xstrcmp(command, "DUMP") == 0) {
 		corr++;
-		dump_status();
+		dump_status(0);
 	}
 #endif /* DUMPSTATUS */
 
