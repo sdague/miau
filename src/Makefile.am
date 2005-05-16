@@ -9,6 +9,7 @@ miau_SOURCES = ascii.c ascii.h \
 		client.c client.h \
 		commands.c commands.h \
 		common.c common.h \
+		conntype.h \
 		dcc.c dcc.h \
 		error.c error.h \
 		list.c list.h \
@@ -19,6 +20,7 @@ miau_SOURCES = ascii.c ascii.h \
 		match.c match.h \
 		matchlist.c matchlist.h \
 		miau.c miau.h \
+		messages.h \
 		onconnect.c onconnect.h \
 		parser.c parser.h \
 		perm.c perm.h \
