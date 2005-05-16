@@ -11,6 +11,8 @@
     channel. (Counter is reset on reconnect/attach.)
   * Preparing for major internal changes + clean-up for future
   * Sends proper QUIT-message at SIGTERM
+  * Source formatting...
+  * foo(void) instead of foo(), fixed prototypes for signal handlers
 
 
 0.5.3 - "hairball"
