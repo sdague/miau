@@ -39,7 +39,9 @@
 #include "onconnect.h"
 #include "privlog.h"
 #include "remote.h"
+#ifdef ENCODING
 #include "encoding.h"
+#endif /* ifdef ENCODING */
 #include "matchlist.h"
 
 

@@ -24,7 +24,9 @@
 #include "qlog.h"
 #include "chanlog.h"
 #include "onconnect.h"
+#ifdef ENCODING
 #include "encoding.h"
+#endif /* ifdef ENCODING */
 
 
 
