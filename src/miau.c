@@ -209,6 +209,7 @@ free_resources(void)
 	/* Replay quicklog - no output and don't keep the logs. */
 	qlog_replay(NULL, 0);
 #endif /* QUICKLOG */
+	FREE(status.awaymsg);
 } /* static void free_resources(void) */
 
 
