@@ -5,6 +5,7 @@
   * Workaround for Chatzilla. Thanks to Oliver Eikemeier and James Ross.
   * Fixed channel mode change parser.
   * Fixed parser to handle CR-LF -linefeeds.
+  * Fixed double-freeing memory in free_resources
   * Added miaurc-options "floodtimer" and "burstsize" for configuring
     flood-protection.
   * Added an option for defining how many times miau should try to rejoin the
