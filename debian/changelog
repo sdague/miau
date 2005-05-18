@@ -1,3 +1,9 @@
+miau (0.5.4) unstable; urgency=low
+
+  * New release.
+
+ -- Tommi Saviranta <wnd@iki.fi>  Thu, 19 May 2005 01:34:28 +0300
+
 miau (0.5.3) unstable; urgency=low
 
   * miau-rotatelog removed from distribution package. 
