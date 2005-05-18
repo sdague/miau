@@ -45,7 +45,7 @@ MY_ARG_ENABLE([dccbounce], [enable DCC-bouncing capability], [DCCBOUNCE])
 MY_ARG_ENABLE([automode], [enable automode -capability], [AUTOMODE])
 MY_ARG_ENABLE([releasenick], [enable release nick -feature], [RELEASENICK])
 
-MY_ARG_ENABLE([ctcp-replies], [enable ctcp-replies], [CTCPREPLIES])
+MY_ARG_DISABLE([ctcp-replies], [disable ctcp-replies], [CTCPREPLIES])
 MY_ARG_ENABLE([mkpasswd], [enable mkpasswd-capability], [MKPASSWD])
 MY_ARG_ENABLE([uptime], [enable uptime-command], [UPTIME])
 MY_ARG_ENABLE([chanlog], [enable channel logging], [CHANLOG])

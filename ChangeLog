@@ -5,12 +5,16 @@
   * Workaround for Chatzilla. Thanks to Oliver Eikemeier and James Ross.
   * Fixed channel mode change parser.
   * Fixed parser to handle CR-LF -linefeeds.
+  * Fixed strlen(NULL) in match.c
   * Fixed double-freeing memory in free_resources
   * Added miaurc-options "floodtimer" and "burstsize" for configuring
     flood-protection.
   * Added an option for defining how many times miau should try to rejoin the
     channel. (Counter is reset on reconnect/attach.)
   * Preparing for major internal changes + clean-up for future
+  * Fixed CTCP-replies, removed optional CTCP-replies
+  * Have CTCP-replies by default (as some servers/networks require this)
+  * No more entries in log about CTCP is client attached
   * Sends proper QUIT-message at SIGTERM
   * Source formatting...
   * foo(void) instead of foo(), fixed prototypes for signal handlers

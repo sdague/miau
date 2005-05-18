@@ -108,7 +108,7 @@ match_replace(const char *string, const char *pattern, const char *foo,
 	int ret;
 	
 	/* Nothing to replace? Don't waste time here. */
-	if (foo == NULL) {
+	if (foo == NULL || replace == NULL) {
 		return match(string, pattern);
 	}
 

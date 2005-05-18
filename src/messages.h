@@ -203,10 +203,7 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
  */
 #ifdef CTCPREPLIES
 #define VERSIONREPLY "\1VERSION miau v"VERSION" \""VERSIONNAME"\" -- "MIAU_URL"\1"
-#define TIMEREPLY "\1TIME %s\1"
-#define USERINFOREPLY "\1USERINFO none of your business\1"
-#define CLIENTINFOREPLY "\1CLIENTINFO none of your business\1"
-#define FINGERREPLY "\1FINGER stop that!\1"
+#define CLIENTINFOREPLY "\1CLIENTINFO VERSION PING CLIENTINFO ACTION\1"
 #endif /* CTCPREPLIES */
 
 #define CLNT_COMMANDS	"Available commands: HELP READ DEL JUMP REHASH RESET DIE PRINT" CMD_UPTIME CMD_PINGSTAT CMD_DUMP
@@ -283,6 +280,10 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #define PING_NO_PINGS	"No pings"
 #define PING_STAT	"Pings sent/got: %d/%d - %d %% loss"
 #endif /* PINGSTAT */
+
+#ifdef ENCODING
+#define ERR_BAD_TRANSCODE	"Can't initialize transcoder from '%s' to '%s'"
+#endif /* ifdef ENCODING */
 
 
 #endif /* ifndef MESSAGE_H_ */

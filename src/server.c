@@ -362,49 +362,28 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 						status.allowreply) {
 					report(CLNT_CTCP, param2 + 1, origin);
 					
-					if (xstrncmp(param2 + 2, "PING", 4) == 0) {
-						if (strlen(param2 + 1) > 6) {
-							/* Bad nesting. */
-							irc_notice(&c_server,
-								nick, "%s",
-								param2 + 1);
-						}
-					}
-					
-					else if (xstrcmp(param2 + 2, "VERSION\1") == 0) {
-						irc_notice(&c_server, nick, VERSIONREPLY);
-					}
-					
-					else if (xstrcmp(param2 + 2, "TIME\1") == 0) {
-						time_t	now;
-						char	timebuffer[120];
-						struct tm *tmptr;
+	if (xstrcmp(param2 + 2, "VERSION\1") == 0) {
+		irc_notice(&c_server, nick, VERSIONREPLY);
+	}
 
-						time(&now);
-						tmptr = localtime(&now);
-						strftime(timebuffer, 120, "%a %b %d %H:%M:%S %Y", tmptr);
-						
-						irc_notice(&c_server, nick, TIMEREPLY, timebuffer);
-					}
+	else if (xstrncmp(param2 + 2, "PING", 4) == 0) {
+		if (strlen(param2 + 1) > 6) {
+			irc_notice(&c_server, nick, "%s", param2 + 1);
+		}
+	}
 
-					/* dont bother sending USERINFO/CLIENTINFO/FINGER -- fl_ */
-					if (xstrcmp(param2 + 2, "USERINFO\1") == 0) {
-						irc_notice(&c_server, nick, USERINFOREPLY);
-					}
-					if (xstrcmp(param2 + 2, "CLIENTINFO\1") == 0) {
-						irc_notice(&c_server, nick, CLIENTINFOREPLY);
-					}
-					if (xstrcmp(param2 + 2, "FINGER\1") == 0) {
-						irc_notice(&c_server, nick, FINGERREPLY);
-					}
+	else if (xstrcmp(param2 + 2, "CLIENTINFO\1") == 0) {
+		irc_notice(&c_server, nick, CLIENTINFOREPLY);
+	}
 					
 					add_ignore(hostname, 6, IGNORE_CTCP);
 					status.allowreply = 0;
 					timers.reply = 0;
 				} /* CTCP-replies */
-				else
-				{
-					report(CLNT_CTCPNOREPLY, param2 + 1, origin);
+				else if (is_ignore(hostname, IGNORE_CTCP) ||
+						status.allowreply == 0) {
+					report(CLNT_CTCPNOREPLY,
+							param2 + 1, origin);
 				}
 #endif /* CTCPREPLIES */
 			} /* Special (CTCP/DCC) -message. */
