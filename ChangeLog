@@ -18,6 +18,7 @@
   * Sends proper QUIT-message at SIGTERM
   * Source formatting...
   * foo(void) instead of foo(), fixed prototypes for signal handlers
+  * Added stub for manual page
 
 
 0.5.3 - "hairball"
