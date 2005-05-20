@@ -1,23 +1,23 @@
-miau (0.5.4) unstable; urgency=low
+miau (0.5.4-1) unstable; urgency=low
 
   * Reformatted description.
   * Removed misc:Depends from dependency-list
 
  -- Tommi Saviranta <wnd@iki.fi>  Fri, 20 May 2005 21:47:23 +0300
 
-miau (0.5.3) unstable; urgency=low
+miau (0.5.3-1) unstable; urgency=low
 
   * miau-rotatelog removed from distribution package. 
 
  -- Tommi Saviranta <wind@kikai.katei>  Sun,  2 May 2004 16:13:56 +0300
 
-miau (0.5.2) unstable; urgency=low
+miau (0.5.2-1) unstable; urgency=low
 
   * New release.
 
  -- Tommi Saviranta <wind@kikai.katei>  Thu,  1 Apr 2004 01:19:17 +0300
 
-miau (0.5.1) unstable; urgency=low
+miau (0.5.1-1) unstable; urgency=low
 
   * New release.
 
