@@ -1,8 +1,9 @@
 miau (0.5.4) unstable; urgency=low
 
-  * New release.
+  * Reformatted description.
+  * Removed misc:Depends from dependency-list
 
- -- Tommi Saviranta <wnd@iki.fi>  Thu, 19 May 2005 01:34:28 +0300
+ -- Tommi Saviranta <wnd@iki.fi>  Fri, 20 May 2005 21:47:23 +0300
 
 miau (0.5.3) unstable; urgency=low
 
