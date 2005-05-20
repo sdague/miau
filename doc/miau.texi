@@ -11,7 +11,7 @@
 @ifinfo
 This is the miau manual.
 
-Copyright (C) 2002-2004 Tommi Saviranta
+Copyright (C) 2002-2005 Tommi Saviranta
 
 @dircategory Texinfo documentation system
 @direntry
@@ -24,7 +24,7 @@ Copyright (C) 2002-2004 Tommi Saviranta
 @center @titlefont{The miau manual}
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2002-2004 Tommi Saviranta
+Copyright @copyright{} 2002-2005 Tommi Saviranta
 
 @end titlepage
 
