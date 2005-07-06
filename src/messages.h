@@ -281,9 +281,5 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #define PING_STAT	"Pings sent/got: %d/%d - %d %% loss"
 #endif /* PINGSTAT */
 
-#ifdef ENCODING
-#define ERR_BAD_TRANSCODE	"Can't initialize transcoder from '%s' to '%s'"
-#endif /* ifdef ENCODING */
-
 
 #endif /* ifndef MESSAGE_H_ */

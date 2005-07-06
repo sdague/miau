@@ -24,9 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if ENCODING == iconv
-#include <iconv.h>
-#endif /* if ENCODING == iconv */
 
 
 #define LIST_PASSIVE	0
@@ -60,9 +57,6 @@ typedef struct {
 	int		hasqlog;	/* Channel has qlog. */
 #endif /* QUICKLOG */
 	struct channel_log	*log;
-#if ENCODING == iconv
-	iconv_t		converter;
-#endif /* if ENCODING == iconv */
 } channel_type;
 
 struct			llist_list;

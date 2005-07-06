@@ -24,9 +24,6 @@
 #include "qlog.h"
 #include "chanlog.h"
 #include "onconnect.h"
-#ifdef ENCODING
-#include "encoding.h"
-#endif /* ifdef ENCODING */
 
 
 
@@ -301,10 +298,6 @@ parse_param(char *data)
 		} else if (xstrcmp(data, "onconnect") == 0) {	/* onconnect */
 			listid = CFG_ONCONNECT;
 #endif /* ONCONNECT */
-#ifdef ENCODING
-		} else if (xstrcmp(data, "encodings") == 0) {	/* encodings */
-			listid = CFG_ENCODINGS;
-#endif /* ifdef ENCODING */
 		} else {
 			listid = CFG_INVALID;
 			parse_error();
@@ -667,14 +660,6 @@ parse_list_line(char *data)
 			break;
 #endif /* ONCONNECT */
 
-#ifdef ENCODING
-		case CFG_ENCODINGS:
-			if (paramcount == 2) {
-				encoding_add_rule(param[0], param[1]);
-				ok = 1;
-			}
-			break;
-#endif /* ifdef ENCODING */
 		case CFG_INVALID:
 			ok = 1;
 			break;

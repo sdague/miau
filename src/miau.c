@@ -39,9 +39,6 @@
 #include "onconnect.h"
 #include "privlog.h"
 #include "remote.h"
-#ifdef ENCODING
-#include "encoding.h"
-#endif /* ifdef ENCODING */
 #include "matchlist.h"
 
 #include <stdlib.h>
@@ -596,12 +593,6 @@ dump_status(int a)
 	LLIST_WALK_F;
 	dump_dump();
 #endif /* AUTOMODE */
-
-#ifdef ENCODING
-	dump_string("encodings:");
-	dump_string(matchlist_dump(&encodings));
-	dump_dump();
-#endif /* ifdef ENCODINGS */
 
 	dump_finish();
 	xfree(dumpdata);
@@ -2223,10 +2214,6 @@ pre_init(void)
 	passive_channels.tail = NULL;
 	old_channels.head = NULL;
 	old_channels.tail = NULL;
-
-#ifdef ENCODING
-	encodings.head = encodings.tail = NULL;
-#endif /* ifdef ENCODING */
 } /* static void pre_init(void) */
 
 
