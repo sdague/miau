@@ -471,7 +471,8 @@ dcc_realinitiate(char *dest, dcccommand *dcc)
 
 	sprintf(dest, "\1DCC %s %s %u %u", dcc->type,
 			dcc->arg1,
-			ntohl(*(unsigned long int *) host->h_addr),
+			(unsigned int) ntohl(*(unsigned long int *)
+					host->h_addr),
 			myport);
 
 	if (dcc->argc == 5) {
