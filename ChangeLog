@@ -1,3 +1,10 @@
+0.5.4-p1
+
+  * Removed traces of iconv and ENCODING stuff to make the thing compile on
+    systems without iconv stuff installed...
+  * Cast htonl to unsigned int before printfing %u.
+  * Fixed compiling with QLOG but without INBOX.
+
 0.5.4 - "catnap"
 
   * Channel keys defined in miaurc now have effect. Thanks to Ralf van der
