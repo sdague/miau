@@ -1,4 +1,4 @@
-AC_INIT([miau], [0.5.4])
+AC_INIT([miau], [0.5.4-p1])
 AC_CONFIG_SRCDIR([src/miau.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2])
