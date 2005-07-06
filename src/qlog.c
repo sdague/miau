@@ -58,12 +58,16 @@ qlog_check(void)
 	
 	LLIST_WALK_H(qlog.head, qlogentry *);
 		/* Don't waste time looking for channel if line's privmsg. */
+#ifdef INBOX
 		if (! data->privmsg) {
+#endif /* ifdef INBOX */
 			chan = qlog_get_channel(data->text);
 			if (chan != NULL) {
 				chan->hasqlog = 1;
 			}
+#ifdef INBOX
 		}
+#endif /* ifdef INBOX */
 	LLIST_WALK_F;
 } /* qlog_check(void) */
 
@@ -259,7 +263,9 @@ qlog_write(const int privmsg, char *format, ...)
 	line = (qlogentry *) xmalloc(sizeof(qlogentry));
 	time(&line->timestamp);
 	line->text = strdup(buf);
+#ifdef INBOX
 	line->privmsg = privmsg;
+#endif /* ifdef INBOX */
 	llist_add_tail(llist_create(line), &qlog);
 } /* void qlog_write(const int privmsg, char *format, ...) */
 
