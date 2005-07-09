@@ -215,11 +215,11 @@ dcc_socketsubscribe(fd_set *readset, fd_set *writeset)
 void
 dcc_socketcheck(fd_set *readset, fd_set *writeset)
 {
-	int	i;
-	int	sockopt;
-	int	len;
-	int	socksave;
-	char	*host;
+	int		i;
+	int		sockopt;
+	socklen_t	len;
+	int		socksave;
+	char		*host;
 
 	for (i = 0; i < dccs.amount; i++) {
 		if (dccs.data[i] == NULL) {

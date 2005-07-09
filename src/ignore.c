@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2004 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -81,7 +81,7 @@ del_ignore(char *hostname)
 
 
 
-void
+static void
 del_ignorebynumber(int i)
 {
 	if (i < ignores.amount && ignores.data[i] != NULL) {
@@ -127,4 +127,4 @@ is_ignore(char *hostname, int type)
 
 
 
-#endif /* CTCPREPLIES */
+#endif /* ifndef CTCPREPLIES */

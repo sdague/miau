@@ -1,9 +1,9 @@
-AC_INIT([miau], [0.5.4-p1])
+AC_INIT([miau], [0.5.4-p2])
 AC_CONFIG_SRCDIR([src/miau.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2])
 AH_TEMPLATE([VERSIONNAME], [long version name])
-AC_DEFINE([VERSIONNAME], ["catnap"])
+AC_DEFINE([VERSIONNAME], ["compatible catnap"])
 
 # option, explanation, define
 AC_DEFUN([MY_ARG_ENABLE], [
@@ -67,21 +67,12 @@ MY_ARG_ENABLE([pingstat], [enable ping-statistics (debug)], [PINGSTAT])
 MY_ARG_ENABLE([dumpstatus], [enable command to dump miau's status (debug)],
 		[DUMPSTATUS])
 
-CFLAGS=""		# Possible -O2 in following if-then-else -statement
 AC_ARG_ENABLE([debug], AC_HELP_STRING([--enable-debug],
 		[produce debugging information (for gdb etc.) (debug)]),
 	[ac_debug=yes], [ac_debug=no])
 if test "x$ac_debug" = "xyes"; then
 	CFLAGS="${CFLAGS} -g"
-else
-	CFLAGS="${CFLAGS} -O2"
 fi
-#AC_ARG_ENABLE([strict-compile], AC_HELP_STRING([--enable-strict-compile],
-#	[make all warnings into errors (debug)]),
-#[ac_werrors=yes], [ac_werrors=no])
-#if test "x$ac_w_errors" = "xyes"; then
-#	CFLAGS="${CFLAGS} -Werror"
-#fi
 
 #AH_TEMPLATE([LOGGING], [need logging-related features])
 #if test "x$USE_chanlog" = "xyes" -o "x$msglog" = "xyes"; then
@@ -183,6 +174,32 @@ fi
 
 AC_CHECK_FUNCS([backtrace backtrace_symbols])
 
+
+## System workarounds
+
+# socklen_t stuff (Lars Brinkhoff <lars@nocrew.org>)
+AC_CACHE_CHECK([for socklen_t], ac_cv_type_socklen_t, [
+	AC_TRY_COMPILE(
+		[#include <sys/types.h>
+		#include <sys/socket.h>],
+		[socklen_t len = 42; return 0;],
+		ac_cv_type_socklen_t=yes,
+		ac_cv_type_socklen_t=no)
+])
+if test $ac_cv_type_socklen_t != yes; then
+	AC_DEFINE(socklen_t, int, [Substitute for socklen_t])
+fi
+
+
+# If this is declared earlier, autoconf's tests will give incorrent answers
+#AC_ARG_ENABLE([werror], AC_HELP_STRING([--disabe-werror],
+#	[don't make all warnings into errors (debug)]),
+#	ac_werrors=no], [ac_werrors=yes])
+#if test "x$ac_werrors" = "xyes"; then
+#	CFLAGS="${CFLAGS} -Werror"
+#fi
+
+
 AC_OUTPUT([Makefile src/Makefile doc/Makefile misc/Makefile misc/miaurc miau.spec])
 
 if test "x$have_vsnprintf" != "xyes" -a \
@@ -195,4 +212,3 @@ fi
 
 
 AC_MSG_RESULT([Now type 'make' to compile.])
-

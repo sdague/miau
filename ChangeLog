@@ -1,4 +1,10 @@
-0.5.4-p1
+0.5.4-p2 - "compatible catnap"
+
+  * Use socklen_t (with automatic typedef for systems such as HPUX)
+  * No more -O2 by default. Portability...
+  * del_ignorebynumber (of ignore.c) now static, like prototype suggests.
+
+0.5.4-p1 - "compatible catnap"
 
   * Removed traces of iconv and ENCODING stuff to make the thing compile on
     systems without iconv stuff installed...

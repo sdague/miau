@@ -374,15 +374,15 @@ sock_listen(int sock)
 int
 sock_accept(int sock, char **s, int checkperm)
 {
-	int	temp;
-	int	store;
+	socklen_t	temp;
+	int		store;
 #ifdef IPV6
-	char	ip[40];
-	char	ipv6[512];
+	char		ip[40];
+	char		ipv6[512];
 #else
-	char	*ip;
+	char		*ip;
 #endif
-	int	perm;
+	int		perm;
 
 #ifdef IPV6
 	temp = sizeof(struct sockaddr_in6);
