@@ -1,8 +1,13 @@
+0.5.4-p3 - "compatible catnap"
+
+  * Fixed b0rken -c switch (crypt password)
+
 0.5.4-p2 - "compatible catnap"
 
   * Use socklen_t (with automatic typedef for systems such as HPUX)
   * No more -O2 by default. Portability...
   * del_ignorebynumber (of ignore.c) now static, like prototype suggests.
+  * hstrerror should no longer cause trouble on Digital UNIX
 
 0.5.4-p1 - "compatible catnap"
 

@@ -2414,7 +2414,8 @@ main(int paramc, char **params)
 #ifdef MKPASSWD
 		        case 'c':
 				srand(time(NULL));
-				randname(salt, 8, ' ');
+				salt[0] = '\0';
+				randname(salt, 2, ' ');
 				printf(MIAU_THISPASS,
 						crypt(getpass(MIAU_ENTERPASS),
 							salt));
