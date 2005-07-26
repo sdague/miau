@@ -2398,16 +2398,17 @@ main(int paramc, char **params)
 {
 	int	pid = 0;
 	FILE	*pidfile;
-	char	*miaudir = 0;
+	char	*miaudir;
 	int	dofork = 1;
 	int	c;
 
-	fprintf(stdout, "%s%s", BANNER1, BANNER2);
+	printf("%s%s", BANNER1, BANNER2);
 
+	miaudir = NULL;
 	opterr = 0;
 
 	while ((c = getopt(paramc, params, ":cfd:")) > 0) {
-		switch( c ) {
+		switch (c) {
 #ifdef MKPASSWD
 		        case 'c':
 				{
