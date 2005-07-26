@@ -2420,6 +2420,12 @@ main(int paramc, char **params)
 					srand(time(NULL));
 					randname(salt, 2, ' ');
 
+					/*
+					 * "The function getpass returns a
+					 * pointer to a static buffer", but
+					 * valgrind says "still reachable" but
+					 * leaked anyhow.
+					 */
 					pass = getpass(MIAU_ENTERPASS);
 					crypted = crypt(pass, salt);
 					printf(MIAU_THISPASS, crypted);
