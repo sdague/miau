@@ -2401,9 +2401,6 @@ main(int paramc, char **params)
 	char	*miaudir = 0;
 	int	dofork = 1;
 	int	c;
-#ifdef MKPASSWD
-	char	salt[3];
-#endif
 
 	fprintf(stdout, "%s%s", BANNER1, BANNER2);
 
@@ -2413,12 +2410,20 @@ main(int paramc, char **params)
 		switch( c ) {
 #ifdef MKPASSWD
 		        case 'c':
-				srand(time(NULL));
-				salt[0] = '\0';
-				randname(salt, 2, ' ');
-				printf(MIAU_THISPASS,
-						crypt(getpass(MIAU_ENTERPASS),
-							salt));
+				{
+					char salt[3];
+					char *pass;
+					char *crypted;
+				
+					salt[0] = '\0';
+					srand(time(NULL));
+					randname(salt, 2, ' ');
+
+					pass = getpass(MIAU_ENTERPASS);
+					crypted = crypt(pass, salt);
+					printf(MIAU_THISPASS, crypted);
+				}
+
 				return EXIT_SUCCESS;
 				break;
 #endif /* MKPASSWD */
