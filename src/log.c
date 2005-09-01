@@ -18,6 +18,7 @@
 #include "miau.h"
 #include "messages.h"
 #include "tools.h"
+#include "irc.h"
 
 
 
@@ -31,15 +32,7 @@
 char *
 log_prepare_entry(const char *nick, const char *msg)
 {
-/*
- * 520 characters should be enough for all PRIVMSGs and ACTIONs.
- * RFC2812 says "IRC messages are always lines of characters terminated with a
- * CR-LF (Carriage Return - Line Feed) pair, and these messages SHALL NOT
- * exceed 512 characters in length, counting all characters including the
- * trailing CR-LF.".
- */
-#define BUFLEN	520
-	static char buf[BUFLEN];
+	static char buf[IRC_MSGLEN];
 	int i;
 	int len, rpos;
 	/* Messages not beginning with '\1ACTION ' don't need to be touched. */
@@ -56,7 +49,7 @@ log_prepare_entry(const char *nick, const char *msg)
 	rpos = len - i + 1;
 	
 	/* Right now we only parse ACTIONs. */
-	snprintf(buf, BUFLEN - 1, LOGM_ACTION, get_short_localtime(),
+	snprintf(buf, IRC_MSGLEN - 1, LOGM_ACTION, get_short_localtime(),
 			nick, msg + 8);
 	/* Remove trailing '\1'. */
 	len = (int) strlen(buf);

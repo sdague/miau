@@ -1,6 +1,7 @@
 0.5.4-p3 - "compatible catnap"
 
   * Fixed b0rken -c switch (crypt password)
+  * Fixed qlog timestamp duplication
 
 0.5.4-p2 - "compatible catnap"
 

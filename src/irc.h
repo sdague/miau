@@ -32,6 +32,15 @@ extern int	msgtimer;
 #define QUEUESIZE	16
 
 /*
+ * 520 characters should be enough for all PRIVMSGs and ACTIONs.
+ * RFC2812 says "IRC messages are always lines of characters terminated with a
+ * CR-LF (Carriage Return - Line Feed) pair, and these messages SHALL NOT
+ * exceed 512 characters in length, counting all characters including the
+ * trailing CR-LF.".
+ */
+#define IRC_MSGLEN	520
+
+/*
  * all these function return 0 on error (except sock_open, this will return -1)
  * on error net_errstr will point to the error_string
  */
