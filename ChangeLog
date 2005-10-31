@@ -2,6 +2,7 @@
 
   * Fixed b0rken -c switch (crypt password)
   * Fixed qlog timestamp duplication
+  * Fixed illegal memory access at nick generation (totally random)
 
 0.5.4-p2 - "compatible catnap"
 

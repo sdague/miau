@@ -2,9 +2,9 @@ TODO:
 
 - nicks-list should have nick-pairs for attached/detached -state
 
-- autoaway = "never|detach|noclients"
+- !!! autoaway = "never|detach|noclients"
 
-- option to either...
+- !!! option to either...
 	- part channels
 	- send notice on each channel
 	- do nothing
@@ -21,8 +21,6 @@ TODO:
 - don't write ":No recipient given (PRIVMSG)" in qlog
 
 - miaurc should have an option for ctcp-replies (if CTCPREPLIES is defined)
-
-- Should miau reply to CTCP-queries by default? (requested feature)
 
 - repeat 352 only to client who requested it!
 	- keep queue of "WHO #channel" -messages and echo following incoming 
