@@ -95,6 +95,8 @@ qlog_replay(connection_type *client, const int keep)
 			} else {
 				irc_write(client, "%s", data->text);
 			}
+#else /* ifdef QLOGSTAMP */
+			irc_write(client, "%s", data->text);
 #endif /* QLOGSTAMP */
 		}
 		if (! keep) {
