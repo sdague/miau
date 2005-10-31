@@ -1287,16 +1287,16 @@ check_timers(void)
 void
 get_nick(char *format)
 {
-	char	*oldnick;
-	char	*badnick = strdup(status.nickname);
-	/* if (badnick == NULL) { escape(); } */
-	/* We actually never handle strdups returning NULL. */
-
 	/*
 	 * Change nick if we're still introducing outself to the server or if
 	 * we were forced to change ...
 	 */
 	if (i_server.connected != 2) {
+		char *badnick;
+		badnick = strdup(status.nickname);
+		/* if (badnick == NULL) { escape(); } */
+		/* We actually never handle strdups returning NULL. */
+
 		/* Try first nick. */
 		if (nicknames.next == NICK_FIRST) {
 			nicknames.current = nicknames.nicks.head;
@@ -1323,6 +1323,8 @@ get_nick(char *format)
 			}
 		}
 		if (nicknames.current == NULL) {
+			char *oldnick;
+
 			/* Generate a nickname. */
 			nicknames.next = NICK_GEN;
 			/*
@@ -1332,6 +1334,7 @@ get_nick(char *format)
 			oldnick = strdup(status.nickname);
 			xfree(status.nickname);
 			status.nickname = (char *) xmalloc(cfg.maxnicklen + 1);
+			status.nickname[0] = '\0'; /* [0]='\0' means random */
 			randname(status.nickname, cfg.maxnicklen,
 					cfg.nickfillchar);
 			xfree(oldnick);
@@ -1344,8 +1347,9 @@ get_nick(char *format)
 		/* Getting nick, increase sent NICK-command counter. */
 		status.getting_nick++;
 		irc_write(&c_server, "NICK %s", status.nickname);
+		
+		xfree(badnick);
 	}
-	xfree(badnick);
 	status.got_nick = 0;
 } /* void get_nick(char *format) */
 
