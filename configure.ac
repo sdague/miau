@@ -1,9 +1,10 @@
-AC_INIT([miau], [0.5.4-p2])
+AC_INIT([miau], [0.5.4-p3])
 AC_CONFIG_SRCDIR([src/miau.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2])
 AH_TEMPLATE([VERSIONNAME], [long version name])
 AC_DEFINE([VERSIONNAME], ["compatible catnap"])
+
 
 # option, explanation, define
 AC_DEFUN([MY_ARG_ENABLE], [
@@ -178,17 +179,33 @@ AC_CHECK_FUNCS([backtrace backtrace_symbols])
 ## System workarounds
 
 # socklen_t stuff (Lars Brinkhoff <lars@nocrew.org>)
-AC_CACHE_CHECK([for socklen_t], ac_cv_type_socklen_t, [
+AC_CACHE_CHECK([for socklen_t], [ac_cv_type_socklen_t], [
 	AC_TRY_COMPILE(
 		[#include <sys/types.h>
 		#include <sys/socket.h>],
 		[socklen_t len = 42; return 0;],
-		ac_cv_type_socklen_t=yes,
-		ac_cv_type_socklen_t=no)
+		[ac_cv_type_socklen_t=yes],
+		[ac_cv_type_socklen_t=no])
 ])
-if test $ac_cv_type_socklen_t != yes; then
+if test "x$ac_cv_type_socklen_t" != "xyes"; then
 	AC_DEFINE(socklen_t, int, [Substitute for socklen_t])
 fi
+
+# hstrerror on Digital UNIX
+_CFLAGS="${CFLAGS}"
+CFLGAS="-Werror"
+AC_CACHE_CHECK([for normal hstrerror], [ac_cv_func_hstrerror], [
+	AC_TRY_COMPILE(
+		[#include <netdb.h>],
+		[const char *ret; ret = hstrerror(1); return 0;],
+		[ac_cv_func_hstrerror=yes],
+		[ac_cv_func_hstrerror=no])
+])
+if test "x${ac_cv_func_hstrerror}" = "xyes"; then
+	AH_TEMPLATE([HSTRERROR_PROTO], [need dummy prototype for hstrerror])
+	AC_DEFINE([HSTRERROR_PROTO], [yes])
+fi
+CFLAGS="${_CFLAGS}"
 
 
 # If this is declared earlier, autoconf's tests will give incorrent answers

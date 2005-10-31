@@ -9,7 +9,8 @@
   * Use socklen_t (with automatic typedef for systems such as HPUX)
   * No more -O2 by default. Portability...
   * del_ignorebynumber (of ignore.c) now static, like prototype suggests.
-  * hstrerror should no longer cause trouble on Digital UNIX
+  * hstrerror should no longer cause trouble on Digital UNIX. Keep your
+    thumbs up!
 
 0.5.4-p1 - "compatible catnap"
 

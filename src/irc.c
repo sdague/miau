@@ -15,6 +15,7 @@
  * GNU General Public License for more details.
  */
 
+#include <config.h>
 #include "miau.h"
 #include "irc.h"
 #include "perm.h"
@@ -23,6 +24,12 @@
 #include "llist.h"
 
 /* #define DEBUG */
+
+#ifdef HAVE_HSTRERROR
+#ifdef HSTRERROR_PROTO
+const char *hstrerror(int err);
+#endif /* ifdef HSTRERROR_PROTO */
+#endif /* ifdef HAVE_HSTRERROR */
 
 
 #define HEAD	1
@@ -214,7 +221,6 @@ name_lookup(char *host)
 
 	/* TODO: hstrerror is obsolete */
 #ifdef HAVE_HSTRERROR
-	/* TODO: Digital-UNIX warns about not declaring hstrerror... */
 	net_errstr = (const char *) hstrerror(h_errno);
 #else
 	net_errstr = "unable to resolve";
