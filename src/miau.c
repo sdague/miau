@@ -874,6 +874,7 @@ rehash(int a)
 
 	/* Free backuped stuff. */
 	xfree(oldrealname);
+	xfree(oldpassword);
 	xfree(oldusername);
 	xfree(oldlistenhost);
 } /* static void rehash(int a) */
