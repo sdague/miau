@@ -68,7 +68,7 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs ChangeLog
-	dh_installdocs README TODO AUTHORS
+	dh_installdocs README TODO AUTHORS BUGS
 	dh_installexamples
 #	dh_install
 #	dh_installmenu
