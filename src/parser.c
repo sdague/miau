@@ -343,6 +343,15 @@ parse_param(char *data)
 		assign_param(&cfg.password, val);
 	} else if (xstrcmp(data, "leave") == 0) {	/* leave */
 		assign_boolean(&cfg.leave, val);
+	} else if (xstrcmp(data, "chandiscon") == 0) {	/* chandiscon */
+		/*
+		 * 0 = nothing
+		 * 1 = notice
+		 * 2 = part
+		 * 3 = privmsg
+		 */
+		assign_option(&cfg.chandiscon, val,
+				"nothing\0notice\0part\0privmsg\0\0");
 	} else if (xstrcmp(data, "leavemsg") == 0) {	/* leavemsg */
 		assign_param(&cfg.leavemsg, val);
 	} else if (xstrcmp(data, "awaymsg") == 0) {	/* awaymsg */

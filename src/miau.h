@@ -212,6 +212,7 @@ typedef struct {
 	int	connecttimeout;	/* Timeout for connect() (s). 0 to disable. */
 	int	reconnectdelay;	/* Time before next try to connect (s). */
 	int	leave;		/* Leave channels at detach. */
+	int	chandiscon;	/* What to do with channels at disconnect. */
 	int	maxnicklen;	/* Maximum length for nick. */
 	int	maxclients;	/* Maximum number of clients connected. */
 	int	usequitmsg;	/* Use quit-message as away/leavemsg */

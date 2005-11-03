@@ -110,6 +110,7 @@ cfg_type cfg = {
 	30,	/* connecttimeout: 30 seconds */
 	10,	/* reconnectdelay: 10 seconds */
 	0,	/* leave: no */
+	2,	/* chandiscon: part */
 	9,	/* maxnicklen: 9 chars */
 	3,	/* maxclients: 3 clients */
 	1,	/* usequitmsg: yes */
@@ -467,6 +468,7 @@ dump_status(int a)
 	dump_status_int("connecttimeout", cfg.connecttimeout);
 	dump_status_int("reconnectdelay", cfg.reconnectdelay);
 	dump_status_int("leave", cfg.leave);
+	dump_status_int("chandiscon", cfg.chandiscon);
 	dump_status_int("maxnicklen", cfg.maxnicklen);
 	dump_status_int("autoaway", cfg.autoaway);
 #ifdef LOGGING

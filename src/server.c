@@ -62,6 +62,13 @@ server_drop(char *reason)
 	llist_node	*node;
 	llist_node	*nextnode;
 	channel_type	*data;
+	const char	*part_reason;
+
+	if (reason == NULL) {
+		part_reason = SERV_DISCONNECT;
+	} else {
+		part_reason = reason;
+	}
 
 	/* As we're no longer connected to server, send queue is useless. */
 	irc_clear_queue();
@@ -96,18 +103,26 @@ server_drop(char *reason)
 		 * when joining the channel.
 		 */
 
-		/*
-		 * RFC 2812 says "Servers MUST be able to parse arguments in
-		 * the form of a list of target, but SHOULD NOT use lists when
-		 * sending PART messages to clients." and therefore we don't
-		 * part all the channels with one command.
-		 */
-		irc_mwrite(&c_clients, ":%s!%s@%s PART %s :%s",
-				status.nickname,
-				i_client.username,
-				i_client.hostname,
-				(char *) data->name,
-				(reason != NULL ? reason : SERV_DISCONNECT));
+		if (cfg.chandiscon == 1) {
+			irc_mwrite(&c_clients, ":%s NOTICE %s :%s",
+					status.nickname,
+					(char *) data->name,
+					part_reason);
+		} else if (cfg.chandiscon == 2) {
+			/*
+			 * RFC 2812 says "Servers MUST be able to parse
+			 * arguments in the form of a list of target, but
+			 * SHOULD NOT use lists when sending PART messages to
+			 * clients." and therefore we don't part all the
+			 * channels with one command.
+			 */
+			irc_mwrite(&c_clients, ":%s!%s@%s PART %s :%s",
+					status.nickname,
+					i_client.username,
+					i_client.hostname,
+					(char *) data->name,
+					part_reason);
+		}
 
 		if (cfg.rejoin) {
 			/*
@@ -130,6 +145,12 @@ server_drop(char *reason)
 		llist_delete(node, &active_channels);
 
 		node = nextnode;
+	}
+
+	if (cfg.chandiscon == 3) {
+		irc_mwrite(&c_clients, ":miau PRIVMSG %s: %s",
+				status.nickname,
+				part_reason);
 	}
 
 	/* Reset server-name. */

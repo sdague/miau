@@ -300,6 +300,20 @@ that:
 If @command{usequitmsg} is set, quit message will be used as a reason.
 If not, @command{awaymsg} will be used.
 
+@item @command{chandiscon = "mode"}
+When miau is disconnected from the server e.g. because of network problem,
+miau can notify user about this in a couple of ways.
+@table @asis
+@item @command{nothing}
+	Only print server notice
+@item @command{notice}
+	Send notice to each channel
+@item @command{part}
+	Part each channel. mIRC users probably don't want to use this.
+@item @command{privmsg}
+	Only send a private message to the user
+@end table
+
 @item @command{getnick = "selection"}
 miau can try to reclaim your primary nick when it is lost. This option may be
 one of the following:
