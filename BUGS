@@ -1,5 +1,7 @@
 Bugs:
 
+- miau doesn't get along with safe channels
+
 - If server changes user's nick, miau doesn't try to get it back!?
 
 - Wildcard '*' matches one or more character, not any number as it's supposed
