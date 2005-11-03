@@ -76,8 +76,12 @@ client_drop(connection_type *client, char *reason, const int msgtype,
 	
 	if (c_clients.connected == 0) {
 		clients_left(cfg.usequitmsg ? awaymsg : NULL);
-	} else if (cfg.usequitmsg == 1) {
-		set_away(awaymsg);
+	} else if (cfg.autoaway == 1) {
+		if (cfg.usequitmsg == 1 && awaymsg != NULL){
+			set_away(awaymsg);
+		} else {
+			set_away(cfg.awaymsg);
+		}
 	}
 } /* void client_drop(connection_type *, char *, const int, const int,
 	const char *) */
@@ -298,15 +302,7 @@ client_read(connection_type *client)
 			}
 			/* (single client, message, report, echo) */
 			client_drop(client, CLNT_LEFT, REPORT, 0, reason);
-			
-			/* If there are no more clients connected... */
-			/*
-			if (c_clients.connected == 0) {
-				clients_left(cfg.usequitmsg ? reason : NULL);
-			} else if (cfg.usequitmsg == 1) {
-				set_away(reason);
-			}
-			*/
+
 			xfree(reason);
 			pass = 0;
 		}

@@ -1,3 +1,7 @@
+0.5.5 - "only 18446744073709551615 bugs remaining"
+
+  * Option "autoaway" to define when to set user away if ever
+
 0.5.4-p3 - "compatible catnap"
 
   * Fixed b0rken -c switch (crypt password)
@@ -223,7 +227,7 @@
   * Fixes in documentation plus some spellcheck.
 
 
-0.4.3 - "I screwed up again, right ?"
+0.4.3 - "I screwed up again, right?"
 
   * JOIN-message is now accepted both with and without preceeding column (':').
 

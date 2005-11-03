@@ -286,6 +286,20 @@ are enabled) when all clients have disconnected from miau. If quit-reason was
 empty, default values of awaymsg and leavemsg will be used, otherwise most
 recent quit-message overrides values in miaurc.
 
+@item @command{autoaway = "mode"}
+miau can set user away automatically. This option allows to define when to do
+that:
+@table @asis
+@item @command{never}
+	Never set user away automatically
+@item @command{detach}
+	Set user away when any of the clients disconnects
+@item @command{noclients}
+	Set user away when the last client disconnects
+@end table
+If @command{usequitmsg} is set, quit message will be used as a reason.
+If not, @command{awaymsg} will be used.
+
 @item @command{getnick = "selection"}
 miau can try to reclaim your primary nick when it is lost. This option may be
 one of the following:

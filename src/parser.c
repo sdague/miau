@@ -349,6 +349,14 @@ parse_param(char *data)
 		assign_param(&cfg.awaymsg, val);
 	} else if (xstrcmp(data, "usequitmsg") == 0) {	/* usequitmsg */
 		assign_boolean(&cfg.usequitmsg, val);
+	} else if (xstrcmp(data, "autoaway") == 0) {	/* autoaway */
+		/*
+		 * 0 = never
+		 * 1 = client detach
+		 * 2 = no clients attached
+		 */
+		assign_option(&cfg.autoaway, val,
+				"never\0detach\0noclients\0\0");
 	} else if (xstrcmp(data, "getnick") == 0) {	/* getnick */
 		/*
 		 * 0 = never

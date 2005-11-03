@@ -215,6 +215,7 @@ typedef struct {
 	int	maxnicklen;	/* Maximum length for nick. */
 	int	maxclients;	/* Maximum number of clients connected. */
 	int	usequitmsg;	/* Use quit-message as away/leavemsg */
+	int	autoaway;	/* Autoaway never/detach/noclients */
 #ifdef PRIVLOG
 	int	privlog;	/* Write log of _private_ messages. */
 #endif /* PRIVLOG */

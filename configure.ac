@@ -1,9 +1,9 @@
-AC_INIT([miau], [0.5.4-p3])
+AC_INIT([miau], [0.5.5])
 AC_CONFIG_SRCDIR([src/miau.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2])
 AH_TEMPLATE([VERSIONNAME], [long version name])
-AC_DEFINE([VERSIONNAME], ["compatible catnap"])
+AC_DEFINE([VERSIONNAME], ["only 18446744073709551615 bugs remaining"])
 
 
 # option, explanation, define

@@ -37,6 +37,9 @@ main(
 /*	MATCH("foobar", "*OBA*", 1);	limitations */
 	MATCH("foobar", "*BAAR", 0);
 
+	MATCH("o:TOmmppa!Kage@b-216-253.cable.kpy.customers.dnainternet.fi/#serveri", "o:Tommppa!Kage@*.cable.kpy.customers.dnainternet.fi/#serveri", 1);
+	MATCH("foobar", "foobar*", 1);
+
 	MATCH_R("foo@host", "foo@X", "X", -1, "host", 1);
 	MATCH_R("foo@host-goo", "foo@@@-goo", "@@", 2, "host", 1);
 	

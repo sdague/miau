@@ -113,6 +113,7 @@ cfg_type cfg = {
 	9,	/* maxnicklen: 9 chars */
 	3,	/* maxclients: 3 clients */
 	1,	/* usequitmsg: yes */
+	1,	/* autoaway: detach */
 #ifdef PRIVLOG
 	0,	/* privlog: no privlog */
 #endif /* PRIVLOG */
@@ -467,6 +468,7 @@ dump_status(int a)
 	dump_status_int("reconnectdelay", cfg.reconnectdelay);
 	dump_status_int("leave", cfg.leave);
 	dump_status_int("maxnicklen", cfg.maxnicklen);
+	dump_status_int("autoaway", cfg.autoaway);
 #ifdef LOGGING
 	dump_status_char("logpostfix", cfg.logpostfix);
 #endif /* LOGGING */
@@ -883,6 +885,7 @@ rehash(int a)
  *
  * If appropriate, leave channels and set user away.
  */
+/* TODO: Oh man this function and client_drop are a mess together! */
 void
 clients_left(const char *reason)
 {
@@ -986,7 +989,10 @@ clients_left(const char *reason)
 	/* Finally, free chans. */
 	xfree(chans);
 
-	set_away(awaymsg); /* Try setting user away with given message. */
+	if (cfg.autoaway != 0) {
+		/* Try setting user away with given message. */
+		set_away(awaymsg);
+	}
 } /* void clients_left(const char *reason) */
 
 
