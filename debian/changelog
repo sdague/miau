@@ -1,3 +1,9 @@
+miau (0.5.5-1) unstable; urgency=low
+
+  * New release.
+
+ -- Tommi Saviranta <wnd@iki.fi>  Thu,  3 Nov 2005 20:51:58 +0200
+
 miau (0.5.4-1) unstable; urgency=low
 
   * Reformatted description.
