@@ -2,8 +2,6 @@ TODO:
 
 - nicks-list should have nick-pairs for attached/detached -state
 
-- !!! autoaway = "never|detach|noclients"
-
 - !!! option to either...
 	- part channels
 	- send notice on each channel
