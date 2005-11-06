@@ -29,8 +29,9 @@
 
 
 # nicknames = { "nick" }: Your nickname (and secondary nicknames) on IRC.
-#		If the primary nick (first nick on the list) is already on use,
-#		miau will try the others on the list.
+#
+# If the primary nick (first nick on the list) is already on use, miau will try
+# the others on the list.
 #
 # Default: no default
 #
@@ -49,8 +50,9 @@
 #realname = "Prokhor Zakharov"
 
 
-# username = "username": Your ident (matters only if you don't have identd
-#		running).
+# username = "username": Your username.
+#
+# Your ident, matters only if you don't have identd running.
 #
 # Default: no default
 #
@@ -59,8 +61,9 @@
 
 
 # password = "password": The password miau will expect to receive from client
-#		when it's registering with nick. If this is 13 characters long,
-#		miau assumed it's crypted.
+#		when it's registering with nick.
+#
+# If this is 13 characters long, miau assumed it's crypted.
 #
 # If miau is compiled with ENABLE_MKPASSWD, miau can generate password-hashes
 # (from command line) with -c -switch.
@@ -80,9 +83,9 @@
 
 
 # servers = { "server":"port":"password":"timeout" }: miau's IRC-server-list.
-#		Each line represents one server, where timeout is delay in
-#		seconds before connectiong attempt times out. Only "server"
-#		parameter is required.
+#
+# Each line represents one server, where timeout is delay in seconds before
+# connectiong attempt times out. Only "server" parameter is required.
 #
 # Default: no default
 #
@@ -96,9 +99,10 @@
 
 
 # connhosts = { "host":"permitted" }: List of hosts that are allowed (or denied)
-#		to connect to miau. When boolean-value is left unset, it is
-#		assumed to be "true". This list will be processed as a chain
-#		which means latter rules can override previous ones.
+#		to connect to miau.
+#
+# When boolean-value is left unset, it is assumed to be "true". This list will
+# be processed as a chain which means latter rules can override previous ones.
 #
 # Default: no default
 #
@@ -114,9 +118,10 @@
 ################################################################################
 
 
-# statelog = "state": Should miau write state log. When true, log will
-#		be written to "$MIAUDIR/log". If set to false, the same stuff
-#		is printed on stdout (on terminal).
+# statelog = "state": Should miau write state log.
+#
+# When true, log will be written to "$MIAUDIR/log". If set to false, the same
+# stuff is printed on stdout (on terminal).
 #
 # Default: true
 #
@@ -175,7 +180,9 @@
 
 
 # maxclients = "number": Maximum number of clients connected to miau
-#		concurrently. Set to zero for unlimited clients.
+#		concurrently.
+#
+# Set to zero for unlimited clients.
 #
 # Default: 3
 #
@@ -184,10 +191,11 @@
 
 
 # stonedtimeout = "seconds": Time (in seconds) with no data from the server
-#		before it is declared stoned and being disconnected. Although
-#		minimum value is 30, this value has no upper limit. Watch out,
-#		though, if this value is set too high, death of servers may stay
-#		undetected for a very long time if you are idle.
+#		before it is declared stoned and being disconnected.
+#
+# Although minimum value is 30, this value has no upper limit. Watch out,
+# though, if this value is set too high, death of servers may stay undetected
+# for a very long time if you are idle.
 #
 # Default: 90
 #
@@ -196,9 +204,10 @@
 
 
 # connecttimeout = "seconds": Time (in seconds) before connection attampt will
-#		time out. Note that while connecting to the server miau will not
-#		respond to clients. Minimum value is 5, and many systems define
-#		maximum value.
+#		time out.
+#
+# Note that while connecting to the server miau will not respond to clients.
+# Minimum value is 5, and many systems define maximum value.
 #
 # Default: 30
 #
@@ -218,8 +227,9 @@
 
 
 # rejoin = "state": Rejoin channels after disconnecting from the server.
-#		If rejoin is set to true, channels defined in "channels" are
-#		also joined when client first time connects to miau.
+#
+# If rejoin is set to true, channels defined in "channels" are also joined when
+# client first time connects to miau.
 #
 # Default: true
 #
@@ -228,11 +238,11 @@
 
 
 # leave = "state": Leave channels when all clients have detached from miau.
-#		If "leave" is set to "false" and "rejoin" is set to "true",
-#		channels defined at "channels" will be joined at miau startup.
-#		If both "leave" and "rejoin" is set to "true", channels that
-#		are left at client detach, are rejoined when client attached
-#		back to miau.
+#
+# If "leave" is set to "false" and "rejoin" is set to "true", channels defined
+# at "channels" will be joined at miau startup.  If both "leave" and "rejoin"
+# is set to "true", channels that are left at client detach, are rejoined when
+# client attached back to miau.
 #
 # Default: false
 #
@@ -241,10 +251,11 @@
 
 
 # leavemsg = "message": Message miau will either use as PART-message or as an
-#		ACTION when all clients have detached from miau. If unset or
-#		set to empty, no message will be shown. Note that many people
-#		dislike event-based messages (which happens when "leave" is set
-#		to "false" and "leavemsg" is set). Also see usequitmsg.
+#		ACTION when all clients have detached from miau. 
+#
+# If unset or set to empty, no message will be shown. Note that many people
+# dislike event-based messages (which happens when "leave" is set to "false"
+# and "leavemsg" is set). Also see usequitmsg.
 #
 # Note: Note that commenting this option out and rehashing after leavemsg was
 #	set, this option is _not_ reverted. To disable leavemsg afterwards you
@@ -257,9 +268,10 @@
 
 
 # awaymsg = "message": Text that will be set to miau's away-reason when all
-#		clients have detached from miau. If unset or set to empty,
-#		AWAY-status will be left untouched. When any client attaches
-#		back to miau, AWAY-status will be reset. Also see usequitmsg.
+#		clients have detached from miau.
+#
+# If unset or set to empty, AWAY-status will be left untouched. When any client
+# attaches back to miau, AWAY-status will be reset. Also see usequitmsg.
 #
 # Note: If user sets him/herself away, miau will not touch away-status nor
 #	message neither when connecting to or disconnecting from miau.
@@ -276,9 +288,10 @@
 
 # usequitmsg = "state": Use last quit-reason as away-reason and/or leave-message
 #		(if respective options are enabled) when all clients have
-#		disconnected from miau. If quit-reason is empty, default values
-#		of awaymsg and leavemsg will be used, otherwise most recent
-#		quit-message overrides values in miaurc.
+#		disconnected from miau.
+#
+# If quit-reason is empty, default values of awaymsg and leavemsg will be used,
+# otherwise most recent quit-message overrides values in miaurc.
 #
 # Default: true
 #
@@ -286,14 +299,14 @@
 # usequitmsg = "false"
 
 
-# autoaway = "selection": miau can set user away automatically. This option
-#		allows to define when to do that. This option may be one of the
-#		following: "never", "detach", "noclients".
-#			"never" ....... never set user away
-#			"detach" ...... set user away when any of the clients
-#					disconnects
-#			"noclients" ... set user away when the last client
-#					disconnects
+# autoaway = "selection": miau can set user away automatically.
+#
+# This option allows to define when to do that. This option may be one of the
+# following: "never", "detach", "noclients".
+#
+# never:	never set user away
+# detach:	set user away when any of the clients disconnects
+# noclients:	set user away when the last client disconnects
 #
 # Default: detach
 #
@@ -304,11 +317,11 @@
 # chandiscon = "selection": When miau is disconnected from the server e.g.
 #		because of network problem, miau can notify user about this in
 #		a couple of ways.
-#			"nothing" .....	only print server notice
-#			"notice" ...... send notice to each channel.
-#			"part" ........ part each channel. mIRC users probably
-#					don't want to use this.
-#			"privmsg" ..... send a private message to the user
+#
+# nothing:	only print server notice
+# notice:	send notice to each channel
+# part:		part each channel. mIRC users probably don't want to use this.
+# privmsg:	send a private message to the user
 #
 # Default: part
 #
@@ -317,14 +330,16 @@
 
 
 # getnick = "selection": miau can try to reclaim your primary nick when it is
-#		lost. This option may be one of the following: "never",
-#		"detached", "attached", or "always".
-#			"never" .......	miau will not try to get your nick back.
-#			"detached" ....	miau will try to get your nick when no
-#					clients are attached.
-#			"attached" .... miau will try to get your nick when
-#					there are one or more clients attached.
-#			"always" ...... miau will try to get your nick 
+#		lost.
+#
+# This option may be one of the following: "never", "detached", "attached", or
+# "always".
+#
+# never		miau will not try to get your nick back
+# detached	miau will try to get your nick when no clients are attached
+# attached	miau will try to get your nick when there are one or more
+#		clients attached
+# always	miau will try to get your nick 
 #
 # Note: Do _not_ use options "attached" and "always" with clients (like
 #	irc-II EPIC) that automatically change your nick when they receive
@@ -338,8 +353,10 @@
 
 
 # getnickinterval = "seconds": Time between tries (in seconds) to obtain
-#		currently (possibly) lost primary nick. Don't set it too low
-#		or you might get kicked out the server due to excess flood.
+#		currently (possibly) lost primary nick.
+#
+# Don't set it too low or you might get kicked out the server due to excess
+# flood.
 #
 # Default: 60
 #
@@ -367,8 +384,9 @@
 #qloglength = "30"
 
 
-# timestamp = "option": Location of timestamp in quicklog events. This option
-#		may be one of the following "beginning", "end", or "none".
+# timestamp = "option": Location of timestamp in quicklog events.
+#
+# This option may be one of the following "beginning", "end", or "none".
 #
 # This option might not be compiled in.
 #
@@ -378,10 +396,11 @@
 #timestamp = "beginning"
 
 
-# flushqlog = "state": If set to true, quicklog will be written only when no
-#		clients are connected and quicklog will be erased when client
-#		connects to miau. If you are running a single client, you
-#		probably want to leave this to "false.
+# flushqlog = "state": Erase quicklog when quicklog is replayed.
+#
+# If set to true, quicklog will be written only when no clients are connected
+# and quicklog will be erased when client connects to miau. If you are running
+# a single client, you probably want to leave this to "false.
 #
 # This option might not be compiled in.
 #
@@ -402,10 +421,11 @@
 #inbox = "true"
 
 
-# nevergiveup = "state": If set to true, miau will reset "working"-status of
-#		servers to working when all are set to dysfunctional.
-#		Respectively, if set to false, miau will quit when all servers
-#		on the list have been set to dysfunctional.
+# nevergiveup = "state": Don't die when miau runs out of working servers.
+#
+# If set to true, miau will reset "working"-status of servers to working when
+# all are set to dysfunctional.  Respectively, if set to false, miau will quit
+# when all servers on the list have been set to dysfunctional.
 #
 # Default: true
 #
@@ -413,8 +433,10 @@
 #nevergiveup = "false"
 
 
-# norestricted = "state": If set to true, miau will not stay on server that
-#		forces user to have restricted-status (+r).
+# norestricted = "state": Don't join servers where you get "+r".
+#
+# If set to true, miau will not stay on server that forces user to have
+# restricted-status (+r).
 #
 # Default: true
 #
@@ -423,7 +445,8 @@
 
 
 # reconnectdelay = "seconds": Time (in seconds) between connection attempts.
-#		Minumun value is set to 1.
+#
+# Minumun value is set to 1.
 #
 # Default: 10
 #
@@ -431,10 +454,12 @@
 #reconnectdelay = "30"
 
 
-# nickfillchar = "fill character": Character used to modify your primary nick
-#		when all defined nicks are already occupied. Note character is
-#		a single octet (byte) and if longer string is fed, only the
-#		first character is used.
+# nickfillchar = "fill character": Fill nick with this character when unique
+#		nick is required.
+#
+# Character used to modify your primary nick when all defined nicks are already
+# occupied. Note character is a single octet (byte) and if longer string is
+# fed, only the first character is used.
 #
 # Example: When nickfillchar is set to '_', primary nick is "zak" and all
 #	defined nicks are occupied, next nicks tried are "zak_", "zak__",
@@ -457,10 +482,11 @@
 #maxnicklen = 11
 
 
-# usermode = "usermode(s)": Usermode that miau will request (if no clients are
-#		attached at the moment) from the server when connection to the
-#		server is established. Leave unset or set to empty to disable
-#		this feature.
+# usermode = "usermode(s)": Usermode.
+#
+# Usermode that miau will request (if no clients are attached at the moment)
+# from the server when connection to the server is established. Leave unset or
+# set to empty to disable this feature.
 #
 # Default: none
 #
@@ -468,9 +494,11 @@
 #usermode = "+i"
 
 
-# forwardmsg = "command": miau can collect the (private) messages within three
-#		(3) minutes and pipe them into the program specified. Leave this
-#		unset or set to empty to disable this feature.
+# forwardmsg = "command": Commands to pipe private messages to.
+#
+# miau can collect the (private) messages within three (3) minutes and pipe
+# them into the program specified. Leave this unset or set to empty to disable
+# this feature.
 #
 # Default: none
 #
@@ -478,11 +506,12 @@
 #forwardmsg = "mail user@host"
 
 
-# ignore = { "mask":"ignored" }: List of users whose private messages (PRIVMSG)
-#		and noticies (NOTICE) are ignored when no clients are attached
-#		to miau. When "ignored" is left undefined, it is assumed to be
-#		"true". Setting "ignored" to "false" means that this user will
-#		_not_ be ignored. This list is processed as a chain.
+# ignore = { "mask":"ignored" }: Ignored users.
+#
+# List of users whose private messages (PRIVMSG) and noticies (NOTICE) are
+# ignored when no clients are attached to miau. When "ignored" is left
+# undefined, it is assumed to be "true". Setting "ignored" to "false" means
+# that this user will _not_ be ignored. This list is processed as a chain.
 #
 # Default: none
 #
@@ -493,9 +522,10 @@
 #}
 
 
-# privlog = "mode": Whatever private messages should be logged in nick-specific
-#		files. Can be one of "never", "detached", "attached", and
-#		"always".
+# privlog = "mode": Log private messages.
+#
+# Whatever private messages should be logged in nick-specific files. Can be one
+# of "never", "detached", "attached", and "always".
 #
 # This option might not be compiled in.
 #
@@ -545,9 +575,10 @@
 #}
 
 
-# logpostfix = "postfix": When writing log to undefined logfile, each logfile
-#		consists of channel name followed by postfix. Postfix can be
-#		defined here.
+# logpostfix = "postfix": Postfix for logfiles.
+#
+# When writing log to undefined logfile, each logfile consists of channel name
+# followed by postfix. Postfix can be defined here.
 #
 # This option might not be compiled in.
 #
@@ -557,10 +588,12 @@
 #logpostfix = ".log"
 
 
-# onconnect = { "mode":"target/data"(:"data") }: When miau connects and
-#		registers user to server, miau can send pre-defined messages.
-#		User can define miau to send normal messages (PRIVMSG), notices
-#		(NOTICE) or arbitrary messages.
+# onconnect = { "mode":"target/data"(:"data") }: Commands to write at server
+#		connect.
+#
+# When miau connects and registers user to server, miau can send pre-defined
+# messages.  User can define miau to send normal messages (PRIVMSG), notices
+# (NOTICE) or arbitrary messages.
 #
 # Mode can be one of the following:
 #	p: private message (PRIVMSG).
@@ -585,9 +618,10 @@
 
 
 # automodes = { "mask":"privilegded" }: List of people who are automatically
-#		given certain privilege on channel. Mask is given in form of
-#		"mode:nick!username@host/#channel" (where "mode" is a single
-#		character) and list is processed as a chain.
+#		given certain privilege on channel.
+#
+# Mask is given in form of "mode:nick!username@host/#channel" (where "mode" is
+# a single character) and list is processed as a chain.
 #
 # This option might not be compiled in.
 #
@@ -602,12 +636,12 @@
 
 
 # automodedelay = "seconds": Time (in seconds) after first queued mode change
-#		would take effect. During this period of time miau can collect
-#		more than one mode change and commit up to three at a time.
-#		Other situation reasonaly big value (like 30) here could prove
-#		useful is channel where there are stupid "auto-oping" bots.
-#		(Stupid bots do mode changes even if someone else did that
-#		already.)
+#		would take effect.
+#
+# During this period of time miau can collect more than one mode change and
+# commit up to three at a time.  Other situation reasonaly big value (like 30)
+# here could prove useful is channel where there are stupid "auto-oping" bots.
+# (Stupid bots do mode changes even if someone else did that already.)
 #
 # This option might not be compiled in.
 #
@@ -617,13 +651,15 @@
 #automodedelay = "60"
 
 
-# cmdpasswd = "password": Password for remote commands. If this is 13 characters
-#		long, miau assumes it's crypted. Comment this out or leave it
-#		empty to disable remote commands. When sending miau a remote
-#		command, password _always_ begins with column (':') (if
-#		cmdpasswd is set to "foobar" (or hash of it), you need to send
-#		miau a message beginning with ":foobar" to issue a remote
-#		command).
+# cmdpasswd = "password": Password for remote commands.
+#
+# Please ignore this options.
+#
+# If this is 13 characters long, miau assumes it's crypted. Comment this out or
+# leave it empty to disable remote commands. When sending miau a remote
+# command, password _always_ begins with column (':') (if cmdpasswd is set to
+# "foobar" (or hash of it), you need to send miau a message beginning with
+# ":foobar" to issue a remote command).
 #
 # This feature might not be compiled in.
 #
@@ -636,8 +672,10 @@
 #cmdpasswd = ""
 
 
-# dccbounce = "state": miau can bounce DCCs. Set to true to enable bouncing.
-#		You probably don't need this.
+# dccbounce = "state": Bounce DDCs.
+#
+# miau can bounce DCCs. Set to true to enable bouncing.  You probably don't
+# need this.
 #
 # This option might not be compiled in.
 #
@@ -647,8 +685,10 @@
 #dccbounce = "true"
 
 
-# dccbindhost = "host": If miau has separate IPs for IRC-network and clients,
-#		you should enter IP for clients here.
+# dccbindhost = "host": IP to bind for DDC bounce.
+#
+# If miau has separate IPs for IRC-network and clients, you should enter IP for
+# clients here.
 #
 # This option might not be compiled in.
 #
