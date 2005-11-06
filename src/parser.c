@@ -430,6 +430,8 @@ parse_param(char *data)
 		assign_int(&cfg.burstsize, val, 1);
 	} else if (xstrcmp(data, "jointries") == 0) {	/* jointries */
 		assign_int(&cfg.jointries, val, 0);
+	} else if (xstrcmp(data, "statelog") == 0) {	/* statelog */
+		assign_boolean(&cfg.statelog, val);
 	} else {
 		parse_error();
 	}

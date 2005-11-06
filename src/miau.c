@@ -80,6 +80,7 @@ void dump_status(int a);
 
 status_type 		status;
 cfg_type cfg = {
+	1,	/* statelog: write stdout into file */
 #ifdef QUICKLOG
 	30,	/* qloglength: 30 minutes */
 #ifdef QLOGSTAMP
@@ -2485,9 +2486,16 @@ main(int paramc, char **params)
 		}
 		
 		if (pid == 0) {
-			if (! freopen(FILE_LOG, "a", stdout)) {
-				error(MIAU_ERRFILE, cfg.home);
-				exit(ERR_CODE_HOME);
+			/*
+			 * Redirect stdout in file unless requested
+			 * otherwise. Useful to disable this if you're
+			 * low on disk space.
+			 */
+			if (cfg.statelog == 1) {
+				if (! freopen(FILE_LOG, "a", stdout)) {
+					error(MIAU_ERRFILE, cfg.home);
+					exit(ERR_CODE_HOME);
+				}
 			}
 #ifndef SETVBUF_REVERSED
 			setvbuf(stdout, NULL, _IONBF, 0);

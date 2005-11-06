@@ -182,6 +182,7 @@ typedef struct {
 
 
 typedef struct {
+	int	statelog;	/* stdout to log */
 #ifdef QUICKLOG
 	int	qloglength;
 #ifdef QLOGSTAMP

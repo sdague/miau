@@ -209,6 +209,11 @@ occurance of @command{@@@@} will be translated.
 
 @table @asis
 
+@item @command{statelog = "state"}
+Should miau write state log to @command{$MIAUDIR/log}? When true, log will
+be written in this file. If set to false, the same stuff is printed on
+@command{stdout} (on terminal).
+
 @item @command{listenhost = "host"}
 Host miau uses to listen on.
 If you are compiled with IPV6 and need this to listen on an IPV4 port, you

@@ -114,6 +114,16 @@
 ################################################################################
 
 
+# statelog = "state": Should miau write state log. When true, log will
+#		be written to "$MIAUDIR/log". If set to false, the same stuff
+#		is printed on stdout (on terminal).
+#
+# Default: true
+#
+# Example:
+#statelog = "false"
+
+
 # listenhost = "host": Host miau uses to listen on.
 #
 # If you are compiled with IPV6 and need this to listen on an IPV4 port, you
