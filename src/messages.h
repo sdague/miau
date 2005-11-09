@@ -25,16 +25,19 @@
 #define IRCLF	"\r\n"
 
 #ifdef MKPASSWD
-#define OPT_CRYPT	"    -c\t\tCreate crypted password\n"
+#define OPT_CRYPT_L	"    -c\t\tCreate crypted password\n"
+#define OPT_CRYPT_S	"[-c] "
 #else
-#define OPT_CRYPT	""
+#define OPT_CRYPT_L	""
+#define OPT_CRYPT_S	""
 #endif
 
 #define SYNTAX "\
-Usage: %s [-f] [-c] [-d dir]\n\n \
-    -f\t\tStay in foreground\n \
-    -d dir\tOther directory than default for miau-files\n \
-"OPT_CRYPT"\n"
+Usage: %s [-f] "OPT_CRYPT_S"[-d dir]\n\
+    -f\t\tStay in foreground\n\
+    -d dir\tOther directory than default for miau-files\n\
+    -v\t\tPrint version and copyright information and exit\n\
+"OPT_CRYPT_L
 
 /*
  * Parsing-section.
@@ -116,19 +119,16 @@ Usage: %s [-f] [-c] [-d dir]\n\n \
 #define MIAU_THISPASS	"Set this as password in your miaurc: %s\n\n"
 #endif /* MKPASSWD */
 
-#define BANNER1 "\
--=============================================================-\n\
- miau v"VERSION" \""VERSIONNAME"\" -- "MIAU_URL"\n\
- Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>\n\
+#define BANNER "\
+miau v"VERSION" \""VERSIONNAME"\"\n\
+  "MIAU_URL"\n\
+Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>\n\
         (C) 2002 Lee Hardy <lee@leeh.co.uk>\n\
         (C) 1998-2002 Sebastian Kienzl <zap@riot.org>\n\
--=============================================================-\n"
-#define BANNER2 "\
-     This program comes with ABSOLUTELY NO WARRANTY!\n\
-      This is free software, and you are welcome to\n\
-        redistribute it under certain conditions.\n\
-              For details, read 'COPYING'.\n\
--=============================================================-\n\n"
+\n\
+This is free software; see the GNU General Public Licence version 2 or\n\
+later for copying conditions.  There is NO warranty.\n\
+Read 'COPYING' for copyright and licence details.\n"
 
 /*
  * Socket-messages.

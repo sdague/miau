@@ -2408,7 +2408,7 @@ setup_atexit(void)
 
 
 int
-main(int paramc, char **params)
+main(int argc, char **argv)
 {
 	int	pid = 0;
 	FILE	*pidfile;
@@ -2416,12 +2416,12 @@ main(int paramc, char **params)
 	int	dofork = 1;
 	int	c;
 
-	printf("%s%s", BANNER1, BANNER2);
+	printf("%s", BANNER);
 
 	miaudir = NULL;
 	opterr = 0;
 
-	while ((c = getopt(paramc, params, ":cfd:")) > 0) {
+	while ((c = getopt(argc, argv, ":cfd:v")) > 0) {
 		switch (c) {
 #ifdef MKPASSWD
 		        case 'c':
@@ -2454,12 +2454,15 @@ main(int paramc, char **params)
 			case 'f':
 				dofork = 0;
 				break;
+			case 'v':
+				exit(EXIT_SUCCESS);
 			case ':':
 				error(MIAU_ERRNEEDARG, optopt);
 				exit(EXIT_FAILURE);
 				break;
 			default:
-				printf(SYNTAX, params[0]);
+				printf("\n");
+				printf(SYNTAX, argv[0]);
 				return EXIT_FAILURE;
 				break;
 		}
@@ -2538,4 +2541,4 @@ main(int paramc, char **params)
 	}
 
 	return EXIT_SUCCESS;
-} /* int main(int paramc, char **params) */
+} /* int main(int argc, char **argv) */
