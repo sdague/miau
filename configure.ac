@@ -40,7 +40,7 @@ AC_ARG_ENABLE([local], AC_HELP_STRING([--enable-local],
 
 AH_TEMPLATE([IPV6], [IPV6 available?])
 AC_ARG_ENABLE([ipv6], AC_HELP_STRING([--enable-ipv6],
-	[enable ipv6-support]))
+	[enable IPv6 ONLY -support (no IPv4!)]))
 
 MY_ARG_ENABLE([dccbounce], [enable DCC-bouncing capability], [DCCBOUNCE])
 MY_ARG_ENABLE([automode], [enable automode -capability], [AUTOMODE])
