@@ -205,7 +205,7 @@ if test "x${ac_cv_func_hstrerror}" = "xyes"; then
 	AH_TEMPLATE([HSTRERROR_PROTO], [need dummy prototype for hstrerror])
 	AC_DEFINE([HSTRERROR_PROTO], [yes])
 fi
-CFLAGS="${_CFLAGS}"
+CFLAGS="${_CFLAGS} -Werror"
 
 
 # If this is declared earlier, autoconf's tests will give incorrent answers
