@@ -1,8 +1,6 @@
 
 EXTRA_DIST = debian/changelog debian/compat debian/control \
-	debian/copyright debian/files debian/info debian/miau.examples \
-	debian/miau.postinst.debhelper debian/miau.prerm.debhelper \
-	debian/miau.substvars debian/rules
+	debian/copyright debian/info debian/examples debian/rules
 SUBDIRS = src doc misc
 ac_local = @ac_local@
 version = @PACKAGE_VERSION@
