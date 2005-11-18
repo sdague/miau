@@ -39,6 +39,8 @@ llist_list		qlog;
 void qlog_add_timestamp(qlogentry *data, char *buf, int size);
 #endif /* QLOGSTAMP */
 
+static channel_type *qlog_get_channel(const char *msg);
+
 
 
 /*
@@ -135,13 +137,10 @@ qlog_add_timestamp(qlogentry *data, char *buf, int size)
 	if (p != NULL) {
 		/* Next find out what command it was. */
 		i = pos(p, ' ');
-		if (i < TSLEN - 1) {
-			char tmp[16];
-			if (i > 16) {
-				return;
-			}
+		if (i < TSLEN - 1 || i > 16) {
+			char tmp[18];
 			strncpy(tmp, p, i);
-			tmp[i] = '\0';
+			tmp[i - 1] = '\0';
 			i = command_find(tmp);
 		} else {
 			return;
@@ -240,23 +239,28 @@ qlog_drop_old(void)
 			/* Get sender (split it) and beginning of payload. */
 			message = strchr(line->text + 1, (int) ':');
 
-#ifdef ENDUSERDEBUG
 			if (message == NULL) {
-				enduserdebug("converting invalid qlog-line ?");
+#ifdef ENDUSERDEBUG
+				enduserdebug("converting invalid qlog-line?");
 				enduserdebug("%s", line->text);
-			} else {
-#else /* ENDUSERDEBUG */
-			if (message != NULL) {
-#endif /* ENDUSERDEBUG */
-				strtok(line->text, " ");
-			
-				fprintf(inbox, "%s <%s> %s\n", 
-						get_timestamp(
-							&line->timestamp,
-							TIMESTAMP_SHORT),
-						line->text + 1, message + 1);
-				fflush(inbox);
+#endif /* ifdef ENDUSERDEBUG */
+				continue;
 			}
+			strtok(line->text, " ");
+
+			if (line->text[0] == '\0' || message[0] == '\0') {
+#ifdef ENDUSERDEBUG
+				enduserdebug("invalud stuff in qlog");
+#endif /* ifdef else ENDUSERDEBUG */
+				continue;
+			}
+
+			/* termination and validity guaranteed */
+			fprintf(inbox, "%s <%s> %s\n",
+					get_timestamp(&line->timestamp,
+						TIMESTAMP_SHORT),
+					line->text + 1, message + 1);
+			fflush(inbox);
 		}
 #endif /* INBOX */
 
@@ -289,11 +293,12 @@ qlog_write(const int privmsg, char *format, ...)
 	va_start(va, format);
 	vsnprintf(buf, BUFFERSIZE - 3, format, va);
 	va_end(va);
+	buf[BUFFERSIZE - 3] = '\0';
 
 	/* Create new line of quicklog. */
 	line = (qlogentry *) xmalloc(sizeof(qlogentry));
 	time(&line->timestamp);
-	line->text = strdup(buf);
+	line->text = xstrdup(buf);
 #ifdef INBOX
 	line->privmsg = privmsg;
 #endif /* ifdef INBOX */
@@ -302,7 +307,7 @@ qlog_write(const int privmsg, char *format, ...)
 
 
 
-channel_type *
+static channel_type *
 qlog_get_channel(const char *msg)
 {
 	channel_type	*chan = NULL;
@@ -329,7 +334,7 @@ qlog_get_channel(const char *msg)
 	}
 
 	return chan;
-} /* channel_type *qlog_get_channel(const char *msg) */
+} /* static channel_type *qlog_get_channel(const char *msg) */
 
 
 

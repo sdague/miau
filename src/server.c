@@ -48,6 +48,7 @@ connection_type	c_server;
 extern clientlist_type	c_clients;
 extern timer_type	timers;
 extern char		*forwardmsg;
+extern int		forwardmsgsize;
 
 
 
@@ -155,7 +156,7 @@ server_drop(char *reason)
 
 	/* Reset server-name. */
 	xfree(i_server.realname);
-	i_server.realname = strdup("miau");
+	i_server.realname = xstrdup("miau");
 
 	/* Don't try connecting next server right away. */
 	timers.connect = 0;
@@ -193,11 +194,11 @@ server_set_fallback(const llist_node *safenode)
 	xfree(fallback->password);
 
 	/* Copy current values to fallback server. */
-	fallback->name = strdup(safe->name);
+	fallback->name = xstrdup(safe->name);
 	fallback->port = safe->port;
 	fallback->password = (safe->password != NULL) ? 
-		strdup(safe->password) : NULL;
-	fallback->working = 1;		/* TODO: Is this necessary ? */
+		xstrdup(safe->password) : NULL;
+	fallback->working = 1;		/* XXX: Is this necessary ? */
 	fallback->timeout = safe->timeout;
 } /* void server_set_fallback(const llist_node *safenode) */
 
@@ -331,14 +332,29 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 #ifdef CHANLOG
 	channel_type	*chptr;
 #endif /* CHANLOG */
-	char		*origin = xmalloc(strlen(nick) + strlen(hostname) + 2);
+	char		*origin;
+	int		osize;
 	int		isprivmsg = 0;
-	int		i, l;
 	int		normal = 1;	/* ...just a normal message... */
 
-	sprintf(origin, "%s!%s", nick, hostname);
+	if (nick == NULL || hostname == NULL || param2 == NULL) {
+#ifdef ENDUSERDEBUG
+		enduserdebug("%s: param2 = %s, nick = %s, hostname = %d",
+				__FUNCTION__,
+				param2 == NULL ? "NULL" : param2,
+				nick == NULL ? "NULL" : nick,
+				hostname == NULL ? "NULL" : hostname);
+#endif /* ifdef ENDUSERDEBUG */
+		return 0;
+	}
 
-	/* Is it to who ? */
+	/* paranoid */
+	osize = strlen(nick) + strlen(hostname) + 2;
+	origin = xmalloc(osize);
+	snprintf(origin, osize - 1, "%s!%s", nick, hostname);
+	origin[osize - 1] = '\0';
+
+	/* who is it for? */
 	if (status.nickname != NULL
 			&& xstrcasecmp(param1, status.nickname) == 0) {
 		/* It's for me. Whee ! :-) */
@@ -366,8 +382,10 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 						cfg.dccbounce &&
 						(xstrcmp(param2 + 2, "DCC\1") ==
 						 0)) {
-					if (dcc_initiate(param2 + 1, 0)) {
-						irc_mwrite(&c_clients, ":%s PRIVMSG %s :%s", origin, param1, param2 + 1);
+					char dcct[IRC_MSGLEN];
+					strncpy(dcct, param2 + 1, IRC_MSGLEN);
+					if (dcc_initiate(dcct, IRC_MSGLEN, 0)) {
+						irc_mwrite(&c_clients, ":%s PRIVMSG %s :%s", origin, param1, dcct);
 						*pass = 0;
 					}
 				}
@@ -458,7 +476,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 #endif /* _NEED_CMDPASSWD */
 
 			/* Normal PRIVMSG/NOTICE to client. */
-			if (normal) {
+			if (normal == 1) {
 				isprivmsg = 1;
 #ifdef INBOX
 #ifndef QUICKLOG
@@ -467,6 +485,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
  * quicklogging is disabled.
  */
 				if (inbox) {
+					/* termination + validity guaranteed */
 					fprintf(inbox, "%s(%s) %s\n",
 							get_short_localtime(),
 							origin, param2 + 1);
@@ -476,15 +495,27 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 #endif /* INBOX */
 				
 				if (cfg.forwardmsg) {
+					int pos;
+					
 					timers.forward = 0;
-					l = forwardmsg
-						? (int) strlen(forwardmsg) : 0;
-					i = l + (int) strlen(origin)
-						+ (int) strlen(param2 + 1) + 5;
-					forwardmsg = (char *)
-						xrealloc(forwardmsg, i);
-					sprintf(forwardmsg + l, "(%s) %s\n",
+					pos = forwardmsgsize;
+					forwardmsgsize +=
+						strlen(origin) +
+						strlen(param2 + 1) +
+						4;
+					if (forwardmsg == NULL) {
+						/* need space for terminator */
+						forwardmsgsize += 1;
+					}
+					forwardmsg =
+						(char *) xrealloc(forwardmsg,
+								forwardmsgsize);
+					/* paranoid! */
+					snprintf(forwardmsg + pos,
+							forwardmsgsize - 1,
+							"(%s) %s\n",
 							origin, param2 + 1);
+					forwardmsg[forwardmsgsize - 1] = '\0';
 				}
 			}
 		}
@@ -546,14 +577,14 @@ server_read(void)
 		return rstate;
 	}
 
-	if (strlen(c_server.buffer) <= 0) {
+	if (c_server.buffer[0] == '\0') {
 		return 0;
 	}
 	
 	/* new data... go for it ! */
 	pass = 1;
 
-	backup = strdup(c_server.buffer);
+	backup = xstrdup(c_server.buffer);
 		
 	if (c_server.buffer[0] == ':') {
 		/* reply */
@@ -662,11 +693,11 @@ server_reply(const int command, char *original, char *origin, char *param1,
 	t = strchr(origin, '!');
 	if (t != NULL) {
 		*t++ = '\0';
-		nick = strdup(origin);
-		hostname = strdup(t);
+		nick = xstrdup(origin);
+		hostname = xstrdup(t);
 	} else {
-		nick = strdup(origin);
-		hostname = strdup(origin);
+		nick = xstrdup(origin);
+		hostname = xstrdup(origin);
 	}
 
 
@@ -678,13 +709,13 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			i_server.connected++;
 
 			xfree(i_server.realname);
-			i_server.realname = strdup(origin);
+			i_server.realname = xstrdup(origin);
 
 			xfree(status.nickname);
-			status.nickname = strdup(param1);
+			status.nickname = xstrdup(param1);
 
 			xfree(i_server.greeting[0]);
-			i_server.greeting[0] = strdup(param2);
+			i_server.greeting[0] = xstrdup(param2);
 			n = lastpos(i_server.greeting[0], ' ');
 			if (n != -1) {
 				i_server.greeting[0][n] = '\0';
@@ -693,7 +724,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			xfree(status.idhostname);
 			t = strchr(param2, '!');
 			if (t != NULL) {
-				status.idhostname = strdup(t + 1);
+				status.idhostname = xstrdup(t + 1);
 				status.goodhostname =
 					pos(status.idhostname, '@') + 1;
 			} else {
@@ -705,7 +736,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				 *
 			 * http://bugzilla.mozilla.org/show_bug.cgi?id=242095
 				 */
-				status.idhostname = strdup("miau@miau");
+				status.idhostname = xstrdup("miau@miau");
 				status.goodhostname = 5;
 			}
 
@@ -752,14 +783,14 @@ server_reply(const int command, char *original, char *origin, char *param1,
 		case RPL_CREATED:
 		case RPL_MYINFO:
 			xfree(i_server.greeting[command - 1]);
-			i_server.greeting[command - 1] = strdup(param2);
+			i_server.greeting[command - 1] = xstrdup(param2);
 			break;
 		
 		/* Supported features */
 		case RPL_ISUPPORT:
 			for (n = 0; n < RPL_ISUPPORT_LEN; n++) {
 				if (i_server.isupport[n] == NULL) {
-					i_server.isupport[n] = strdup(param2);
+					i_server.isupport[n] = xstrdup(param2);
 					break;
 				}
 			}
@@ -859,7 +890,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			if (t != NULL) {
 				char	*channel;
 				*t = '\0';
-				channel = strdup(param2);
+				channel = xstrdup(param2);
 				*t = ' ';
 				
 				parse_modes(channel, nextword(param2));
@@ -874,7 +905,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			 */
 			{
 				char	*channel;
-				work = strdup(param2);
+				work = xstrdup(param2);
 
 				t = strchr(work, ' ');
 				if (t == NULL) {
@@ -931,7 +962,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			/* 
 			 * Look for channel and see if we're tryingto join it.
 			 */
-			work = strdup(param2);
+			work = xstrdup(param2);
 			t = strtok(work, " ");
 			chptr = channel_find(t, LIST_PASSIVE);
 			if (chptr == NULL) {
@@ -959,7 +990,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			/* Is that us who changed nick ? */
 			if (xstrcasecmp(status.nickname, nick) == 0) {
 				xfree(status.nickname);
-				status.nickname = strdup(param1 + 1);
+				status.nickname = xstrdup(param1 + 1);
 
 				if (xstrcasecmp(status.nickname,
 						(char *) nicknames.nicks.head->data) == 0) {
@@ -1008,7 +1039,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 					char	*target;
 
 					*t = '\0';
-					target = strdup(param2);
+					target = xstrdup(param2);
 					*t = ' ';
 
 					chanlog_write_entry(chptr, LOGM_KICK,
@@ -1133,7 +1164,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 					&& xstrcasecmp(param1,
 						status.nickname) == 0) {
 				xfree(status.idhostname);
-				status.idhostname = strdup(hostname);
+				status.idhostname = xstrdup(hostname);
 				status.goodhostname = pos(hostname, '@') + 1;
 			}
 			chptr = channel_find(param1, LIST_ACTIVE);
@@ -1182,8 +1213,9 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				 * strftime("%s") can't be used (not in ISO C),
 				 * This should work as a replacement,
 				 */
-				sprintf(timebuf, "%d", (int) now.tv_sec
+				snprintf(timebuf, 19, "%d", (int) now.tv_sec
 						- tz.tz_minuteswest * 60);
+				timebuf[19] = '\0';
 				channel_when(chptr, origin, timebuf);
 			}
 
@@ -1282,7 +1314,7 @@ parse_modes(const char *channel, const char *original)
 		return;
 	}
 
-	buf = strdup(original);
+	buf = xstrdup(original);
 
 	ptr = strtok(buf, " ");
 	param = strtok(NULL, " ");
@@ -1329,7 +1361,7 @@ parse_modes(const char *channel, const char *original)
 			case 'k':	/* Channel key. */
 				if (modetype == '+') {	/* Setting. */
 					xfree(chptr->key);
-					chptr->key = strdup(param);
+					chptr->key = xstrdup(param);
 				} /* No need to clear unset key. */
 				/* Removig key needs parameter. */
 				param = strtok(NULL, " ");

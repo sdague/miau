@@ -106,10 +106,13 @@ perm_dump(permlist_type *list)
 	strcat(buf, "    ");
 	len = (int) strlen(buf);
 	for (node = list->list.head; node != NULL; node = node->next) {
-		t = (int) strlen(((perm_type *) node->data)->name);
+		const char *name;
+		/* paranoid */
+		name = ((perm_type *) node->data)->name;
+		t = (int) strlen(name);
 		if (len + t + 10 < BUFSIZE) {
 			len += t + 3;
-			strcat(buf, ((perm_type *) node->data)->name);
+			strncat(buf, name, t);
 			strcat(buf, "=  ");
 			buf[len - 2] = '0' + ((perm_type *)
 					node->data)->allowed;

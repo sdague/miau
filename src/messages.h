@@ -158,6 +158,7 @@ Read 'COPYING' for copyright and licence details.\n"
 #define IRC_SERVERERROR	"Server-error! (%s)"
 #define IRC_KILL	"You've been killed by '%s'!"
 #define IRC_AWAY	"You have been marked as being away"
+#define IRC_NOSUCHCHAN	"No such channel"
 
 /*
  * Client-related -messages.

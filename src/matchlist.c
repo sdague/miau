@@ -28,9 +28,14 @@ typedef struct _match_type	match_type;
 
 
 
+union ptr_int {
+	void	*ptr;
+	int	i;
+};
+
 struct _match_type {
-	char	*rule;
-	void	*state;
+	char		*rule;
+	union ptr_int	state;
 };
 
 
@@ -53,7 +58,7 @@ matchlist_add(list_type *list, char *rule, void *state)
 
 	match = (match_type *) xmalloc(sizeof(match_type));
 	match->rule = xstrdup(rule);
-	match->state = state;
+	match->state.ptr = state;
 
 	return list_add_tail(list, match);
 } /* list_type *matchlist_add(list_type *list, char *rule, void *state) */
@@ -77,7 +82,7 @@ matchlist_flush(list_type *list, void (free_cb)(void *))
 		data = (match_type *) ptr->data;
 		xfree((void *) data->rule);
 		if (free_cb != NULL) {
-			(*free_cb)(data->state);
+			(*free_cb)(data->state.ptr);
 		}
 		xfree(ptr->data);
 	}
@@ -105,7 +110,7 @@ matchlist_get(list_type *list, const char *cand)
 	for (ptr = list; ptr != NULL; ptr = ptr->next) {
 		data = (match_type *) ptr->data;
 		if (match(cand, data->rule) == 1) {
-			return data->state;
+			return data->state.ptr;
 		}
 	}
 
@@ -129,15 +134,16 @@ matchlist_dump(list_type *list)
 	for (ptr = list; ptr != NULL; ptr = ptr->next) {
 		data = (match_type *) ptr->data;
 		/* This is dangerous, but no-one has to call this function! */
-		if ((int) data->state == 0 || (int) data->state == 1) {
+		if ((int) data->state.i == 0 || (int) data->state.i == 1) {
 			t = snprintf(buf + len, BUFSIZE - len - 1,
 					"    '%s' = %d\n",
-					data->rule, (int) data->state);
+					data->rule, (int) data->state.i);
 		} else {
 			t = snprintf(buf + len, BUFSIZE - len - 1,
 					"    '%s' = '%s'\n",
-					data->rule, (char *) data->state);
+					data->rule, (char *) data->state.ptr);
 		}
+		buf[BUFSIZE - 1] = '\0';
 		if (t < 0) {
 			return buf;
 		}

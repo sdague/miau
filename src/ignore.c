@@ -57,7 +57,7 @@ add_ignore(char *hostname, int ttl, int type)
 	
 	ignores.data = (ignore_type **) add_item((void **) ignores.data,
 			sizeof(ignore_type), &ignores.amount, &indx);
-	ignores.data[indx]->hostname = strdup(hostname);
+	ignores.data[indx]->hostname = xstrdup(hostname);
 	ignores.data[indx]->ttl = ttl;
 	ignores.data[indx]->type = type;
 } /* void add_ignore(char *hostname, int ttl, int type) */

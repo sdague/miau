@@ -111,13 +111,13 @@ channel_add(const char *channel, const char *key, const int list)
 	if (chptr == NULL) {
 		/* Create new node to channel list. */
 		chptr = (channel_type *) xcalloc(1, sizeof(channel_type));
-		chptr->name = strdup(channel);
+		chptr->name = xstrdup(channel);
 		/*
 		 * We don't need to touch other variabels - calloc did the
 		 * job. This is neat, since a few values are set to 0 by
 		 * default.
 		 */
-		chptr->key = strdup(key == NULL ? "-" : key);
+		chptr->key = xstrdup(key == NULL ? "-" : key);
 		chptr->jointries = cfg.jointries;
 #ifdef AUTOMODE
 		chptr->oper = -1;		/* Don't know our status. */
@@ -278,7 +278,7 @@ channel_topic(channel_type *chptr, char *topic)
 	chptr->topicwhen = NULL;
 
 	if (topic != NULL && topic[0] != '\0') {
-		chptr->topic = strdup(topic);
+		chptr->topic = xstrdup(topic);
 	}
 } /* void channel_topic(channel_type *, char *) */
 
@@ -294,8 +294,8 @@ channel_when(channel_type *chptr, char *topicwho, char *topicwhen)
 		xfree(chptr->topicwho);
 		xfree(chptr->topicwhen);
 		
-		chptr->topicwho = strdup(topicwho);
-		chptr->topicwhen = strdup(topicwhen);
+		chptr->topicwho = xstrdup(topicwho);
+		chptr->topicwhen = xstrdup(topicwhen);
 	}
 } /* void channel_when(channel_type *, char *, char *) */
 
@@ -350,18 +350,26 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 			}
 			
 			if (data->jointries > 0) {
+				int nlen, klen;
 				try_joining = 1;
 				data->jointries--;
 				/* Add channel and key in queue. */
+				/*
+				 * name and key guaranteed
+				 * terminated and valid
+				 *
+				 * strncat == paranoid
+				 */
+				nlen = strlen(data->name);
+				klen = strlen(data->key);
 				chans = (char *) xrealloc(chans,
-						strlen(data->name)
-						+ strlen(chans) + 2);
-				keys = (char *) xrealloc(keys, strlen(keys)
-						+ strlen(data->key) + 2);
+						nlen + strlen(chans) + 2);
+				keys = (char *) xrealloc(keys,
+						klen + strlen(keys) + 2);
 				strcat(chans, ",");
-				strcat(chans, data->name);
+				strncat(chans, data->name, nlen);
 				strcat(keys, ",");
-				strcat(keys, data->key);
+				strncat(keys, data->key, klen);
 			} else if (cfg.jointries == 0) {
 				/*
 				 * If cfg.jointries is 0, remove channel from

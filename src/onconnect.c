@@ -27,19 +27,22 @@ llist_list	onconnect_actions;
 void
 onconnect_add(const char type, const char *target, const char *data)
 {
-	char	*msg;
+	char *msg;
+	int mlen;
 
 	switch (type) {
 		case 'p':
 		case 'n':
-			msg = (char *) xmalloc(strlen(target)
-					+ strlen(data) + 11);
-			sprintf(msg, "%s %s :%s",
+			/* if target/data are not ok, parser is broken */
+			mlen = strlen(target) + strlen(data) + 11;
+			msg = (char *) xmalloc(mlen);
+			snprintf(msg, mlen - 1, "%s %s :%s",
 					(type == 'p') ? "PRIVMSG" : "NOTICE",
 					target, data);
+			msg[mlen - 1] = '\0';
 			break;
 		case 'r':
-			msg = strdup(target);
+			msg = xstrdup(target);
 			break;
 		default:
 			return;

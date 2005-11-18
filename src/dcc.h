@@ -23,7 +23,7 @@
 
 #ifdef DCCBOUNCE
 
-extern char *dcc_initiate(char* param, int fromclient);
+extern char *dcc_initiate(char *param, size_t dsize, int fromclient);
 extern void dcc_socketsubscribe(fd_set* readset, fd_set* writeset);
 extern void dcc_socketcheck(fd_set* readset, fd_set* writeset);
 extern void dcc_timer(void); /* To be called every second ! */

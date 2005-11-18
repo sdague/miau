@@ -94,7 +94,7 @@ char *
 _xstrcpy(char *dest, const char *src  DEBUG_ADDPARMS)
 {
 	if (dest != NULL && src != NULL) {
-		return strcpy(dest, src);
+		return strcpy(dest, src); /* dangerous, but can't help it */
 	} else {
 #ifdef DEBUG_ADDPARMS
 		REPORT_ERROR("xstrcpy");
@@ -148,7 +148,7 @@ xmalloc(size_t size)
 	if (ret == NULL) {
 		error(ERR_MEMORY);
 		exit(ERR_CODE_MEMORY);
-	}	
+	}
 	return ret;
 } /* void *xmalloc(size_t size) */
 

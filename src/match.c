@@ -43,10 +43,10 @@ match(const char *string, const char *pattern)
 		return 0;
 	}
 
-	str = strdup(string);
+	str = xstrdup(string);
 	upcase(str);
 	
-	pat = strdup(pattern);
+	pat = xstrdup(pattern);
 	upcase(pat);
 
 	str_p = pat_p = 0;

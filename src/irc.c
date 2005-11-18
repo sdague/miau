@@ -411,10 +411,10 @@ sock_accept(int sock, char **s, int checkperm)
 #ifdef IPV6
 	if (! getnameinfo((struct sockaddr *) &addr, sizeof(addr), ipv6,
 				sizeof(ipv6), 0, 0, 0)) {
-		*s = strdup(ipv6);
+		*s = xstrdup(ipv6);
 		perm |= is_perm(&connhostlist, *s);
 	} else {
-		*s = strdup(ip);
+		*s = xstrdup(ip);
 	}
 
 #else
@@ -422,10 +422,10 @@ sock_accept(int sock, char **s, int checkperm)
 			sizeof(struct in_addr), AF_INET);
 	
 	if (hostinfo) {
-		*s = strdup(hostinfo->h_name);
+		*s = xstrdup(hostinfo->h_name);
 		perm |= is_perm(&connhostlist, *s);
 	} else {
-		*s = strdup(ip);
+		*s = xstrdup(ip);
 	}
 #endif
 
@@ -458,6 +458,7 @@ irc_mwrite(clientlist_type *clients, char *format, ...)
 	va_start(va, format);
 	vsnprintf(buffer, BUFFERSIZE - 3, format, va);
 	va_end(va);
+	buffer[BUFFERSIZE - 3] = '\0';
 	for (client = clients->clients->head; client != NULL;
 			client = client->next) {
 		/*
@@ -488,6 +489,7 @@ irc_write_head(connection_type *connection, char *format, ...)
 	va_start(va, format);
 	vsnprintf(buffer, BUFFERSIZE - 3, format, va);
 	va_end(va);
+	buffer[BUFFERSIZE - 3] = '\0';
 	strcat(buffer, "\r\n");
 
 	return irc_write_smart(connection, buffer, HEAD);
@@ -504,6 +506,7 @@ irc_write(connection_type *connection, char *format, ...)
 	va_start(va, format);
 	vsnprintf(buffer, BUFFERSIZE - 3, format, va);
 	va_end(va);
+	buffer[BUFFERSIZE - 3] = '\0';
 	strcat(buffer, "\r\n");
 
 	return irc_write_smart(connection, buffer, TAIL);
@@ -531,10 +534,10 @@ irc_write_smart(connection_type *connection, char *buffer, const int queue)
 		 * there is no need to save target of these messages.
 		 */
 		if (queue == TAIL) {
-			llist_add_tail(llist_create(strdup(buffer)),
+			llist_add_tail(llist_create(xstrdup(buffer)),
 					&msg_queue);
 		} else {
-			llist_add(llist_create(strdup(buffer)),
+			llist_add(llist_create(xstrdup(buffer)),
 					&msg_queue);
 		}
 		return strlen(buffer);
@@ -548,7 +551,6 @@ int
 irc_write_real(connection_type *connection, char *buffer)
 {
 #ifdef DEBUG
-/* if (connection->socket == c_server.socket) */
 	fprintf(stdout, ">>%03d>> %s", connection->socket, buffer);
 	fflush(stdout);
 #endif
@@ -633,6 +635,7 @@ irc_mnotice(clientlist_type *clients, char nickname[], char *format, ...)
 	va_start(va, format);
 	vsnprintf(buffer, BUFFERSIZE - 10, format, va);
 	va_end(va);
+	buffer[BUFFERSIZE - 9] = '\0';
 
 	for (client = clients->clients->head; client != NULL;
 			client = client->next) {
@@ -655,6 +658,7 @@ irc_notice(connection_type *connection, char nickname[], char *format, ...)
 	va_start(va, format);
 	vsnprintf(buffer, BUFFERSIZE - 10, format, va);
 	va_end(va);
+	buffer[BUFFERSIZE - 9] = '\0';
 
 	irc_write(connection, "NOTICE %s :%s", nickname, buffer);
 } /* void irc_notice(connection_type *connection, char nickname[],
@@ -688,6 +692,7 @@ irc_read(connection_type *connection)
 	if (connection->buffer[connection->offset - 2] == '\r') {
 		connection->buffer[connection->offset - 2] = '\0';
 	}
+	connection->buffer[BUFFERSIZE - 1] = '\0';
 
 #ifdef DEBUG
 	fprintf(stdout, "<<%03d<< %s\n", connection->socket,
@@ -735,6 +740,7 @@ irc_connect(connection_type *connection, server_type *server, char *nickname,
 	
 	attempts = 15;
 	do {
+		/* random() here is totally safe */
 		for (ri = random() & 0xff; ri; ri--) {
 			randport = (random() & 0xffff) | 1024;
 		}

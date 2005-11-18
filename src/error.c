@@ -36,11 +36,17 @@ enduserdebug(char *format, ...)
 	va_start(va, format);
 	vsnprintf(buf0, ENDUSER_BUF_SIZE - 1, format, va);
 	va_end(va);
+	buf0[ENDUSER_BUF_SIZE - 1] = '\0';
 #ifndef TESTING
 	if (c_clients.connected > 0) {
 		char buf1[ENDUSER_BUF_SIZE + 160];
-		sprintf(buf1, ":debug PRIVMSG %s :%s: %s", status.nickname,
-				get_timestamp(NULL, TIMESTAMP_LONG), buf0);
+		/* termination and validity guaranteed */
+		snprintf(buf1, ENDUSER_BUF_SIZE + 159,
+				":debug PRIVMSG %s :%s: %s",
+				status.nickname,
+				get_timestamp(NULL, TIMESTAMP_LONG),
+				buf0);
+		buf1[ENDUSER_BUF_SIZE + 159] = '\0';
 		irc_mwrite(&c_clients, "%s", buf1);
 	}
 #endif /* ifndef TESTING */
@@ -58,6 +64,7 @@ report(char *format, ...)
 	va_start(va, format);
 	vsnprintf(buffer, 255, format, va);
 	va_end(va);
+	buffer[255] = '\0';
 
 	fprintf(stdout, "%s + %s\n", get_short_localtime(), buffer);
 #ifndef TESTING
@@ -76,6 +83,7 @@ error(char *format, ...)
 	va_start(va, format);
 	vsnprintf(buffer, 255, format, va);
 	va_end(va);
+	buffer[255] = '\0';
 	
 	fprintf(stdout, "%s - %s\n", get_short_localtime(), buffer);
 #ifndef TESTING

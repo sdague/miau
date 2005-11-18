@@ -30,7 +30,7 @@ remote_cmd(char *command, char *params, char *nick)
 	/* Each command consists of up to four parameters. */
 	char	**param = (char **) xmalloc((sizeof(char *)) * MAXCMDPARAMS);
 	int	paramno = 0;
-	char	*splitted = strdup(params);
+	char	*splitted = xstrdup(params);
 	char	*p;
 	int	i = 0;
 	int	pass = 1;

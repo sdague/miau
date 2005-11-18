@@ -19,6 +19,7 @@
 #include "messages.h"
 #include "tools.h"
 #include "irc.h"
+#include "error.h"
 
 
 
@@ -35,6 +36,17 @@ log_prepare_entry(const char *nick, const char *msg)
 	static char buf[IRC_MSGLEN];
 	int i;
 	int len, rpos;
+
+	if (nick == NULL || msg == NULL) {
+#ifdef ENDUSERDEBUG
+		enduserdebug("%s: nick = %s, msg = %s",
+				__FUNCTION__,
+				nick == NULL ? "NULL" : nick,
+				msg == NULL ? "NULL" : msg);
+#endif /* ifdef ENDUSERDEBUG */
+		return NULL;
+	}
+
 	/* Messages not beginning with '\1ACTION ' don't need to be touched. */
 	if (msg[0] != '\1' || xstrncmp(msg, "\1ACTION ", 8) != 0) {
 		return NULL;
@@ -47,14 +59,17 @@ log_prepare_entry(const char *nick, const char *msg)
 		return NULL;
 	}
 	rpos = len - i + 1;
-	
+
 	/* Right now we only parse ACTIONs. */
+	/* termination and validity guaranteed */
+	/* even msg + 8 is safe, see xstrncmp above */
 	snprintf(buf, IRC_MSGLEN - 1, LOGM_ACTION, get_short_localtime(),
 			nick, msg + 8);
+	buf[IRC_MSGLEN - 1] = '\0';
 	/* Remove trailing '\1'. */
 	len = (int) strlen(buf);
 	memmove(buf + len - rpos, buf + len - rpos + 1, rpos);
-	
+
 	return buf;
 } /* char *log_prepare_entry(const char *nick, const char *msg) */
 #endif /* LOGGING */

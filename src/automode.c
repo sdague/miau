@@ -39,12 +39,12 @@ automode_do(void)
 	int		modecount;
 
 	bzero(modes, 4);		/* Clear modes. */
-	
 
 	LLIST_WALK_H(active_channels.head, channel_type *);
 		channel = data;
 
 		if (channel->oper == 1) {
+			int nlen;
 			nicks[0] = '\0';	/* Clear nicks. */
 			bzero(modes, 4);	/* Clear modes. */
 			modecount = 0;
@@ -52,10 +52,11 @@ automode_do(void)
 			/* Commit three modes at a time. */
 			LLIST_WALK_H(channel->mode_queue.head, automode_type *);
 				modes[modecount] = data->mode;
+				nlen = strlen(data->nick); /* paranoid */
 				nicks = (char *) xrealloc(nicks, strlen(nicks)
-						+ strlen(data->nick) + 2);
+						+ nlen + 2);
 				strcat(nicks, " ");
-				strcat(nicks, data->nick);
+				strncat(nicks, data->nick, nlen);
 				modecount++;
 				if (modecount == 3) {
 					irc_write_head(&c_server,
@@ -96,22 +97,26 @@ automode_queue(const char *nick, const char *hostname, channel_type *channel)
 {
 	automode_type	*modeact;
 	char		*mask;
-	
-	char		modes[2] = "ov";
+	int		msize;
+
+	char		modes[3] = "ov";
 	int		mode_c = 2;
 
-	mask = (char *) xmalloc(strlen(nick) + strlen(hostname)
-			+ strlen(channel->name) + 5);
+	/* termination and validity guaranteed */
+	msize = strlen(nick) + strlen(hostname) + strlen(channel->name) + 5;
+	mask = (char *) xmalloc(msize);
 
 	/* Generate mask and see if any automode should take place. */
 	while (mode_c-- > 0) {
-		sprintf(mask, "%c:%s!%s/%s", modes[mode_c], nick, hostname,
+		snprintf(mask, msize - 1, "%c:%s!%s/%s",
+				modes[mode_c], nick, hostname,
 				channel->name);
+		mask[msize - 1] = '\0';
 		if (is_perm(&automodelist, mask) && automode_lookup(nick,
 					channel, modes[mode_c]) == NULL) {
 			modeact = (automode_type *)
 				xmalloc(sizeof(automode_type));
-			modeact->nick = strdup(nick);
+			modeact->nick = xstrdup(nick);
 			modeact->mode = modes[mode_c];
 			llist_add_tail(llist_create(modeact),
 					&channel->mode_queue);

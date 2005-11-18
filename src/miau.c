@@ -156,6 +156,7 @@ connection_type	c_newclient;
 
 int		listensocket = 0;  	/* listensocket */
 char		*forwardmsg = NULL;
+int		forwardmsgsize = 0;
 
 int		error_code;		/* Used for EXIT-macro. Ugly. */
 
@@ -333,7 +334,7 @@ read_cfg(void)
 	 * By assuming it's non-NULL, we don't need to do
 	 * 'cfg.logpostfix != NULL ? cfg.logpostfix : ""' every time.
 	 */
-	cfg.logpostfix = strdup("");	/* No global logfile-postfix. */
+	cfg.logpostfix = xstrdup("");	/* No global logfile-postfix. */
 #endif /* LOGGING */
 	
 	/* Read configuration file. */
@@ -365,9 +366,13 @@ static int	foocount = 0;
 static void
 dump_add(char *data)
 {
-	int addlen = strlen(data);
-	dumpdata = (char *) xrealloc(dumpdata, strlen(dumpdata) + addlen + 1);
+	int addlen;
+	int dumplen;
+	addlen = strlen(data);
+	dumplen = strlen(dumpdata) + addlen;
+	dumpdata = (char *) xrealloc(dumpdata, dumplen + 1);
 	strncat(dumpdata, data, addlen);
+	dumpdata[dumplen] = '\0';
 	foocount += addlen;
 } /* static void dump_add(char *data) */
 
@@ -394,7 +399,8 @@ static void
 dump_status_int(const char *id, const int val)
 {
 	char	buf[BUFFERSIZE];
-	sprintf(buf, "    %s=%d", id, val);
+	snprintf(buf, BUFFERSIZE - 1, "    %s=%d", id, val);
+	buf[BUFFERSIZE - 1] = '\0';
 	if (foocount + strlen(buf) > 80) {
 		dump_dump();
 	}
@@ -405,7 +411,8 @@ static void
 dump_status_char(const char *id, const char *val)
 {
 	char	buf[BUFFERSIZE];
-	sprintf(buf, "    %s='%s'", id, val);
+	snprintf(buf, BUFFERSIZE - 1, "    %s='%s'", id, val);
+	buf[BUFFERSIZE - 1] = '\0';
 	if (foocount + strlen(buf) > 80) {
 		dump_dump();
 	}
@@ -744,12 +751,12 @@ rehash(int a)
 	llist_node	*node;
 
 	/* First backup some essential stuff. */
-	oldrealname = strdup(cfg.realname);
-	oldusername = strdup(cfg.username);
-	oldpassword = strdup(cfg.password);
+	oldrealname = xstrdup(cfg.realname);
+	oldusername = xstrdup(cfg.username);
+	oldpassword = xstrdup(cfg.password);
 	oldlistenport = cfg.listenport;
 	oldlistenhost = (cfg.listenhost != NULL)
-		? strdup(cfg.listenhost) : NULL;
+		? xstrdup(cfg.listenhost) : NULL;
 
 	/* Free non-must parameters. */
 	free_resources();
@@ -777,9 +784,9 @@ rehash(int a)
 	 * to revert then back if they're not configured. We need to duplicate
 	 * them as oldvalues will be freed later.
 	 */
-	if (cfg.realname == NULL) { cfg.realname = strdup(oldrealname); }
-	if (cfg.username == NULL) { cfg.username = strdup(oldusername); }
-	if (cfg.password == NULL) { cfg.password = strdup(oldpassword); }
+	if (cfg.realname == NULL) { cfg.realname = xstrdup(oldrealname); }
+	if (cfg.username == NULL) { cfg.username = xstrdup(oldusername); }
+	if (cfg.password == NULL) { cfg.password = xstrdup(oldpassword); }
 	if (cfg.listenport == 0) { cfg.listenport = oldlistenport; }
 	
 #ifdef CHANLOG
@@ -808,7 +815,7 @@ rehash(int a)
 	 * nick to the list. Warnings have been send already.
 	 */
 	if (nicknames.nicks.head == NULL) {
-		node = llist_create(strdup(status.nickname));
+		node = llist_create(xstrdup(status.nickname));
 		llist_add(node, &nicknames.nicks);
 		/* We're happy with the nick we have. */
 		status.got_nick = 1;
@@ -919,12 +926,15 @@ clients_left(const char *reason)
 	 * we won't bother tracking when we actually have _left_ the channel.
 	 */
 	if (active_channels.head != NULL) {
+		int nlen;
 		/* Build a string of channel list. */
 		LLIST_WALK_H(active_channels.head, channel_type *);
-			chans = (char *) xrealloc(chans, strlen(data->name) + 2
+			/* paranoid */
+			nlen = strlen(data->name);
+			chans = (char *) xrealloc(chans, nlen + 2
 					+ (int) strlen(chans));
 			strcat(chans, ",");
-			strcat(chans, data->name);
+			strncat(chans, data->name, nlen);
 			if (cfg.leave) {
 				if (cfg.rejoin) {
 					/*
@@ -1248,7 +1258,8 @@ check_timers(void)
 					/* Nothing to forward. */
 					break;
 				}
-				
+
+				/* yup, popen isn't safe */
 				fwd = popen(cfg.forwardmsg, "w");
 				/*
 				 * If there's an error while creating a pipe,
@@ -1303,9 +1314,8 @@ get_nick(char *format)
 	 */
 	if (i_server.connected != 2) {
 		char *badnick;
-		badnick = strdup(status.nickname);
+		badnick = xstrdup(status.nickname);
 		/* if (badnick == NULL) { escape(); } */
-		/* We actually never handle strdups returning NULL. */
 
 		/* Try first nick. */
 		if (nicknames.next == NICK_FIRST) {
@@ -1329,7 +1339,7 @@ get_nick(char *format)
 			if (nicknames.current->data != NULL) {
 				xfree(status.nickname);
 				status.nickname =
-					strdup(nicknames.current->data);
+					xstrdup(nicknames.current->data);
 			}
 		}
 		if (nicknames.current == NULL) {
@@ -1341,7 +1351,7 @@ get_nick(char *format)
 			 * All pre-defined nicks are in use. We must generate
 			 * a new one.
 			 */
-			oldnick = strdup(status.nickname);
+			oldnick = xstrdup(status.nickname);
 			xfree(status.nickname);
 			status.nickname = (char *) xmalloc(cfg.maxnicklen + 1);
 			status.nickname[0] = '\0'; /* [0]='\0' means random */
@@ -1349,7 +1359,7 @@ get_nick(char *format)
 					cfg.nickfillchar);
 			xfree(oldnick);
 		} else {
-			status.nickname = strdup((char *)
+			status.nickname = xstrdup((char *)
 					nicknames.current->data);
 		}
 
@@ -1378,7 +1388,7 @@ fakeconnect(connection_type *newclient)
 
 	if (status.nickname == NULL) {
 		/* Get us a nick if we don't have one already. */
-		status.nickname = strdup((char *) nicknames.nicks.head->data);
+		status.nickname = xstrdup((char *) nicknames.nicks.head->data);
 	}
 
 	if (i_server.connected == 2) {
@@ -1477,7 +1487,7 @@ fakeconnect(connection_type *newclient)
 					i_client.nickname,
 					status.nickname);
 			xfree(i_client.nickname);
-			i_client.nickname = strdup(status.nickname);
+			i_client.nickname = xstrdup(status.nickname);
 		}
 		
 		/*
@@ -1588,7 +1598,7 @@ set_away(const char *msg)
 	 */
 	if (msg != NULL) {
 		xfree(status.awaymsg);
-		status.awaymsg = strdup(msg);
+		status.awaymsg = xstrdup(msg);
 		/* Unset us away so we get marked later. */
 		status.awaystate &= ~AWAY;
 	}
@@ -1652,14 +1662,14 @@ read_newclient(void)
 			if (xstrcmp(command, "NICK") == 0) {
 				status.init = status.init | 2;
 				xfree(i_newclient.nickname);
-				i_newclient.nickname = strdup(
+				i_newclient.nickname = xstrdup(
 						strtok(param, " "));
 			}
 			
 			if (xstrcmp(command, "USER") == 0) {
 				status.init = status.init | 4;
 				xfree(i_newclient.username);
-				i_newclient.username = strdup(
+				i_newclient.username = xstrdup(
 						strtok(param, " "));
 			}
 			
@@ -1753,9 +1763,7 @@ miau_commands(char *command, char *param, connection_type *client)
 
 			s = (char *) xmalloc(1024);
 			while (fgets(s, 1023, inbox)) {
-				if (s[strlen(s) - 1] == '\n') {
-					s[strlen(s) - 1] = 0;
-				}
+				s[strlen(s)] = '\0';
 				irc_notice(client, status.nickname, "%s", s);
 			}
 			xfree(s);
@@ -1805,12 +1813,14 @@ miau_commands(char *command, char *param, connection_type *client)
 	/* Developement only. */
 	else if (xstrcmp(command, "FAKECMD") == 0) {
 		corr++;
-		char	*tbackup = strdup(param);
+		char	*tbackup;
 		char	*torigin;
 		char	*tcommand;
 		char	*tparam1;
 		char	*tparam2;
 		int	tcommandno;
+
+		tbackup = xstrdup(param);
 		torigin = strtok(param + 1, " ");
 		tcommand = strtok(NULL, " ");
 		tparam1 = strtok(NULL, " ");
@@ -1894,7 +1904,7 @@ miau_commands(char *command, char *param, connection_type *client)
 		 * need it.
 		 */
 		char *reason = (param == NULL ?
-				strdup(MIAU_DIE_CL) : strdup(param));
+				xstrdup(MIAU_DIE_CL) : xstrdup(param));
 		/*
 		 * If user issues a DIE-command, (s) most likely knows why
 		 * connection was lost. Therefore we don't need to tell clients
@@ -1998,7 +2008,7 @@ run(void)
 		
 			/* Assume we have our desired nick. */
 			xfree(status.nickname);
-			status.nickname = strdup((char *)
+			status.nickname = xstrdup((char *)
 					nicknames.nicks.head->data);
 			nicknames.current = nicknames.nicks.head;
 			nicknames.next = NICK_NEXT;
@@ -2320,7 +2330,7 @@ check_config(void)
 	/*
 	 * Actually, we did we do this?
 	 * 
-	if (! cfg.listenhost && cfg.bind) cfg.listenhost = strdup(cfg.bind);
+	if (! cfg.listenhost && cfg.bind) cfg.listenhost = xstrdup(cfg.bind);
 	 */
 
 	server_check_list();
@@ -2345,29 +2355,32 @@ setup_home(char *s)
 	struct stat ds;
 	int t;
 
-	if (s) {
-		cfg.home = strdup(s);
-		if (cfg.home[strlen(cfg.home) - 1] != '/') {
-			cfg.home = xrealloc(cfg.home, strlen(cfg.home) + 2);
-			strcat(cfg.home, "/");
-		}
+	if (s != NULL) {
+		int hsize;
+		hsize = strlen(s) + 2;
+		cfg.home = xmalloc(hsize);
+		snprintf(cfg.home, hsize - 1, "%s/", s);
+		cfg.home[hsize - 1] = '\0';
 	}
-	
+
 	else {
-		if (! (s = getenv("HOME"))) {
+		int hsize;
+		/*
+		 * If user attacks miau with environment variables then
+		 * so be it! It's his choice and his choice alone.
+		 */
+		s = getenv("HOME");
+		if (s == NULL) {
 			error(MIAU_ERRNOHOME);
 			exit(ERR_CODE_HOME);
 		}
-		
-		cfg.home = xmalloc(strlen(s) + strlen(MIAUDIR) + 2);
-		xstrcpy(cfg.home, s);
-		
-		if (cfg.home[strlen(cfg.home) - 1] != '/') {
-			strcat(cfg.home, "/");
-		}
-		strcat(cfg.home, MIAUDIR);
+
+		hsize = strlen(s) + strlen(MIAUDIR) + 2;
+		cfg.home = xmalloc(hsize);
+		snprintf(cfg.home, hsize - 1, "%s/%s", s, MIAUDIR);
+		cfg.home[hsize - 1] = '\0';
 	}
-	
+
 	if (chdir(cfg.home) < 0) {
 		error(MIAU_ERRCHDIR, cfg.home);
 		exit(ERR_CODE_HOME);
@@ -2421,6 +2434,10 @@ main(int argc, char **argv)
 	miaudir = NULL;
 	opterr = 0;
 
+	/*
+	 * getopt could have an overflow problem. If user runs miau with
+	 * evil parameters, that his problem!
+	 */
 	while ((c = getopt(argc, argv, ":cfd:v")) > 0) {
 		switch (c) {
 #ifdef MKPASSWD
@@ -2439,6 +2456,9 @@ main(int argc, char **argv)
 					 * pointer to a static buffer", but
 					 * valgrind says "still reachable" but
 					 * leaked anyhow.
+					 *
+					 * As a bonus: getpass may not be safe,
+					 * but once we run it, we exit!
 					 */
 					pass = getpass(MIAU_ENTERPASS);
 					crypted = crypt(pass, salt);

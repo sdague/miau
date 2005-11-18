@@ -59,7 +59,7 @@ assign_param(char **target, char *source)
 	if (source[0] == '\0') {
 		*target = NULL;
 	} else {
-		*target = strdup(source);
+		*target = xstrdup(source);
 	}
 } /* void assign_param(char **target, char *source) */
 
@@ -85,9 +85,9 @@ add_server(const char *name, int port, const char *pass, int timeout)
 	 */
 
 	server = (server_type *) xmalloc(sizeof(server_type));
-	server->name = strdup(name);
+	server->name = xstrdup(name);
 	server->port = port;
-	server->password = (char *) ((pass == NULL) ? NULL : strdup(pass));
+	server->password = (char *) ((pass == NULL) ? NULL : xstrdup(pass));
 	server->timeout = (timeout > 0) ? timeout : 0;
 	server->working = 1;
 	node = llist_create(server);
@@ -106,7 +106,8 @@ add_server(const char *name, int port, const char *pass, int timeout)
 char *
 trimquotes(char *data)
 {
-	int	l = strlen(data) - 1;
+	int l;
+	l = strlen(data) - 1;
 	if (data[0] != '"' || data[l] != '"') {
 		parse_error();		/* Bad quoting. */
 		return NULL;
@@ -145,7 +146,7 @@ trim(char *data, const int mode)
 			ptr++;
 		}
 	}
-			
+
 	ptr = data + strlen(data) - 1;
 	/* Remove trailing whitespaces. */
 	while (ptr >= data && (*ptr == ' ' || *ptr == '\t')) {
@@ -517,7 +518,7 @@ parse_list_line(char *data)
 				par[strlen(par) - 1] = '\0';
 			
 				/* Ok, got our parameter. */
-				param[paramcount] = strdup(par);
+				param[paramcount] = xstrdup(par);
 			}
 			paramcount++;
 			par = ptr + 1;
@@ -541,7 +542,7 @@ parse_list_line(char *data)
 	switch (listid) {
 		case CFG_NICKNAMES:
 			if (paramcount == 1) {
-				llist_add_tail(llist_create(strdup(param[0])),
+				llist_add_tail(llist_create(xstrdup(param[0])),
 						&nicknames.nicks);
 				ok = 1;
 			}
@@ -690,10 +691,10 @@ parse_list_line(char *data)
 	} else if (permlist != NULL) {
 		/* Everything went just fine and there's something to do... */
 		if (paramcount == 1) {
-			add_perm(permlist, strdup(param[0]), 1);
+			add_perm(permlist, xstrdup(param[0]), 1);
 		} else if (paramcount == 2) {
 			assign_boolean(&n, param[1]);
-			add_perm(permlist, strdup(param[0]), n);
+			add_perm(permlist, xstrdup(param[0]), n);
 		}
 	}
 

@@ -73,7 +73,7 @@ client_drop(connection_type *client, char *reason, const int msgtype,
 	if (cfg.maxclients != 1) {
 		report(CLNT_CLIENTS, c_clients.connected);
 	}
-	
+
 	if (c_clients.connected == 0) {
 		clients_left(cfg.usequitmsg ? awaymsg : NULL);
 	} else if (cfg.autoaway == 1) {
@@ -123,7 +123,7 @@ client_read(connection_type *client)
 	int	c_status;
 	char	*command, *param1, *param2;
 	int	pass = 1;
-	
+
 	c_status = irc_read(client);
 	
 	if (c_status <= 0) {
@@ -132,12 +132,12 @@ client_read(connection_type *client)
 	}
 	
 	/* Ok, got something. */
-	if (strlen(client->buffer) == 0) {
+	if (client->buffer[0] == '\0') {
 		/* Darn, got nothing after all. */
 		return 0;
 	}
 	
-	work = strdup(client->buffer);
+	work = xstrdup(client->buffer);
 
 	command = strtok(work, " ");
 	param1 = strtok(NULL, " ");
@@ -162,11 +162,11 @@ client_read(connection_type *client)
 	while (channel != NULL) {
 		chptr = channel_find(channel, LIST_PASSIVE);
 		if (chptr == NULL) {
-			irc_mwrite(&c_clients, ":miau %d %s %s :"
-					"No such channel",	// FIXME mesg.h
+			irc_mwrite(&c_clients, ":miau %d %s %s :%s",
 					ERR_NOSUCHCHANNEL,
 					status.nickname,
-					channel);
+					channel,
+					IRC_NOSUCHCHAN);
 		} else {
 			channel_rem(chptr, LIST_PASSIVE);
 		}
@@ -180,7 +180,8 @@ client_read(connection_type *client)
 				/* Want to part all channels ? */
 				if (param1 != NULL && param1[0] == '0' &&
 						(param1[1] == ' ' ||
-							param1[1] == '\0')) {
+							param1[1] == '\0') &&
+						param2 != NULL) {
 	/* User want to leave all channels. */
 	LLIST_WALK_H(passive_channels.head, channel_type *);
 		channel_rem(data, LIST_PASSIVE);
@@ -220,12 +221,29 @@ client_read(connection_type *client)
 
 		if (xstrcmp(command, "PRIVMSG") == 0) {		/* PRIVMSG */
 #ifdef DCCBOUNCE
-			if (cfg.dccbounce && xstrncmp(param2,
+			if (param2 == NULL) {
+#ifdef ENDUSERDEBUG
+				enduserdebug("%s: PRIVMSG, param2 = NULL",
+						__FUNCTION__);
+#endif /* ifdef ENDUSERDEBUG */
+			} else if (cfg.dccbounce && xstrncmp(param2,
 						":\1DCC", 5) == 0) {
-				if (dcc_initiate(param2 + 1, 1)) {
-					irc_write(&c_server, "PRIVMSG %s %s",
-							param1, param2);
-					pass = 0;
+				char dcct[IRC_MSGLEN];
+				if (strlen(param2 + 1) > IRC_MSGLEN) {
+#ifdef ENDUSERDEBUG
+					enduserdebug("%s: param2 = '%s' "
+							"(too long!)",
+							__FUNCTION__,
+							param2 + 1);
+#endif /* ifdef ENDUSERDEBUG */
+				} else {
+					strncpy(dcct, param2 + 1, IRC_MSGLEN);
+					if (dcc_initiate(dcct, IRC_MSGLEN, 1)) {
+						irc_write(&c_server,
+								"PRIVMSG %s %s",
+								param1, dcct);
+						pass = 0;
+					}
 				}
 			}
 #endif /* ifdef DCCBOUNCE */
@@ -298,7 +316,7 @@ client_read(connection_type *client)
 				 * If we got quit-message, backup before
 				 * "client" is freed.
 				 */
-				reason = strdup(client->buffer + len);
+				reason = xstrdup(client->buffer + len);
 			}
 			/* (single client, message, report, echo) */
 			client_drop(client, CLNT_LEFT, REPORT, 0, reason);
@@ -317,13 +335,13 @@ client_read(connection_type *client)
 				char *t = strchr(client->buffer, (int) ' ') + 2;
 #ifdef EMPTYAWAY
 				xfree(status.awaymsg);
-				status.awaymsg = strdup(t);
+				status.awaymsg = xstrdup(t);
 				/* Away / custom message. */
 				status.awaystate |= AWAY | CUSTOM;
 #else /* EMPTYAWAY */
 				FREE(status.awaymsg);
 				if (*t != '\0') {
-					status.awaymsg = strdup(t);
+					status.awaymsg = xstrdup(t);
 					/* Away / custom message. */
 					status.awaystate |= AWAY | CUSTOM;
 				} else {
@@ -335,7 +353,7 @@ client_read(connection_type *client)
 			pass = 1;
 		}
 	}
-		
+
 	if (pass) {
 		if (i_server.connected == 2) {
 			int	log = xstrcmp(command, "PRIVMSG") == 0 ||

@@ -72,13 +72,13 @@ typedef struct {
 } dcccommand;
 
 
-int dcc_realinitiate(char *dest, dcccommand *dcc);
-int dcc_resume(char *dest, dcccommand *dcc);
+static int dcc_realinitiate(char *dest, size_t dsize, dcccommand *dcc);
+static int dcc_resume(char *dest, size_t dsize, dcccommand *dcc);
 
 
 typedef struct {
 	char	*cmd;
-	int	(*func) (char *dest, dcccommand *dcc);
+	int	(*func) (char *dest, size_t dsize, dcccommand *dcc);
 } dcccall;
 
 
@@ -333,16 +333,17 @@ dcc_socketcheck(fd_set *readset, fd_set *writeset)
 
 
 
-int
+static int
 dcc_realinitiate(
 		char		*dest,
+		size_t		dsize,
 		dcccommand	*dcc
 		);
 
 
 
 char *
-dcc_initiate(char *param, int fromclient)
+dcc_initiate(char *param, size_t dsize, int fromclient)
 {
 	dcccommand	dcc;
 	char		*dparam, *chop, *check;
@@ -350,7 +351,7 @@ dcc_initiate(char *param, int fromclient)
 
 	bzero(&dcc, sizeof(dcccommand));
 
-	dparam = strdup(param);
+	dparam = xstrdup(param);
 	chop = dparam;
 	
 	dcc.fromclient = fromclient;
@@ -396,7 +397,7 @@ dcc_initiate(char *param, int fromclient)
 
 	for (i = 0; dcccalls[i].cmd; i++) {
 		if (xstrcmp(dcccalls[i].cmd, dcc.type) == 0) {
-			if (dcccalls[i].func(param, &dcc) == 0) {
+			if (dcccalls[i].func(param, dsize, &dcc) == 0) {
 				DCCINITNULLRETURN;
 			}
 			break;
@@ -406,12 +407,12 @@ dcc_initiate(char *param, int fromclient)
 	xfree(dparam);
 	
 	return param;;
-} /* char *dcc_initiate(char *param, int fromclient) */
+} /* char *dcc_initiate(char *param, size_t n, int fromclient) */
 
 
 
-int
-dcc_realinitiate(char *dest, dcccommand *dcc)
+static int
+dcc_realinitiate(char *dest, size_t dsize, dcccommand *dcc)
 {
 	unsigned int	address, port;
 	struct hostent	*host;
@@ -469,18 +470,20 @@ dcc_realinitiate(char *dest, dcccommand *dcc)
 		return 0;
 	}
 
-	sprintf(dest, "\1DCC %s %s %u %u", dcc->type,
+	snprintf(dest, dsize - 1, "\1DCC %s %s %u %u", dcc->type,
 			dcc->arg1,
 			(unsigned int) ntohl(*(unsigned long int *)
 					host->h_addr),
 			myport);
+	dest[dsize - 1] = '\0';
 
 	if (dcc->argc == 5) {
-		sprintf(dest, "%s %u\1", dest, dcc->args[2]);
+		snprintf(dest, dsize - 1, "%s %u\1", dest, dcc->args[2]);
 	}
 	else {
 		strcat(dest, "\1");
 	}
+	dest[dsize - 1] = '\0';
 
 	host = name_lookup(inet_ntoa(*(struct in_addr *) &address));
 	memcpy((char *) &dccs.data[dccindex]->destaddr.sin_addr, host->h_addr,
@@ -492,12 +495,12 @@ dcc_realinitiate(char *dest, dcccommand *dcc)
 			dccindex);
 
 	return 1;
-} /* int dcc_realinitiate(char *dest, dcccommand *dcc) */
+} /* static int dcc_realinitiate(char *dest, size_t dsize, dcccommand *dcc) */
 
 
 
-int
-dcc_resume(char *dest, dcccommand *dcc)
+static int
+dcc_resume(char *dest, size_t dsize, dcccommand *dcc)
 {
 	int	i;
 	int	resume;
@@ -512,10 +515,12 @@ dcc_resume(char *dest, dcccommand *dcc)
 		/* RESUME */
 		if (resume) {
 			if (dccs.data[i]->srcport == dcc->args[0]) {
-				sprintf(dest, "\1DCC RESUME %s %u %u\1",
+				snprintf(dest, dsize - 1,
+						"\1DCC RESUME %s %u %u\1",
 						dcc->arg1,
 						ntohs(dccs.data[i]->destaddr.sin_port),
 						dcc->args[1]);
+				dest[dsize - 1] = '\0';
 				return 1;
 			}
 		}
@@ -523,17 +528,19 @@ dcc_resume(char *dest, dcccommand *dcc)
 		else {
 			if (ntohs(dccs.data[i]->destaddr.sin_port) ==
 					dcc->args[0]) {
-				sprintf(dest, "\1DCC ACCEPT %s %u %u\1",
+				snprintf(dest, dsize - 1,
+						"\1DCC ACCEPT %s %u %u\1",
 						dcc->arg1,
 						dccs.data[i]->srcport,
 						dcc->args[1]);
+				dest[dsize - 1] = '\0';
 				return 1;
 			}
 		}
 	}
 	
 	return 0;
-} /* dcc_resume(char *dest, dcccommand *dcc) */
+} /* static int dcc_resume(char *dest, size_t dsize, dcccommand *dcc) */
 
 
 

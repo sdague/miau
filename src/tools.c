@@ -39,8 +39,8 @@ vsnprintf(char *str, size_t size, const char *format, va_list ap)
 	 * 
 	 * Now we simply ignore the threat and keep going.
 	 */
-
-	return vsprintf(str, format, ap);
+	
+	return vsprintf(str, format, ap); /* "supposed" to be unsafe! */
 } /* int vsnprintf(char *str, size_t size, const char *format, va_list ap) */
 #endif /* ifdef VSNPRINTF_WORKAROUND */
 
@@ -103,6 +103,13 @@ randname(char *target, const size_t length, const char fillchar)
 	/* Genereate from scratch? */
 	if (target[0] == '\0') {
 		for (i = 0; i < length; i++) {
+			/*
+			 * Using rand() here could be unwise due to bad
+			 * randomness of it. We ignore the thread, as
+			 *   a) user can always run mkpasswd,
+			 *   b) knowing the password _should_ only expose
+			 *      your IRC client for public, not your computer
+			 */
 			target[i] = (char)('A' + (rand() % 56));
 		}
 		target[length] = '\0';
@@ -279,6 +286,7 @@ get_timestamp(time_t *t, const timestamp_t mode)
 		case TIMESTAMP_SHORT:
 			strftime(stamp, 99, "%b %d %H:%M:%S", form);
 	}
+	stamp[99] = '\0';
 
 	return stamp;
 } /* char *get_timestamp(time_t *t, const timestamp_t mode) */
@@ -295,5 +303,6 @@ get_timestamp(time_t *t, const timestamp_t mode)
 const char *
 get_short_localtime(void)
 {
+	/* termination guaranteed in get_timestamp() */
 	return get_timestamp(NULL, TIMESTAMP_SHORT);
 } /* const char *get_short_localtime(void) */

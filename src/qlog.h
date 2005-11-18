@@ -56,8 +56,6 @@ void qlog_check(void);
 void qlog_replay(connection_type *client, const int keep);
 void qlog_drop_old(void);
 void qlog_write(const int privmsg, char *format, ...);
-
-channel_type *qlog_get_channel(const char *msg);
 #endif /* QUICKLOG */
 
 #endif /* _QLOG_H */

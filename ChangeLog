@@ -1,5 +1,6 @@
 0.5.5 - "only 18446744073709551615 bugs remaining"
 
+  * Security review. Secured tons of sprintfs and strcats.
   * Option "autoaway" to define when to set user away if ever
   * Option "chandiscon" to define what to do with channels when server
     drops the connection

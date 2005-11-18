@@ -38,16 +38,19 @@ open_file(char *nick)
 {
 	char *lownick;
 	char *filename;
+	int fsize;
 	FILE *file;
 
 	/* Get nick in lowercase. */
 	/* We could use filename as temporary buffer but that isn't safe. */
-	lownick = strdup(nick);
+	lownick = xstrdup(nick);
 	lowcase(lownick);
-	
-	filename = (char *) xmalloc(strlen(LOGDIR) + strlen(lownick)
-			+ strlen(cfg.logpostfix) + 2);
-	sprintf(filename, LOGDIR"/%s%s", lownick, cfg.logpostfix);
+
+	/* termination and validity guaranteed */
+	fsize = strlen(LOGDIR) + strlen(lownick) + strlen(cfg.logpostfix) + 3;
+	filename = (char *) xmalloc(fsize);
+	snprintf(filename, fsize - 1, LOGDIR"/%s%s", lownick, cfg.logpostfix);
+	filename[fsize - 1] = '\0';
 	file = fopen(filename, "a+");
 	xfree(filename);
 	xfree(lownick);
@@ -86,7 +89,7 @@ privlog_write(const char *nick, const int in_out, const char *message)
 		/* Create new entry. */
 		newentry = 1;
 		line = (privlog_type *) xmalloc(sizeof(privlog_type));
-		line->nick = strdup(nick);
+		line->nick = xstrdup(nick);
 		line->file = NULL;
 		
 		/* Newly created is likely to be needed first. I think. */
@@ -105,6 +108,7 @@ privlog_write(const char *nick, const int in_out, const char *message)
 
 	/* New entry? Write header. */
 	if (newentry) {
+		/* termination guaranteed in get_timestamp() */
 		fprintf(line->file, LOGM_LOGOPEN, get_timestamp(
 					NULL, TIMESTAMP_LONG));
 	}
@@ -113,9 +117,11 @@ privlog_write(const char *nick, const int in_out, const char *message)
 	active = (in_out == PRIVLOG_IN) ? nick : status.nickname;
 	t = log_prepare_entry(active, message);
 	if (t == NULL) {
+		/* termination guaranteed in get_short_localtime() */
 		fprintf(line->file, LOGM_MESSAGE, get_short_localtime(),
 				active, message);
 	} else {
+		/* termination guaranteed in log_prepare_entry() */
 		fprintf(line->file, "%s", t);
 	}
 	fflush(line->file);
@@ -158,6 +164,7 @@ finalize_log(privlog_type *log)
 		log->file = open_file(log->nick);
 	}
 	if (log->file != NULL) {
+		/* termination guaranteed in get_timestamp() */
 		fprintf(log->file, LOGM_LOGCLOSE, get_timestamp(
 					&log->updated, TIMESTAMP_LONG));
 		fclose(log->file);
