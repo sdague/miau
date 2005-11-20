@@ -174,6 +174,7 @@ typedef struct {
 	llist_list	nicks;		/* Defined nicks. */
 	llist_node	*current;	/* Current nick. */
 	int		next;		/* Nick-status. */
+	int		gen_tries;	/* N of tries to generate a nick. */
 } nicknames_type;
 
 #define NICK_FIRST	0	/* Try the first nick on the list. */

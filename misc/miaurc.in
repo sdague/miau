@@ -479,7 +479,7 @@
 # Default: 9
 #
 # Example:
-#maxnicklen = 11
+#maxnicklen = "11"
 
 
 # usermode = "usermode(s)": Usermode.

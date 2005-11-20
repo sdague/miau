@@ -1321,6 +1321,7 @@ get_nick(char *format)
 		if (nicknames.next == NICK_FIRST) {
 			nicknames.current = nicknames.nicks.head;
 			nicknames.next = NICK_NEXT;
+			nicknames.gen_tries = 0;
 		}
 		/* Try next nick on the list. */
 		else if (nicknames.next == NICK_NEXT) {
@@ -1342,24 +1343,35 @@ get_nick(char *format)
 					xstrdup(nicknames.current->data);
 			}
 		}
-		if (nicknames.current == NULL) {
-			char *oldnick;
-
-			/* Generate a nickname. */
+		/*
+		 * else if (nicknames.current == NULL &&
+		 *		cfg.nickfillchar != '\0') {
+		 */
+		else if (nicknames.current == NULL) {
+			/* create a nick */
 			nicknames.next = NICK_GEN;
-			/*
-			 * All pre-defined nicks are in use. We must generate
-			 * a new one.
-			 */
-			oldnick = xstrdup(status.nickname);
-			xfree(status.nickname);
-			status.nickname = (char *) xmalloc(cfg.maxnicklen + 1);
-			status.nickname[0] = '\0'; /* [0]='\0' means random */
+
+			if (nicknames.gen_tries == 0) {
+				status.nickname =
+					(char *) xrealloc(status.nickname,
+							  cfg.maxnicklen + 1);
+				strncpy(status.nickname,
+						nicknames.nicks.head->data,
+						cfg.maxnicklen);
+				status.nickname[cfg.maxnicklen] = '\0';
+			}
+			if (nicknames.gen_tries == cfg.maxnicklen * 2) {
+				/* No luck rotating. Try all random. */
+				/* len * 2 is overkill but enough. ;-) */
+				status.nickname[0] = '\0';
+			} else {
+				nicknames.gen_tries++;
+			}
 			randname(status.nickname, cfg.maxnicklen,
 					cfg.nickfillchar);
-			xfree(oldnick);
 		} else {
-			status.nickname = xstrdup((char *)
+			xfree(status.nickname);
+			status.nickname = (char *) xstrdup((char *)
 					nicknames.current->data);
 		}
 
