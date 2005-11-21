@@ -293,4 +293,16 @@ chanlog_write_entry_all(int type, char *format, ...)
 
 
 
+inline int
+chanlog_has_log(const channel_type *chan, int type)
+{
+	if (chan == NULL || chan->log == NULL) {
+		return 0;
+	} else {
+		return (chan->log->type & type) == type;
+	}
+} /* inline int chanlog_has_log(const channel_type *chan, int type) */
+
+
+
 #endif /* CHANLOG */

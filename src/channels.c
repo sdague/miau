@@ -406,7 +406,7 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 						data->topicwhen);
 			}
 #ifdef CNANLOG
-			if (HAS_LOG(data, LOG_MIAU)) {
+			if (chanlog_has_log((channel_type *) data, LOG_MIAU)) {
 				log_write_entry(data, LOGM_MIAU,
 						get_short_localtime(), "");
 			}

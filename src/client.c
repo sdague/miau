@@ -273,7 +273,7 @@ client_read(connection_type *client)
 	if (param1[0] == '#') {
 		channel_type *chptr;
 		chptr = channel_find(param1, LIST_ACTIVE);
-		if (chptr != NULL && HAS_LOG(chptr, LOG_MESSAGE)) {
+		if (chptr != NULL && chanlog_has_log(chptr, LOG_MESSAGE)) {
 			char *t;
 			t = log_prepare_entry(status.nickname, param2 + 1);
 			if (t == NULL) {

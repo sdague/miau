@@ -534,7 +534,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 
 #ifdef CHANLOG
 		chptr = channel_find(param1, LIST_ACTIVE);
-		if (chptr != NULL && HAS_LOG(chptr, LOG_MESSAGE)) {
+		if (chptr != NULL && chanlog_has_log(chptr, LOG_MESSAGE)) {
 			if (chw) {
 				param1--;
 			}
@@ -692,14 +692,14 @@ server_reply(const int command, char *original, char *origin, char *param1,
 
 	t = strchr(origin, '!');
 	if (t != NULL) {
-		*t++ = '\0';
+		*t = '\0';
+		t++;
 		nick = xstrdup(origin);
 		hostname = xstrdup(t);
 	} else {
 		nick = xstrdup(origin);
 		hostname = xstrdup(origin);
 	}
-
 
 	switch (command) {
 		/* Replies. */
@@ -1032,7 +1032,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			}
 
 #ifdef CHANLOG
-			if (HAS_LOG(chptr, LOG_PART)) {
+			if (chanlog_has_log(chptr, LOG_PART)) {
 				t = strchr(param2, ' ');
 				/* Ugly, done because we cant break up param2 */
 				if (t != NULL) {
@@ -1089,7 +1089,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 #endif /* AUTOMODE */
 	
 #ifdef CHANLOG
-			if (HAS_LOG(chptr, LOG_JOIN)) {
+			if (chanlog_has_log(chptr, LOG_JOIN)) {
 				chanlog_write_entry(chptr, LOGM_JOIN,
 						get_short_localtime(),
 						nick, hostname, param1 + 1);
@@ -1117,13 +1117,8 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			automode_drop_channel(chptr, nick, '\0');
 #endif /* AUTOMODE */
 
-			/* Remove channel from list if it was me leaving. */
-			if (xstrcmp(nick, status.nickname) == 0) {
-				channel_rem(chptr, LIST_ACTIVE);
-			}
-
 #ifdef CHANLOG
-			if (HAS_LOG(chptr, LOG_PART)) {
+			if (chanlog_has_log(chptr, LOG_PART)) {
 				chanlog_write_entry(chptr, LOGM_PART,
 						get_short_localtime(),
 						nick, param1,
@@ -1131,6 +1126,12 @@ server_reply(const int command, char *original, char *origin, char *param1,
 						param2 + 1 : "" : "");
 			}
 #endif /* CHANLOG */
+
+			/* Remove channel from list if it was me leaving. */
+			if (xstrcmp(nick, status.nickname) == 0) {
+				channel_rem(chptr, LIST_ACTIVE);
+			}
+
 			break;
 
 		/* Someone's leaving for good. */
@@ -1180,7 +1181,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			parse_modes(param1, param2);
 			
 #ifdef CHANLOG
-			if (HAS_LOG(chptr, LOG_MODE)) {
+			if (chanlog_has_log(chptr, LOG_MODE)) {
 				chanlog_write_entry(chptr, LOGM_MODE,
 						get_short_localtime(),
 						nick, param2);
@@ -1220,7 +1221,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			}
 
 #ifdef CHANLOG
-			if (HAS_LOG(chptr, LOG_MISC)) {
+			if (chanlog_has_log(chptr, LOG_MISC)) {
 				chanlog_write_entry(chptr, LOGM_TOPIC,
 						get_short_localtime(), nick,
 						(param2 + 1) ? param2 + 1 : "");

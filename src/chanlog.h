@@ -65,10 +65,6 @@
 #define LOG_CONTIN_C	'C'
 #define LOG_CONTIN	(LOG_ATTACHED | LOG_DETACHED)
 
-#define HAS_LOG(channel, cat)	\
-			(((channel)->log != NULL) && \
-				(((channel)->log->type & cat) == cat))
-
 
 
 extern llist_list chanlog_list;
@@ -91,6 +87,8 @@ void chanlog_close(channel_type *channel);
 
 void chanlog_write_entry(channel_type *chptr, char *format, ...);
 void chanlog_write_entry_all(int type, char *format, ...);
+
+inline int chanlog_has_log(const channel_type *chan, int type);
 
 #endif /* CHANLOG */
 
