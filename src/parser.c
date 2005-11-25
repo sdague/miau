@@ -499,8 +499,9 @@ parse_list_line(char *data)
 		}
 
 		/* End of line ? */
-		else if (*ptr == '\0') { eol = 1; }
-
+		else if (*ptr == '\0') {
+			eol = 1;
+		}
 
 		/* Got end of parameter. */
 		if ((*ptr == ':' || *ptr == '\0') &&
@@ -526,7 +527,7 @@ parse_list_line(char *data)
 		}
 		
 		ptr++;
-	} while (! eol);
+	} while (eol == 0);
 	/* If still inside quotes, the line was bad. */
 	if (inside) {
 		parse_error();
@@ -541,15 +542,20 @@ parse_list_line(char *data)
 	/* Process parameters. */
 	switch (listid) {
 		case CFG_NICKNAMES:
-			if (paramcount == 1) {
-				llist_add_tail(llist_create(xstrdup(param[0])),
-						&nicknames.nicks);
-				ok = 1;
+			if (paramcount != 1) {
+				break;
 			}
+			
+			llist_add_tail(llist_create(xstrdup(param[0])),
+					&nicknames.nicks);
+			ok = 1;
 			break;
 			
 		case CFG_SERVERS:
-			if (paramcount <= 4) {
+			if (paramcount > 4) {
+				break;
+			}
+			{
 				int t0, t1;
 				assign_int(&t0, param[1], 0);
 				assign_int(&t1, param[3], 0);
@@ -559,25 +565,28 @@ parse_list_line(char *data)
 			break;
 			
 		case CFG_CONNHOSTS:
-			if (paramcount <= 2) {
-				permlist = &connhostlist;
-				ok = 1;
+			if (paramcount > 2) {
+				break;
 			}
+			permlist = &connhostlist;
+			ok = 1;
 			break;
 			
 		case CFG_IGNORE:
-			if (paramcount <= 2) {
-				permlist = &ignorelist;
-				ok = 1;
+			if (paramcount > 2) {
+				break;
 			}
+			permlist = &ignorelist;
+			ok = 1;
 			break;
 			
 #ifdef AUTOMODE
 		case CFG_AUTOMODELIST:
-			if (paramcount <= 2 && param[0][1] == ':') {
-				permlist = &automodelist;
-				ok = 1;
+			if (paramcount > 2 || param[0][1] != ':') {
+				break;
 			}
+			permlist = &automodelist;
+			ok = 1;
 			break;
 #endif /* AUTOMODE */
 			
@@ -646,36 +655,52 @@ parse_list_line(char *data)
 #endif /* CHANLOG */
 
 		case CFG_CHANNELS:
-			if (paramcount <= 2) {
-				/* CFG_CHANNELS only has effect at start up. */
-				if (virgin) {
-					channel_type	*channel;
-					if (param[0] == NULL ||
-							strlen(param[0]) == 0) {
-						break;
-					}
-					/* Not adding same channel twice. */
-					if (channel_find(param[0], LIST_PASSIVE)
-							!= NULL) {
-						break;
-					}
-					/* channel_add will set up us a key. */
-					channel = channel_add(param[0],
-							param[1], LIST_PASSIVE);
-				}
-				ok = 1;
+			if (paramcount > 2) {
+				break;
 			}
+			
+			/* CFG_CHANNELS only has effect at start up. */
+			if (virgin == 1) {
+				channel_type *channel;
+
+				if (param[0] == NULL || param[0][0] == '\0') {
+					break;
+				}
+
+				/*
+				 * Make sure there are no channels such as
+				 * !#foo in miaurc. Auto-creation of safe
+				 * channels is a Bad Idea(tm) and we don't
+				 * want to help with that. If user wants to
+				 * define "real" channel name of a safe channel,
+				 * we won't stop him from hurting himself.
+				 */
+				if (param[0][0] == '!' && param[0][1] == '#') {
+					break;
+				}
+
+				/* Not adding same channel twice. */
+				if (channel_find(param[0], LIST_PASSIVE)
+						!= NULL) {
+					break;
+				}
+
+				/* channel_add will set up us a key. */
+				channel = channel_add(param[0],
+						param[1], LIST_PASSIVE);
+			}
+			ok = 1;
 			break;
 
 #ifdef ONCONNECT
 		case CFG_ONCONNECT:
-			if (paramcount <= 3) {
-				if (*param[0] == 'p' || *param[0] == 'n' ||
-						*param[0] == 'r') {
-					onconnect_add(*(param[0]), param[1],
-							param[2]);
-					ok = 1;
-				}
+			if (paramcount > 3) {
+				break;
+			}
+			if (*param[0] == 'p' || *param[0] == 'n' ||
+					*param[0] == 'r') {
+				onconnect_add(*(param[0]), param[1], param[2]);
+				ok = 1;
 			}
 			break;
 #endif /* ONCONNECT */
@@ -685,8 +710,8 @@ parse_list_line(char *data)
 			break;
 	}
 
-	/* Did we make it ? */
-	if (! ok) {
+	/* Did we make it? */
+	if (ok == 0) {
 		parse_error();
 	} else if (permlist != NULL) {
 		/* Everything went just fine and there's something to do... */
