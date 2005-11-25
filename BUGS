@@ -1,5 +1,8 @@
 Bugs:
 
+- miau with nick "foo", someone else with "foo_". kicking "foo_" makes miau
+  think "foo" was kicked. server.c:1062
+
 - miau doesn't get along with safe channels
 
 - If server changes user's nick, miau doesn't try to get it back!?
