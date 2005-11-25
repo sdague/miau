@@ -310,19 +310,21 @@ qlog_write(const int privmsg, char *format, ...)
 static channel_type *
 qlog_get_channel(const char *msg)
 {
-	channel_type	*chan = NULL;
-	char		*b;
-	int		l;
-	char		*t;
+	channel_type *chan;
+	char *b;
 
+	chan = NULL;
 	b = strchr(msg, (int) ' ');
 	if (b != NULL) {
 		b = strchr(b + 1, (int) ' ');
 		if (b != NULL) {
+			int l;
 			l = pos(b + 1, ' ');
 			if (l != -1) {
-				t = (char *) xcalloc(l + 1, 1);
+				char *t;
+				t = (char *) xmalloc(l + 1);
 				memcpy(t, b + 1, l);
+				t[l] = '\0';
 				/* Check active/old_channels. */
 				chan = channel_find(t, LIST_ACTIVE);
 				if (chan == NULL) {
