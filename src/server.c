@@ -1070,11 +1070,15 @@ server_reply(const int command, char *original, char *origin, char *param1,
 #endif /* CHANLOG */
 
 			/* Me being kicked ? */
-			if (xstrncmp(status.nickname, param2,
-						pos(param2, ' ') - 1) == 0) {
-				report(CLNT_KICK, origin, param1,
-						nextword(param2) + 1);
-				channel_rem(chptr, LIST_ACTIVE);
+			{
+				size_t t;
+				t = pos(param2, ' ');
+				if (xstrncmp(status.nickname, param2, t) == 0 &&
+						strlen(status.nickname) == t) {
+					report(CLNT_KICK, origin, param1,
+							nextword(param2) + 1);
+					channel_rem(chptr, LIST_ACTIVE);
+				}
 			}
 			break;
 

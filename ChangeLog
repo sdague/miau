@@ -6,6 +6,7 @@
     drops the connection
   * Option not to redirect stdout into logfile
   * miau should finally get along with safe channels (#1245923)
+  * "miau" no longer thinks it was kicked off a channel when "miau_" is kicked
   * Fixed logging of modeless channels
   * Fixed illegal memory access at parting channel when chanlog compiled in
   * Fixed minor memory leak in rehash
