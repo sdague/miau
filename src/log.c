@@ -63,8 +63,8 @@ log_prepare_entry(const char *nick, const char *msg)
 	/* Right now we only parse ACTIONs. */
 	/* termination and validity guaranteed */
 	/* even msg + 8 is safe, see xstrncmp above */
-	snprintf(buf, IRC_MSGLEN - 1, LOGM_ACTION, get_short_localtime(),
-			nick, msg + 8);
+	snprintf(buf, IRC_MSGLEN, LOGM_ACTION,
+			get_short_localtime(), nick, msg + 8);
 	buf[IRC_MSGLEN - 1] = '\0';
 	/* Remove trailing '\1'. */
 	len = (int) strlen(buf);

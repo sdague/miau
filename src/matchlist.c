@@ -135,11 +135,11 @@ matchlist_dump(list_type *list)
 		data = (match_type *) ptr->data;
 		/* This is dangerous, but no-one has to call this function! */
 		if ((int) data->state.i == 0 || (int) data->state.i == 1) {
-			t = snprintf(buf + len, BUFSIZE - len - 1,
+			t = snprintf(buf + len, BUFSIZE - len,
 					"    '%s' = %d\n",
 					data->rule, (int) data->state.i);
 		} else {
-			t = snprintf(buf + len, BUFSIZE - len - 1,
+			t = snprintf(buf + len, BUFSIZE - len,
 					"    '%s' = '%s'\n",
 					data->rule, (char *) data->state.ptr);
 		}

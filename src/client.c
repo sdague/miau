@@ -15,16 +15,22 @@
  * GNU General Public License for more details.
  */
 
+#include <config.h>
+
 #include "client.h"
 
 #include "error.h"
 #include "conntype.h"
+#include "common.h"
 #include "irc.h"
 #include "tools.h"
 #include "log.h"
 #include "privlog.h"
 #include "chanlog.h"
 #include "dcc.h"
+#include "commands.h"
+
+#include <string.h>
 
 
 
@@ -32,7 +38,8 @@ client_info	i_client;
 clientlist_type	c_clients;
 
 
-void client_drop_real(connection_type *, char *, const int, const int);
+void client_drop_real(connection_type *client, char *reason,
+		const int echo, const int dying);
 
 
 
@@ -40,7 +47,7 @@ void client_drop_real(connection_type *, char *, const int, const int);
  * "work" must be global so when miau_command is called, "work" can be freed
  * if users want to quit miau.
  */
-char	*work = NULL;	/* Temporary copy of input. */
+static char *work = NULL;	/* Temporary copy of input. */
 
 
 
@@ -117,141 +124,122 @@ client_drop_real(connection_type *client, char *reason, const int echo,
 
 
 
-int
-client_read(connection_type *client)
+static void
+cmd_part(char *par0, char *par1)
 {
-	int	c_status;
-	char	*command, *param1, *param2;
-	int	pass = 1;
-
-	c_status = irc_read(client);
-	
-	if (c_status <= 0) {
-		/* Something went unexpected. */
-		return c_status;
-	}
-	
-	/* Ok, got something. */
-	if (client->buffer[0] == '\0') {
-		/* Darn, got nothing after all. */
-		return 0;
-	}
-	
-	work = xstrdup(client->buffer);
-
-	command = strtok(work, " ");
-	param1 = strtok(NULL, " ");
-	param2 = strtok(NULL, "\0");
-	if (param1 != NULL && *param1 == ':') {
-		param1++;
-	}
-
-	if (command) {
-		upcase(command);
-
-		/* Commands from client when not connected to IRC-server. */
-		if (i_server.connected != 2) {
-			/* Willing to leave channels. */
-			if (xstrcmp(command, "PART") == 0) {
 	/* User wants to leave list of channels. */
-	channel_type	*chptr;
-	char		*channel;
+	channel_type *chan;
+	char *name;
 
-	channel = strtok(param1, ":");	/* Set EOS for channels. */
-	channel = strtok(param1, ",");
-	while (channel != NULL) {
-		chptr = channel_find(channel, LIST_PASSIVE);
-		if (chptr == NULL) {
+	name = strtok(par0, ":");	/* Set EOS for channels. */
+	name = strtok(par0, ",");
+	while (name != NULL) {
+		chan = channel_find(name, LIST_PASSIVE);
+		if (chan == NULL) {
 			irc_mwrite(&c_clients, ":miau %d %s %s :%s",
 					ERR_NOSUCHCHANNEL,
 					status.nickname,
-					channel,
+					name,
 					IRC_NOSUCHCHAN);
 		} else {
-			channel_rem(chptr, LIST_PASSIVE);
+			channel_rem(chan, LIST_PASSIVE);
 		}
-		channel = strtok(NULL, ",");
+		name = strtok(NULL, ",");
 	}
-	pass = 0;
-			}
-			
-			/* Willing to join or leave channels. */
-			else if (xstrcmp(command, "JOIN") == 0) {
-				/* Want to part all channels ? */
-				if (param1 != NULL && param1[0] == '0' &&
-						(param1[1] == ' ' ||
-							param1[1] == '\0') &&
-						param2 != NULL) {
-	/* User want to leave all channels. */
-	LLIST_WALK_H(passive_channels.head, channel_type *);
-		channel_rem(data, LIST_PASSIVE);
-	LLIST_WALK_F;
-				} else {
-	/* User wants to join list of channels. */
-	channel_type	*chptr;
-	char		*chan;		/* Channels. */
-	char		*key;		/* Keys. */
-	char		*chanhelp;
-	char		*keyhelp = NULL;
-	
-	chan = param1;
-	key = param2;
-	while (chan != NULL) {
-		chanhelp = strchr(chan, ',');
-		if (chanhelp != NULL) {
-			*chanhelp = '\0';
-			chanhelp++;
-		}
-		if (key != NULL) {
-			keyhelp = strchr(key, ',');
-			if (keyhelp != NULL) {
-				*keyhelp = '\0';
-				keyhelp++;
-			}
-		}
-		chptr = channel_add(chan, key, LIST_PASSIVE);
-		chan = chanhelp;
-		key = keyhelp;
-	}
-				}
-				pass = 0;
-			} /* JOIN */
-		} /* if (i_server.connected != 2) */
-			
+} /* static void cmd_part(char *par0, char *par1) */
 
-		if (xstrcmp(command, "PRIVMSG") == 0) {		/* PRIVMSG */
-#ifdef DCCBOUNCE
-			if (param2 == NULL) {
-#ifdef ENDUSERDEBUG
-				enduserdebug("%s: PRIVMSG, param2 = NULL",
-						__FUNCTION__);
-#endif /* ifdef ENDUSERDEBUG */
-			} else if (cfg.dccbounce && xstrncmp(param2,
-						":\1DCC", 5) == 0) {
-				char dcct[IRC_MSGLEN];
-				if (strlen(param2 + 1) > IRC_MSGLEN) {
-#ifdef ENDUSERDEBUG
-					enduserdebug("%s: param2 = '%s' "
-							"(too long!)",
-							__FUNCTION__,
-							param2 + 1);
-#endif /* ifdef ENDUSERDEBUG */
-				} else {
-					strncpy(dcct, param2 + 1, IRC_MSGLEN);
-					if (dcc_initiate(dcct, IRC_MSGLEN, 1)) {
-						irc_write(&c_server,
-								"PRIVMSG %s %s",
-								param1, dcct);
-						pass = 0;
-					}
-				}
+
+
+static void
+cmd_join(char *par0, char *par1)
+{
+	/* user wants to join a list of channels */
+	char *chan;	/* channel name */
+	char *key;	/* channel key */
+	char *chanseek;
+	char *keyseek;
+	
+	if (par0 != NULL && xstrcmp(par0, "0") == 0) {
+		/* user want to leave all channels */
+		LLIST_WALK_H(passive_channels.head, channel_type *);
+			channel_rem(data, LIST_PASSIVE);
+		LLIST_WALK_F;
+
+		return;
+	}
+
+	chan = par0;
+	key = par1;
+	keyseek = NULL;
+
+	while (chan != NULL && *chan != '\0') {
+		chanseek = strchr(chan, ',');
+		if (chanseek != NULL) {
+			*chanseek = '\0';
+			chanseek++;
+		}
+		if (key != NULL && *key != '\0') {
+			keyseek = strchr(key, ',');
+			if (keyseek != NULL) {
+				*keyseek = '\0';
+				keyseek++;
 			}
+		}
+		channel_add(chan, key, LIST_PASSIVE);
+		chan = chanseek;
+		key = keyseek;
+	}
+} /* static void cmd_join(char *par0, char *par1) */
+
+
+
+#ifdef DCCBOUNCE
+static int
+cmd_privmsg_ctcp(char *par0, char *par1)
+{
+	char dcct[IRC_MSGLEN];
+	char *ret;
+
+	if (cfg.dccbounce == 0) {
+		return 1;
+	}
+
+	upcase(par1);
+	if (xstrncmp(par1, ":\1DCC", 5) != 0) {
+		return 1;
+	}
+
+	strncpy(dcct, par1 + 1, IRC_MSGLEN);
+	ret = dcc_initiate(dcct, IRC_MSGLEN, 1);
+
+	if (ret != NULL) {
+		irc_write(&c_server, "PRIVMSG %s %s", par0, dcct);
+		return 0;
+	} else {
+		return 1;
+	}
+} /* static int cmd_privmsg_dcc(char *par0, char *par1) */
 #endif /* ifdef DCCBOUNCE */
 
+
+
 #ifdef LOGGING
-			if (xstrncmp(param2, ":\1DCC", 5) != 0) {
+static int
+cmd_privmsg(char *par0, char *par1)
+{
+#ifdef LOGGING
+	int is_chan;
+#endif /* ifdef LOGGING */
+	if (par0 == NULL) {
+		return 1;
+	}
+
+#ifdef LOGGING
+	is_chan = channel_is_name(par0);
+#endif /* ifdef LOGGING */
+
 #ifdef PRIVLOG
-	if (param1[0] != '#') {
+	if (is_chan == 0) {
 		/*
 		 * We could say
 		 * 
@@ -264,135 +252,254 @@ client_read(connection_type *client)
 		 * Therefore we say the following instead:
 		 */
 		if (cfg.privlog != 0) {
-			privlog_write(param1, PRIVLOG_OUT, param2 + 1);
+			privlog_write(par0, PRIVLOG_OUT, 
+					CMD_PRIVMSG + MINCOMMANDVALUE,
+					par1 + 1);
 		}
 	}
 #endif /* PRIVLOG */
 
 #ifdef CHANLOG
-	if (param1[0] == '#') {
-		channel_type *chptr;
-		chptr = channel_find(param1, LIST_ACTIVE);
-		if (chptr != NULL && chanlog_has_log(chptr, LOG_MESSAGE)) {
+	if (is_chan != 0) {
+		channel_type *chan;
+		chan = channel_find(par0, LIST_ACTIVE);
+		if (chan != NULL && chanlog_has_log(chan, LOG_MESSAGE)) {
 			char *t;
-			t = log_prepare_entry(status.nickname, param2 + 1);
+			t = log_prepare_entry(status.nickname, par1 + 1);
 			if (t == NULL) {
-				chanlog_write_entry(chptr, LOGM_MESSAGE,
+				chanlog_write_entry(chan, LOGM_MESSAGE,
 						get_short_localtime(),
-						status.nickname, param2 + 1);
+						status.nickname, par1 + 1);
 			} else {
-				chanlog_write_entry(chptr, "%s", t);
+				chanlog_write_entry(chan, "%s", t);
 			}
 		}
 	}
 #endif /* CHANLOG */
-			} /* if (xstrncmp(param2, ":\1DCC", 5) != 0) */
+
+	return 1;
+} /* static int cmd_privmsg(char *par0, char *par1) */
 #endif /* LOGGING */
-		}
 
-		else if (xstrcmp(command, "PONG") == 0) {	/* PONG */
-			pass = 0;	/* Munch munch munch. */
-		}
-				
-		else if (xstrcmp(command, "PING") == 0) {	/* PING */
-			irc_write(client, ":%s PONG %s :%s",
-					i_server.realname,
-					i_server.realname,
-					status.nickname);
-			pass = 0;
-		}
 
-		
-		else if (xstrcmp(command, "MIAU") == 0) {	/* MIAU */
-			miau_commands(param1, param2, client);
-			pass = 0;
-		}
-				
-		else if (xstrcmp(command, "QUIT") == 0) {	/* QUIT */
-			char *reason = NULL;
-			int len = (param1 != NULL) ? param1 - work : 0;
-			if (len > 0) {
-				/*
-				 * If we got quit-message, backup before
-				 * "client" is freed.
-				 */
-				reason = xstrdup(client->buffer + len);
-			}
-			/* (single client, message, report, echo) */
-			client_drop(client, CLNT_LEFT, REPORT, 0, reason);
 
-			xfree(reason);
-			pass = 0;
-		}
-
-		else if (xstrcmp(command, "AWAY") == 0) {	/* AWAY */
-			if (param1 == NULL) {
-				FREE(status.awaymsg);
-				/* Not away / no custom message. */
-				status.awaystate &= ~AWAY & ~CUSTOM;
-			} else {
-				/* This should be safe by now. */
-				char *t = strchr(client->buffer, (int) ' ') + 2;
+static int
+cmd_away(const char *orig, char *par0, char *par1)
+{
+	if (par0 == NULL) {
+		FREE(status.awaymsg);
+		/* Not away / no custom message. */
+		status.awaystate &= ~AWAY & ~CUSTOM;
+	} else {
+		/* This should be safe by now. */
+		char *t = strchr(orig, (int) ' ') + 2;
 #ifdef EMPTYAWAY
-				xfree(status.awaymsg);
-				status.awaymsg = xstrdup(t);
-				/* Away / custom message. */
-				status.awaystate |= AWAY | CUSTOM;
+		xfree(status.awaymsg);
+		status.awaymsg = xstrdup(t);
+		/* Away / custom message. */
+		status.awaystate |= AWAY | CUSTOM;
 #else /* EMPTYAWAY */
-				FREE(status.awaymsg);
-				if (*t != '\0') {
-					status.awaymsg = xstrdup(t);
-					/* Away / custom message. */
-					status.awaystate |= AWAY | CUSTOM;
-				} else {
-					/* Not away / no custom message. */
-					status.awaystate &= ~AWAY & ~CUSTOM;
-				}
-#endif /* EMPTYAWAY */
-			}
-			pass = 1;
+		FREE(status.awaymsg);
+		if (*t != '\0') {
+			status.awaymsg = xstrdup(t);
+			/* Away / custom message. */
+			status.awaystate |= AWAY | CUSTOM;
+		} else {
+			/* Not away / no custom message. */
+			status.awaystate &= ~AWAY & ~CUSTOM;
 		}
+#endif /* EMPTYAWAY */
 	}
 
-	if (pass) {
-		if (i_server.connected == 2) {
-			int	log = xstrcmp(command, "PRIVMSG") == 0 ||
-				xstrcmp(command, "NOTICE") == 0;
-			/* Pass the message to server. */
-			irc_write(&c_server, "%s", client->buffer);
-			/* Echo the meesage to other clients. */
-			if (log) {
-				llist_node	*client_this;
-				for (client_this = c_clients.clients->head;
-						client_this != NULL;
-						client_this = client_this->next)
-				{
-					if (client_this->data != client) {
-						/* Bad nesting. */
-						irc_write((connection_type *) client_this->data,
-							":%s!%s %s",
-							status.nickname,
-							status.idhostname,
-							client->buffer);
-					}
+	return 1;
+} /* static int cmd_away(char *par0, char *par1) */
+
+
+
+static void
+pass_cmd(connection_type *client, char *cmd, char *par0, char *par1,
+		const char *bufbu)
+{
+	const char *buf;
+	/*
+	 * Use buffer from client unless bufbu is set. Having bufbu set
+	 * means client is invalid and should not be used.
+	 */
+	if (bufbu != NULL) {
+		buf = bufbu;
+	} else {
+		buf = client->buffer;
+	}
+
+	if (i_server.connected == 2) {
+		int msg;
+
+		/* Pass the message to server. */
+		irc_write(&c_server, "%s", buf);
+
+		msg = (xstrcmp(cmd, "PRIVMSG") == 0) ||
+			(xstrcmp(cmd, "NOTICE") == 0) ? 1 : 0;
+		/* Echo the meesage to other clients. */
+		if (msg == 1) {
+			llist_node *iter;
+			for (iter = c_clients.clients->head; iter != NULL;
+					iter = iter->next) {
+				if (iter->data == client) {
+					continue;
 				}
-			}
-#ifdef QUICKLOG
-			/* Also put it in quicklog. If necessary, or course. */
-			if (cfg.flushqlog == 0 && param1 != NULL && log) {
-				qlog_write(0, ":%s!%s@%s %s",
+
+				irc_write((connection_type *) iter->data,
+						":%s!%s %s",
 						status.nickname,
-						i_client.username,
-						i_client.hostname,
-						client->buffer);
+						status.idhostname,
+						buf);
 			}
+		}
+
+#ifdef QUICKLOG
+		/* Also put it in quicklog. If necessary, or course. */
+		if (cfg.flushqlog == 0 && par0 != NULL && msg == 1) {
+			qlog_write(0, ":%s!%s@%s %s",
+					status.nickname,
+					i_client.username,
+					i_client.hostname,
+					buf);
+		}
 #endif /* QUICKLOG */
+	} else {
+		irc_notice(client, status.nickname, CLNT_NOTCONNECT);
+	}
+} /* static void pass_cmd(connection_type *client, char *cmd,
+		char *par0, char *par1, const char *bufbu) */
+
+
+
+int
+client_read(connection_type *client)
+{
+	int c_status;
+	char *command, *param1, *param2;
+	char *orig;
+	int pass;
+
+	c_status = irc_read(client);
+
+	if (c_status <= 0) {
+		/* Something went unexpected. */
+		return c_status;
+	}
+
+	/* Ok, got something. */
+	if (client->buffer[0] == '\0') {
+		/* Darn, got nothing after all. */
+		return 0;
+	}
+
+	work = xstrdup(client->buffer);
+	orig = NULL;
+
+	command = strtok(work, " ");
+
+	if (command == NULL) {
+		xfree(work);
+		work = NULL;
+		return 0;
+	}
+
+	param1 = strtok(NULL, " ");
+	param2 = strtok(NULL, "\0");
+	if (param1 != NULL && *param1 == ':') {
+		param1++;
+	}
+
+	upcase(command);
+
+	/* Commands from client when not connected to IRC-server. */
+	if (i_server.connected != 2) {
+		/* Willing to leave channels. */
+		if (xstrcmp(command, "PART") == 0) {
+			cmd_part(param1, param2);
+		}
+		/* Willing to join or leave channels. */
+		else if (xstrcmp(command, "JOIN") == 0) {
+			cmd_join(param1, param2);
+		}
+		pass = 0;
+	}
+
+	else if (xstrcmp(command, "PRIVMSG") == 0) {
+		pass = 1; /* default */
+		if (param2 == NULL) {
+#ifdef ENDUSERDEBUG
+			enduserdebug("%s: PRIVMSG, param2 = NULL",
+					__FUNCTION__);
+#endif /* ifdef ENDUSERDEBUG */
+		}
+#ifdef DCCBOUNCE
+		else if (param2[0] == ':' && param2[1] == '\1') {
+			pass = cmd_privmsg_ctcp(param1, param2);
+		}
+#endif /* ifdef DCCBOUNCE */
+#ifdef LOGGING
+		else {
+			pass = cmd_privmsg(param1, param2);
+		}
+#endif /* ifdef LOGGING */
+	}
+
+	else if (xstrcmp(command, "PONG") == 0) {
+		pass = 0;	/* Munch munch munch. */
+	}
+
+	else if (xstrcmp(command, "PING") == 0) {
+		irc_write(client, ":%s PONG %s :%s",
+				i_server.realname,
+				i_server.realname,
+				status.nickname);
+		pass = 0;
+	}
+
+	else if (xstrcmp(command, "MIAU") == 0) {
+		miau_commands(param1, param2, client);
+		pass = 0;
+	}
+
+	else if (xstrcmp(command, "QUIT") == 0) {
+		const char *reason;
+
+		orig = xstrdup(client->buffer);
+
+		if (param1 != NULL) {
+			reason = orig + (param1 - work);
 		} else {
-			irc_notice(client, status.nickname, CLNT_NOTCONNECT);
+			reason = NULL;
+		}
+		/* (single client, message, report, echo) */
+		client_drop(client, CLNT_LEFT, REPORT, 0, reason);
+		pass = 0;
+	}
+
+	else if (xstrcmp(command, "AWAY") == 0) {
+		pass = cmd_away(client->buffer, param1, param2);
+	}
+
+	else {
+		pass = 1;
+	}
+
+	if (pass == 1) {
+		/* orig is set only if client was detached */
+		if (orig != NULL) {
+			pass_cmd(client, command, param1, param2, orig);
+		} else {
+			pass_cmd(client, command, param1, param2,
+					client->buffer);
 		}
 	}
-	client_free();
-	
+	xfree(orig);
+	xfree(work);
+	work = NULL;
+
 	/* All ok. */
 	return 0;
 } /* int client_read(connection_type *) */
@@ -411,5 +518,8 @@ client_read(connection_type *client)
 void
 client_free(void)
 {
-	xfree(work);
+	if (work != NULL) {
+		xfree(work);
+		work = NULL;
+	}
 } /* void_client_free(void) */

@@ -35,7 +35,7 @@ const char *hstrerror(int err);
 #define HEAD	1
 #define TAIL	2
 
-void track_highest();
+void track_highest(void);
 void track_add(int s);
 void track_del(int s);
 int irc_write_real(connection_type *connection, char *buffer);
@@ -456,7 +456,7 @@ irc_mwrite(clientlist_type *clients, char *format, ...)
 	}
 
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 3, format, va);
+	vsnprintf(buffer, BUFFERSIZE - 2, format, va);
 	va_end(va);
 	buffer[BUFFERSIZE - 3] = '\0';
 	for (client = clients->clients->head; client != NULL;
@@ -487,7 +487,7 @@ irc_write_head(connection_type *connection, char *format, ...)
 	char	buffer[BUFFERSIZE];
 
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 3, format, va);
+	vsnprintf(buffer, BUFFERSIZE - 2, format, va);
 	va_end(va);
 	buffer[BUFFERSIZE - 3] = '\0';
 	strcat(buffer, "\r\n");
@@ -504,7 +504,7 @@ irc_write(connection_type *connection, char *format, ...)
 	char	buffer[BUFFERSIZE];
 
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 3, format, va);
+	vsnprintf(buffer, BUFFERSIZE - 2, format, va);
 	va_end(va);
 	buffer[BUFFERSIZE - 3] = '\0';
 	strcat(buffer, "\r\n");
@@ -570,7 +570,7 @@ irc_write_real(connection_type *connection, char *buffer)
 void
 irc_process_queue(void)
 {
-	char	*buf;
+	char *buf;
 	/*
 	 * Basically there can be only one message in queue that can be
 	 * sent "per round" but there are exeptions. If executing miau is
@@ -633,7 +633,7 @@ irc_mnotice(clientlist_type *clients, char nickname[], char *format, ...)
 	}
 
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 10, format, va);
+	vsnprintf(buffer, BUFFERSIZE - 8, format, va);
 	va_end(va);
 	buffer[BUFFERSIZE - 9] = '\0';
 
@@ -656,7 +656,7 @@ irc_notice(connection_type *connection, char nickname[], char *format, ...)
 	char	buffer[BUFFERSIZE];
 	
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 10, format, va);
+	vsnprintf(buffer, BUFFERSIZE - 8, format, va);
 	va_end(va);
 	buffer[BUFFERSIZE - 9] = '\0';
 

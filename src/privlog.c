@@ -19,6 +19,10 @@
 #include "messages.h"
 #include "tools.h"
 #include "log.h"
+#include "commands.h"
+
+#include <stdio.h>
+#include <time.h>
 
 
 
@@ -49,7 +53,7 @@ open_file(char *nick)
 	/* termination and validity guaranteed */
 	fsize = strlen(LOGDIR) + strlen(lownick) + strlen(cfg.logpostfix) + 3;
 	filename = (char *) xmalloc(fsize);
-	snprintf(filename, fsize - 1, LOGDIR"/%s%s", lownick, cfg.logpostfix);
+	snprintf(filename, fsize, LOGDIR"/%s%s", lownick, cfg.logpostfix);
 	filename[fsize - 1] = '\0';
 	file = fopen(filename, "a+");
 	xfree(filename);
@@ -69,7 +73,7 @@ open_file(char *nick)
  * (Logfiles are closed periodically in miau.c)
  */
 int
-privlog_write(const char *nick, const int in_out, const char *message)
+privlog_write(const char *nick, int in_out, int cmd, const char *message)
 {
 	const char *active;
 	char *t;
@@ -107,19 +111,23 @@ privlog_write(const char *nick, const int in_out, const char *message)
 	time(&line->updated);
 
 	/* New entry? Write header. */
-	if (newentry) {
+	if (newentry == 1) {
 		/* termination guaranteed in get_timestamp() */
-		fprintf(line->file, LOGM_LOGOPEN, get_timestamp(
-					NULL, TIMESTAMP_LONG));
+		fprintf(line->file, LOGM_LOGOPEN,
+				get_timestamp(NULL, TIMESTAMP_LONG));
 	}
 
 	/* Write log. */
 	active = (in_out == PRIVLOG_IN) ? nick : status.nickname;
 	t = log_prepare_entry(active, message);
 	if (t == NULL) {
-		/* termination guaranteed in get_short_localtime() */
-		fprintf(line->file, LOGM_MESSAGE, get_short_localtime(),
-				active, message);
+		if (cmd == CMD_PRIVMSG + MINCOMMANDVALUE) {
+			fprintf(line->file, LOGM_MESSAGE, get_short_localtime(),
+					active, message);
+		} else {
+			fprintf(line->file, LOGM_NOTICE, get_short_localtime(),
+					active, message);
+		}
 	} else {
 		/* termination guaranteed in log_prepare_entry() */
 		fprintf(line->file, "%s", t);
@@ -127,7 +135,7 @@ privlog_write(const char *nick, const int in_out, const char *message)
 	fflush(line->file);
 
 	return 0;
-} /* int privlog_write(const char *nick, const int in_out,
+} /* int privlog_write(const char *nick, int in_out, int cmd,
 		const char *message) */
 
 

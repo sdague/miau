@@ -108,7 +108,7 @@ automode_queue(const char *nick, const char *hostname, channel_type *channel)
 
 	/* Generate mask and see if any automode should take place. */
 	while (mode_c-- > 0) {
-		snprintf(mask, msize - 1, "%c:%s!%s/%s",
+		snprintf(mask, msize, "%c:%s!%s/%s",
 				modes[mode_c], nick, hostname,
 				channel->name);
 		mask[msize - 1] = '\0';

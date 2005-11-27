@@ -62,7 +62,6 @@ server_drop(char *reason)
 {
 	llist_node	*node;
 	llist_node	*nextnode;
-	channel_type	*data;
 	const char	*part_reason;
 
 	if (reason == NULL) {
@@ -92,6 +91,7 @@ server_drop(char *reason)
 	 */
 	node = active_channels.head;
 	while (node != NULL) {
+		channel_type *data;
 		nextnode = node->next;
 		data = (channel_type *) node->data;
 
@@ -125,22 +125,29 @@ server_drop(char *reason)
 					part_reason);
 		}
 
-		if (cfg.rejoin) {
+		if (cfg.rejoin == 1) {
+			char *simple;
+			llist_node *node;
 			/*
 			 * Need to move channel from active_channels to
-			 * passive_channels.
+			 * passive_channels. Also revert real channel name
+			 * (which we know sure sure) back to simple form.
+			 * There's no need to reset simple name -- it won't
+			 * change.
 			 */
-			llist_add_tail(llist_create(data), &passive_channels);
+			simple = channel_simplify_name(data->name);
+			xfree(data->name);
+			data->name = simple;
+			data->name_set = 0;
+
+			node = llist_create(data);
+			llist_add_tail(node, &passive_channels);
 		} else {
 			/*
 			 * * Not moving channels from list to list, therefore
 			 * freeing resources.
 			 */
-			xfree(data->name);
-			xfree(data->topic);
-			xfree(data->topicwho);
-			xfree(data->key);
-			xfree(data);
+			channel_free(data);
 		}
 		/* Remove channel node from old list. */
 		llist_delete(node, &active_channels);
@@ -198,7 +205,7 @@ server_set_fallback(const llist_node *safenode)
 	fallback->port = safe->port;
 	fallback->password = (safe->password != NULL) ? 
 		xstrdup(safe->password) : NULL;
-	fallback->working = 1;		/* XXX: Is this necessary ? */
+	fallback->working = 1;
 	fallback->timeout = safe->timeout;
 } /* void server_set_fallback(const llist_node *safenode) */
 
@@ -351,27 +358,27 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 	/* paranoid */
 	osize = strlen(nick) + strlen(hostname) + 2;
 	origin = xmalloc(osize);
-	snprintf(origin, osize - 1, "%s!%s", nick, hostname);
+	snprintf(origin, osize, "%s!%s", nick, hostname);
 	origin[osize - 1] = '\0';
 
 	/* who is it for? */
 	if (status.nickname != NULL
 			&& xstrcasecmp(param1, status.nickname) == 0) {
-		/* It's for me. Whee ! :-) */
+		/* It's for me. Whee! :-) */
 		
 #ifdef PRIVLOG
 		/* Should we log? */
 		if ((c_clients.connected > 0 && (cfg.privlog & 0x02))
 				|| (c_clients.connected == 0
 					&& (cfg.privlog & 0x01))) {
-			privlog_write(nick, PRIVLOG_IN, param2 + 1);
+			privlog_write(nick, PRIVLOG_IN, cmdindex, param2 + 1);
 		}	
 #endif /* PRIVLOG */
 				
 		
 		/* ignorelist tells who are ignore - not who are allowed. */
 		if (! is_perm(&ignorelist, origin)) {
-			/* Is this  a special (CTCP/DCC) -message ? */
+			/* Is this a special (CTCP/DCC) -message ? */
 			if (param2[1] == '\1') {
 				normal = 0;
 				
@@ -405,7 +412,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 		irc_notice(&c_server, nick, VERSIONREPLY);
 	}
 
-	else if (xstrncmp(param2 + 2, "PING", 4) == 0) {
+	else if (xstrcmp(param2 + 2, "PING") == 0) {
 		if (strlen(param2 + 1) > 6) {
 			irc_notice(&c_server, nick, "%s", param2 + 1);
 		}
@@ -512,7 +519,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 								forwardmsgsize);
 					/* paranoid! */
 					snprintf(forwardmsg + pos,
-							forwardmsgsize - 1,
+							forwardmsgsize,
 							"(%s) %s\n",
 							origin, param2 + 1);
 					forwardmsg[forwardmsgsize - 1] = '\0';
@@ -520,35 +527,46 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 			}
 		}
 	}
-	
-	/* Bah, it wasn't for me. */
-	else {
-		int chw = 0;
 
-		/* channel wallops - notice @#channel etc :) */
-		if (param1[0] == '@' || param1[0] == '%'
-				|| param1[0] == '+') {
-			chw = 1;
-			param1++;
+	/* Bah, it wasn't personally to me. */
+	else {
+		const char *chan;
+
+		/* channel wallops - notice @#channel etc :-) */
+		if ((param1[0] == '@' || param1[0] == '%' || param1[0] == '+')
+				&& channel_is_name(param1 + 1) != 0) {
+			chan = param1 + 1;
+		} else {
+			chan = param1;
 		}
 
 #ifdef CHANLOG
-		chptr = channel_find(param1, LIST_ACTIVE);
+		/*
+		 * evil kludge: it's way too easy to confuse normal message to
+		 * channel "++foo" with a channel wallop (mode + to channel
+		 * "+foo"), so we have to try both. At least we know to try
+		 * the more obvious first.
+		 */
+		chptr = channel_find(chan, LIST_ACTIVE);
+		if (chptr == NULL) {
+			chptr = channel_find(param1, LIST_ACTIVE);
+		}
 		if (chptr != NULL && chanlog_has_log(chptr, LOG_MESSAGE)) {
-			if (chw) {
-				param1--;
-			}
-		
-			if (cmdindex == CMD_PRIVMSG + MINCOMMANDVALUE) {
-				char *t;
-				t = log_prepare_entry(nick, param2 + 1);
-				if (t == NULL) {
+			char *t;
+
+			t = log_prepare_entry(nick, param2 + 1);
+			if (t == NULL) {
+				if (cmdindex == CMD_PRIVMSG + MINCOMMANDVALUE) {
 					chanlog_write_entry(chptr, LOGM_MESSAGE,
 							get_short_localtime(),
 							nick, param2 + 1);
-				} else {
-					chanlog_write_entry(chptr, "%s", t);
+				} else { /* must be notice then */
+					chanlog_write_entry(chptr, LOGM_NOTICE,
+							get_short_localtime(),
+							nick, param2 + 1);
 				}
+			} else {
+				chanlog_write_entry(chptr, "%s", t);
 			}
 		}
 #endif /* CHANLOG */
@@ -769,7 +787,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			timers.join = JOINTRYINTERVAL;
 			/* Also reset channel's join-count. */
 			LLIST_WALK_H(passive_channels.head, channel_type *);
-				data->jointries = cfg.jointries;
+				data->jointries = JOINTRIES_UNSET;
 			LLIST_WALK_F;
 
 			for (n = 0; n < RPL_ISUPPORT_LEN; n++) {
@@ -1092,7 +1110,8 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			if (chanlog_has_log(chptr, LOG_JOIN)) {
 				chanlog_write_entry(chptr, LOGM_JOIN,
 						get_short_localtime(),
-						nick, hostname, param1 + 1);
+						nick, hostname,
+						chptr->simple_name);
 			}
 #endif /* CHANLOG */
 
@@ -1121,7 +1140,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			if (chanlog_has_log(chptr, LOG_PART)) {
 				chanlog_write_entry(chptr, LOGM_PART,
 						get_short_localtime(),
-						nick, param1,
+						nick, chptr->simple_name,
 						(param2) ? (param2 + 1) ?
 						param2 + 1 : "" : "");
 			}
@@ -1214,7 +1233,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				 * strftime("%s") can't be used (not in ISO C),
 				 * This should work as a replacement,
 				 */
-				snprintf(timebuf, 19, "%d", (int) now.tv_sec
+				snprintf(timebuf, 20, "%d", (int) now.tv_sec
 						- tz.tz_minuteswest * 60);
 				timebuf[19] = '\0';
 				channel_when(chptr, origin, timebuf);

@@ -34,7 +34,7 @@ enduserdebug(char *format, ...)
 	char buf0[ENDUSER_BUF_SIZE];
 
 	va_start(va, format);
-	vsnprintf(buf0, ENDUSER_BUF_SIZE - 1, format, va);
+	vsnprintf(buf0, ENDUSER_BUF_SIZE, format, va);
 	va_end(va);
 	buf0[ENDUSER_BUF_SIZE - 1] = '\0';
 #ifndef TESTING
@@ -62,7 +62,7 @@ report(char *format, ...)
 	va_list	va;
 	
 	va_start(va, format);
-	vsnprintf(buffer, 255, format, va);
+	vsnprintf(buffer, 256, format, va);
 	va_end(va);
 	buffer[255] = '\0';
 
@@ -81,7 +81,7 @@ error(char *format, ...)
 	va_list	va;
 
 	va_start(va, format);
-	vsnprintf(buffer, 255, format, va);
+	vsnprintf(buffer, 256, format, va);
 	va_end(va);
 	buffer[255] = '\0';
 	

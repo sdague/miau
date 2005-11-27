@@ -63,11 +63,12 @@ chanlog_add_rule(char *channels, char *file, int type)
 		multi = 1;
 	}
 
-	for (chan = strtok(channels, ","); chan; chan = strtok(NULL, ",")) {
+	for (chan = strtok(channels, ","); chan != NULL;
+			chan = strtok(NULL, ",")) {
 		llist_node *node;
 		struct chanlogentry *logptr;
-		
-		/* Check we havent already done this channel */
+
+		/* Check we haven't already done this channel */
 		for (node = chanlog_list.head; node != NULL;
 				node = node->next) {
 			logptr = (struct chanlogentry *) node->data;
@@ -75,15 +76,15 @@ chanlog_add_rule(char *channels, char *file, int type)
 				return;
 			}
 		}
-		
-		logptr = (struct chanlogentry *) xcalloc(
-				sizeof(struct chanlogentry), 1);
+
+		logptr = (struct chanlogentry *)
+			xcalloc(sizeof(struct chanlogentry), 1);
 		node = llist_create(logptr);
 		llist_add(node, &chanlog_list);
-		
+
 		logptr->channel = xstrdup(chan);
 		logptr->type = type;
-		
+
 		/*
 		 * If we were not given a logfilename or we're creating more
 		 * than one entry at once, create a logfilename.
@@ -95,23 +96,22 @@ chanlog_add_rule(char *channels, char *file, int type)
 			flen = strlen(LOGDIR) + strlen(chan)
 				+ strlen(cfg.logpostfix) + 3;
 			file = (char *) xmalloc(flen);
-			snprintf(file, flen - 1, LOGDIR"/%s%s",
+			snprintf(file, flen, LOGDIR"/%s%s",
 					chan, cfg.logpostfix);
 			file[flen - 1] = '\0';
 			logptr->filename = file;
-		}
-		else {
+		} else { /* basically "if (file != NULL)" */
 			int fsize;
 			/* If filename is relative, add LOGDIR. */
 			/* termination and validity guaranteed */
-			fsize = strlen(file) + strlen(LOGDIR) + 3;
+			fsize = strlen(LOGDIR) + strlen(file) + 3;
 			logptr->filename = (char *) xmalloc(fsize);
-			snprintf(logptr->filename, fsize - 1,
-					LOGDIR"/%s", file);
+			snprintf(logptr->filename, fsize, LOGDIR"/%s",
+					file);
 			logptr->filename[fsize - 1] = '\0';
 		}
 	}
-} /* void chanlog_add_rule(char *, char *, int) */
+} /* void chanlog_add_rule(char *channels, char *file, int type) */
 
 
 
@@ -141,15 +141,15 @@ chanlog_open(channel_type *channel)
 {
 	/*
 	 * Should have no need for this.
-	 * 
+	 *
 	if (channel->log->logfile != NULL) {
 		return;
 	}
 	*/
-	
+
 	/* See if a rule applies directly to this channel. */
 	LLIST_WALK_H(chanlog_list.head, struct chanlogentry *);
-		if (xstrcasecmp(channel->name, data->channel) == 0) {
+		if (xstrcasecmp(channel->simple_name, data->channel) == 0) {
 			channel->log = (struct channel_log *)
 				xcalloc(sizeof(struct channel_log), 1);
 			/* filename termination and validity guaranteed */
@@ -170,8 +170,8 @@ chanlog_open(channel_type *channel)
 		char *p;
 		char *lowchan;
 
-		/* Convert channel to lowercase. */
-		lowchan = xstrdup(channel->name);
+		/* convert simple channel name to lowercase */
+		lowchan = xstrdup(channel->simple_name);
 		lowcase(lowchan);
 
 		channel->log = (struct channel_log *)
@@ -179,9 +179,9 @@ chanlog_open(channel_type *channel)
 
 		/* termination and validity guaranteed */
 		plen = strlen(LOGDIR) + strlen(lowchan)
-			+ strlen(cfg.logpostfix) + 2;
+			+ strlen(cfg.logpostfix) + 3;
 		p = (char *) xmalloc(plen);
-		snprintf(p, plen - 1, LOGDIR"/%s%s", lowchan, cfg.logpostfix);
+		snprintf(p, plen, LOGDIR"/%s%s", lowchan, cfg.logpostfix);
 		p[plen - 1] = '\0';
 		channel->log->file = fopen(p, "a");
 		xfree(p);
@@ -198,11 +198,11 @@ chanlog_open(channel_type *channel)
 	if (channel->log == NULL) {
 		return;
 	}
-	
+
 	/* ...and start logging. */
 	chanlog_write_entry(channel, LOGM_LOGOPEN,
 			get_timestamp(NULL, TIMESTAMP_LONG));
-} /* void chanlog_open(channel_type *) */
+} /* void chanlog_open(channel_type *channel) */
 
 
 
@@ -213,13 +213,13 @@ void
 chanlog_close(channel_type *channel)
 {
 	if (channel->log != NULL) {
-		chanlog_write_entry(channel, LOGM_LOGCLOSE, get_timestamp(
-					NULL, TIMESTAMP_LONG));
+		chanlog_write_entry(channel, LOGM_LOGCLOSE,
+				get_timestamp(NULL, TIMESTAMP_LONG));
 		fclose(channel->log->file);
-		
+
 		FREE(channel->log);
 	}
-} /* void chanlog_close(channel_type *) */
+} /* void chanlog_close(channel_type *channel) */
 
 
 
@@ -244,15 +244,15 @@ chanlog_write_entry(channel_type *chptr, char *format, ...)
 				! (chptr->log->type & LOG_ATTACHED))) {
 		return;
 	}
-	
+
 	va_start(va, format);
-	vsnprintf(buffer, 1023, format, va);
+	vsnprintf(buffer, 1024, format, va);
 	va_end(va);
 	buffer[1023] = '\0';
 
 	fprintf(chptr->log->file, "%s", buffer);
 	fflush(chptr->log->file);
-} /* void chanlog_write_entry(channel_type *, char *, ...) */
+} /* void chanlog_write_entry(channel_type *chptr, char *format, ...) */
 
 
 
@@ -277,7 +277,7 @@ chanlog_write_entry_all(int type, char *format, ...)
 		if (data->log == NULL || data->log->file == NULL) {
 			LLIST_WALK_CONTINUE;
 		}
-		
+
 		if (data->log->type & type) {
 			log_write_entry(data, "%s", buffer);
 		}
@@ -289,7 +289,7 @@ chanlog_write_entry_all(int type, char *format, ...)
 			chanlog_write_entry(data, "%s", buffer);
 		}
 	LLIST_WALK_F;
-} /* void chanlog_write_entry_all(int, char *, ...) */
+} /* void chanlog_write_entry_all(int type, char *format, ...) */
 
 
 

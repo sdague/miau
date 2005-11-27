@@ -5,10 +5,14 @@
   * Option "chandiscon" to define what to do with channels when server
     drops the connection
   * Option not to redirect stdout into logfile
+  * miau should finally get along with safe channels (#1245923)
+  * Fixed logging of modeless channels
   * Fixed illegal memory access at parting channel when chanlog compiled in
   * Fixed minor memory leak in rehash
   * Fixed nick rotation
   * Fixed sample-miaurc
+  * Cleaned up client.c
+  * Removed duplicated code in several places
 
 0.5.4-p3 - "compatible catnap"
 

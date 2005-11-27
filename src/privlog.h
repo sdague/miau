@@ -18,10 +18,10 @@
 
 #include <config.h>
 
+#include "llist.h"
+
 #include <stdio.h>
 #include <time.h>
-
-#include "llist.h"
 
 
 
@@ -59,7 +59,7 @@ typedef struct {
 
 
 
-int privlog_write(const char *nick, const int in_out, const char *message);
+int privlog_write(const char *nick, int in_out, int cmd, const char *message);
 void privlog_close_old(void);
 void privlog_close_all(void);
 int privlog_has_open(void);

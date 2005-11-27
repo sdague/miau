@@ -238,6 +238,7 @@ escape(void)
 	LLIST_WALK_H(c_clients.clients->head, connection_type *);
 		sock_close(data);
 		llist_delete(node, c_clients.clients);
+		xfree(data);
 	LLIST_WALK_F;
 	c_clients.connected = 0;
 
@@ -399,7 +400,7 @@ static void
 dump_status_int(const char *id, const int val)
 {
 	char	buf[BUFFERSIZE];
-	snprintf(buf, BUFFERSIZE - 1, "    %s=%d", id, val);
+	snprintf(buf, BUFFERSIZE, "    %s=%d", id, val);
 	buf[BUFFERSIZE - 1] = '\0';
 	if (foocount + strlen(buf) > 80) {
 		dump_dump();
@@ -411,7 +412,7 @@ static void
 dump_status_char(const char *id, const char *val)
 {
 	char	buf[BUFFERSIZE];
-	snprintf(buf, BUFFERSIZE - 1, "    %s='%s'", id, val);
+	snprintf(buf, BUFFERSIZE, "    %s='%s'", id, val);
 	buf[BUFFERSIZE - 1] = '\0';
 	if (foocount + strlen(buf) > 80) {
 		dump_dump();
@@ -526,6 +527,9 @@ dump_status(int a)
 	LLIST_WALK_H(active_channels.head, channel_type *);
 		dump_add("    {");
 		dump_status_char("name", data->name);
+		dump_status_int("name_set", data->name_set);
+		dump_status_char("simple_name", data->simple_name);
+		dump_status_int("simple_set", data->simple_set);
 		dump_status_char("key", data->key);
 #ifdef QUICKLOG
 		dump_status_int("hasqlog", data->hasqlog);
@@ -558,6 +562,9 @@ dump_status(int a)
 	LLIST_WALK_H(passive_channels.head, channel_type *);
 		dump_add("    {");
 		dump_status_char("name", data->name);
+		dump_status_int("name_set", data->name_set);
+		dump_status_char("simple_name", data->simple_name);
+		dump_status_int("simple_set", data->simple_set);
 		dump_status_char("key", data->key);
 		dump_status_int("jointries", data->jointries);
 #ifdef AUTOMODE
@@ -574,7 +581,11 @@ dump_status(int a)
 	LLIST_WALK_H(old_channels.head, channel_type *);
 		dump_add("    {");
 		dump_status_char("name", data->name);
+		dump_status_int("name_set", data->name_set);
+		dump_status_char("simple_name", data->simple_name);
+		dump_status_int("simple_set", data->simple_set);
 		dump_status_char("key", data->key);
+		dump_status_int("jointries", data->jointries);
 #ifdef AUTOMODE
 		dump_status_int("oper", data->oper);
 #endif /* AUTOMODE */
@@ -721,8 +732,8 @@ create_listen(void)
 static void
 connect_timeout(int a)
 {
-	error(SOCK_ERRCONNECT, ((server_type *)
-				i_server.current->data)->name, SOCK_ERRTIMEOUT);
+	error(SOCK_ERRCONNECT, ((server_type *) i_server.current->data)->name,
+			SOCK_ERRTIMEOUT);
 	sock_close(&c_server);
 } /* static void connect_timeout(int a) */
 
@@ -955,11 +966,7 @@ clients_left(const char *reason)
 					 * list, therefore freeing
 					 * resources.
 					 */
-					xfree(data->name);
-					xfree(data->topic);
-					xfree(data->topicwho);
-					xfree(data->key);
-					xfree(data);
+					channel_free(data);
 				}
 				/* Remove channel node from old list. */
 				llist_delete(node, &active_channels);
@@ -1631,7 +1638,6 @@ set_away(const char *msg)
 static int
 read_newclient(void)
 {
-	connection_type	*newclient;
 	llist_node	*node;
 	char		*command;
 	char		*param;
@@ -1686,7 +1692,9 @@ read_newclient(void)
 			}
 			
 			if (status.init == 7 && status.passok) {
-				/* Client is in ! */
+				connection_type	*newclient;
+				
+				/* Client is in! */
 				report(CLNT_AUTHOK);
 
 				xfree(i_client.nickname);
@@ -2186,8 +2194,10 @@ run(void)
 				client_next = client->next;
 				client_conn = (connection_type *) client->data;
 				if (FD_ISSET(client_conn->socket, &rfds)) {
-					/* Client closed connection. */
-					if (client_read(client_conn) < 0) {
+					int ret;
+					ret = client_read(client_conn);
+					if (ret < 0) {
+						/* client closed connection */
 						/*
 						 * (single client, message,
 						 * report, no echo, no)
@@ -2282,6 +2292,8 @@ init(void)
 	sigaction(SIGUSR1, &sv, NULL);
 	sigaction(SIGPIPE, &sv, NULL);	/* Ignore SIGPIPEs for good. */
 
+	atexit(client_free);		/* free temp memory for client_read */
+
 	umask(~S_IRUSR & ~S_IWUSR);	/* For logfile(s). */
 
 	status.autojoindone = 0;	/* Haven't joined cfg.channels yet. */
@@ -2371,7 +2383,7 @@ setup_home(char *s)
 		int hsize;
 		hsize = strlen(s) + 2;
 		cfg.home = xmalloc(hsize);
-		snprintf(cfg.home, hsize - 1, "%s/", s);
+		snprintf(cfg.home, hsize, "%s/", s);
 		cfg.home[hsize - 1] = '\0';
 	}
 
@@ -2389,7 +2401,7 @@ setup_home(char *s)
 
 		hsize = strlen(s) + strlen(MIAUDIR) + 2;
 		cfg.home = xmalloc(hsize);
-		snprintf(cfg.home, hsize - 1, "%s/%s", s, MIAUDIR);
+		snprintf(cfg.home, hsize, "%s/%s", s, MIAUDIR);
 		cfg.home[hsize - 1] = '\0';
 	}
 

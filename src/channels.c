@@ -50,14 +50,38 @@ extern clientlist_type	c_clients;
 
 
 /*
+ * Free data in channel_type -structure.
+ */
+void
+channel_free(channel_type *chan)
+{
+	if (chan == NULL) {
+#ifdef ENDUSERDEBUG
+		enduserdebug("%s(NULL)", __FUNCTION__);
+#endif /* ifdef ENDUSERDEBUG */
+		return;
+	}
+	if (chan->simple_name != chan->name) {
+		xfree(chan->simple_name);
+	}
+	xfree(chan->name);
+	xfree(chan->topic);
+	xfree(chan->topicwhen);
+	xfree(chan->topicwho);
+	xfree(chan->key);
+	xfree(chan);
+} /* void channel_free(channel_type *chan) */
+
+
+
+/*
  * Adds a channel to miaus internal list.
  */
 channel_type *
 channel_add(const char *channel, const char *key, const int list)
 {
-	llist_list	*target = NULL;	/* List on which to add. */
-	llist_node	*ptr;
-	channel_type	*chptr = NULL;
+	llist_list *target;
+	channel_type *chptr;
 
 	/* See if channel is already on active list. */
 	if (channel_find(channel, LIST_ACTIVE) != NULL) {
@@ -84,27 +108,34 @@ channel_add(const char *channel, const char *key, const int list)
 	 * active_channels. If we can do this, it's all we need to do.
 	 */
 	if (list == LIST_ACTIVE) {
-		llist_list	*source = NULL;
-		/* See if channel's on passive_channels. */
+		llist_list *source;
+		
+		/* find a list to remove from */
 		chptr = channel_find(channel, LIST_PASSIVE);
 		if (chptr != NULL) {
 			source = &passive_channels;
 		} else {
-			/* See if channe's on old_channels, then. */
 			chptr = channel_find(channel, LIST_OLD);
 			if (chptr != NULL) {
 				source = &old_channels;
 			}
 		}
-		/* Channel was found on a list ? */
+
 		if (chptr != NULL) {
-			/* Remove old node. */
+			llist_node *ptr;
 			ptr = llist_find((void *) chptr, source);
 			if (ptr != NULL) {
 				llist_delete(ptr, source);
 			}
+#ifdef ENDUSERDEBUG
+			else {
+				enduserdebug("first the channel found, now it's not. what's going on!?");
+			}
+#endif /* ifdef ENDUSERDEBUG */
 			target = &active_channels;
 		}
+	} else {
+		chptr = NULL;
 	}
 
 	/* Perhaps channel was not on passive/old_channels, after all. */
@@ -112,13 +143,16 @@ channel_add(const char *channel, const char *key, const int list)
 		/* Create new node to channel list. */
 		chptr = (channel_type *) xcalloc(1, sizeof(channel_type));
 		chptr->name = xstrdup(channel);
+		chptr->simple_name = chptr->name; /* assume to be the same... */
+		chptr->simple_set = 0; /* ...but mark as not confirmed */
+		chptr->name_set = 0; /* real name isn't known either */
 		/*
 		 * We don't need to touch other variabels - calloc did the
 		 * job. This is neat, since a few values are set to 0 by
 		 * default.
 		 */
 		chptr->key = xstrdup(key == NULL ? "-" : key);
-		chptr->jointries = cfg.jointries;
+		chptr->jointries = JOINTRIES_UNSET;
 #ifdef AUTOMODE
 		chptr->oper = -1;		/* Don't know our status. */
 #endif /* AUTOMODE */
@@ -141,15 +175,30 @@ channel_add(const char *channel, const char *key, const int list)
 	 *   - chptr is non-NULL
 	 */
 	
-#ifdef CHANLOG
-	/* Active channels may need log-structures. */
 	if (list == LIST_ACTIVE) {
+		/* adding to ACTIVE -> we know real name of the channel */
+		if (chptr->name_set == 0) {
+			/* real name wasn't known before */
+			xfree(chptr->name);
+			chptr->name = xstrdup(channel);
+			chptr->name_set = 1;
+			if (chptr->simple_set == 0) {
+				chptr->simple_name = chptr->name;
+			}
+		}
+		if (chptr->simple_set == 0) {
+			chptr->simple_name = channel_simplify_name(chptr->name);
+			chptr->simple_set = 1;
+		}
+#ifdef CHANLOG
+		/* active channels may need log-structures. */
 		chanlog_open(chptr);
-	}
 #endif /* CHANLOG */
+	}
 
 	return chptr;
-} /* channel_type *channel_add(const char *, const char *, const int) */
+} /* channel_type *channel_add(const char *channel, const char *key,
+		const int list) */
 
 
 
@@ -163,7 +212,7 @@ channel_rem(channel_type *chptr, const int list)
 {
 	llist_list	*source;
 	llist_node	*node;
-
+	
 	if (list == LIST_ACTIVE) {
 		source = &active_channels;
 #ifdef QUICKLOG
@@ -211,21 +260,11 @@ channel_rem(channel_type *chptr, const int list)
 		llist_add_tail(llist_create(chptr), &old_channels);
 	} else {
 		/* No moving, just freeing the resources. */
-		xfree(chptr->name);
-		xfree(chptr->topic);
-		xfree(chptr->topicwho);
-		xfree(chptr->topicwhen);
-		xfree(chptr->key);
-		xfree(chptr);
+		channel_free(chptr);
 	}
 #else /* QUICKLOG */
 	/* Free resources. */
-	xfree(chptr->name);
-	xfree(chptr->topic);
-	xfree(chptr->topicwho);
-	xfree(chptr->topicwhen);
-	xfree(chptr->key);
-	xfree(chptr);
+	channel_free(chptr);
 #endif /* QUICKLOG */
 
 	/* And finally, remove channel from the list. */
@@ -240,10 +279,17 @@ channel_rem(channel_type *chptr, const int list)
  * "list" declares which list to search.
  */
 channel_type *
-channel_find(const char *channel, const int list)
+channel_find(const char *name, int list)
 {
-	llist_node	*node;
-	channel_type	*chptr;
+	llist_node *node;
+	channel_type *chan;
+	channel_type *bmatch;
+	char *sname;
+
+	/* this means we won't work with new channel modes */
+	if (channel_is_name(name) == 0) {
+		return NULL;
+	}
 
 	if (list == LIST_ACTIVE) {
 		node = active_channels.head;
@@ -253,14 +299,28 @@ channel_find(const char *channel, const int list)
 		node = old_channels.head;
 	}
 
-	for ( ; node != NULL; node = node->next) {
-		chptr = (channel_type *) node->data;
-		
-		if (xstrcasecmp(chptr->name, channel) == 0) return chptr;
-	}
+	sname = channel_simplify_name(name);
 
+	for (bmatch = NULL; node != NULL; node = node->next) {
+		chan = (channel_type *) node->data;
+
+		if (xstrcmp(chan->name, name) == 0) {
+			/* exact match */
+			xfree(sname);
+			return chan;
+		} else if (xstrcmp(chan->simple_name, sname) == 0) {
+			bmatch = chan;
+		}
+	}
+	
+	xfree(sname);
+	if (bmatch != NULL) {
+		return bmatch;
+	}
+	
+	/* no match found */
 	return NULL;
-} /* channel_type *channel_find(const char *, const int) */
+} /* channel_type *channel_find(char *name, int list) */
 
 
 
@@ -268,19 +328,19 @@ channel_find(const char *channel, const int list)
  * Stores a topic for a channel we're in.
  */
 void
-channel_topic(channel_type *chptr, char *topic)
+channel_topic(channel_type *chan, const char *topic)
 {
-	xfree(chptr->topic);
-	xfree(chptr->topicwho);
-	xfree(chptr->topicwhen);
-	chptr->topic = NULL;
-	chptr->topicwho = NULL;
-	chptr->topicwhen = NULL;
+	xfree(chan->topic);
+	xfree(chan->topicwho);
+	xfree(chan->topicwhen);
+	chan->topic = NULL;
+	chan->topicwho = NULL;
+	chan->topicwhen = NULL;
 
 	if (topic != NULL && topic[0] != '\0') {
-		chptr->topic = xstrdup(topic);
+		chan->topic = xstrdup(topic);
 	}
-} /* void channel_topic(channel_type *, char *) */
+} /* void channel_topic(channel_type *chan, const char *topic) */
 
 
 
@@ -288,16 +348,16 @@ channel_topic(channel_type *chptr, char *topic)
  * Stores who set the topic for a channel we're in.
  */
 void
-channel_when(channel_type *chptr, char *topicwho, char *topicwhen)
+channel_when(channel_type *chan, const char *who, const char *when)
 {
-	if (chptr->topic != NULL) {
-		xfree(chptr->topicwho);
-		xfree(chptr->topicwhen);
-		
-		chptr->topicwho = xstrdup(topicwho);
-		chptr->topicwhen = xstrdup(topicwhen);
+	if (chan->topic != NULL) {
+		xfree(chan->topicwho);
+		xfree(chan->topicwhen);
+	
+		chan->topicwho = xstrdup(who);
+		chan->topicwhen = xstrdup(when);
 	}
-} /* void channel_when(channel_type *, char *, char *) */
+} /* void channel_when(channel_type *chan, const char *who, char *when) */
 
 
 
@@ -337,16 +397,23 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 	
 	LLIST_WALK_H(first, channel_type *);
 		if (list == LIST_PASSIVE) {
-			/*
-			 * Rejoining? Reset jointries. Set jointries to 1
-			 * is cfg.jointries is 0 -- this allows us to try to
-			 * join channels in miaurc once. Otherwise use
-			 * cfg.jointries as it is.
-			 */
-			if (rejoin == 1 && cfg.jointries == 0) {
-				data->jointries = 1;
-			} else if (rejoin == 1) {
-				data->jointries = cfg.jointries;
+			if ((rejoin == 1 || (cfg.rejoin == 1 && cfg.leave == 0))
+					&& data->jointries == JOINTRIES_UNSET) {
+				/*
+				 * Set data->jointries to 1 even if
+				 * cfg.jointries = 0. This way we can try to
+				 * join channels in miaurc. If the channel
+				 * is a safe channel, try joining only once.
+				 */
+				if (cfg.jointries == 0) {
+					data->jointries = 1;
+				} else {
+					if (data->name[0] == '!') {
+						data->jointries = 1;
+					} else {
+						data->jointries = cfg.jointries;
+					}
+				}
 			}
 			
 			if (data->jointries > 0) {
@@ -360,6 +427,10 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 				 *
 				 * strncat == paranoid
 				 */
+				/*
+				 * join with "simple" name, "real" name
+				 * of a safe channel won't do here
+				 */
 				nlen = strlen(data->name);
 				klen = strlen(data->key);
 				chans = (char *) xrealloc(chans,
@@ -370,14 +441,14 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 				strncat(chans, data->name, nlen);
 				strcat(keys, ",");
 				strncat(keys, data->key, klen);
-			} else if (cfg.jointries == 0) {
+			} else if (data->jointries == 0) {
+				channel_type *chan;
 				/*
 				 * If cfg.jointries is 0, remove channel from
 				 * list after unsuccesfull attempt to join it.
 				 */
-				channel_rem(channel_find(data->name,
-							LIST_PASSIVE),
-						LIST_PASSIVE);
+				chan = channel_find(data->name, LIST_PASSIVE);
+				channel_rem(chan, LIST_PASSIVE);
 			}
 		} else {
 			/* Tell client to join this channel. */
@@ -454,7 +525,86 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 
 
 
+char *
+channel_simplify_name(const char *chan)
+{
+	if (chan[0] != '!') {
+		/* not safe-channel */
+		return xstrdup(chan);
+	} else {
+		size_t len;
+		char *name;
+		
+		len = strlen(chan);
+		if (len < 6) {
+#ifdef ENDUSERDEBUG
+			enduserdebug("weird channel: '%s'", chan);
+#endif /* ifdef ENDUSERDEBUG */
+			return xstrdup(chan); /* some weird channel */
+		}
+		
+		/* safe channel */
+		len -= 4; /* original length - 5 + terminator */
+		name = (char *) xmalloc(len);
+		snprintf(name, len, "!%s", chan + 6);
+		name[len - 1] = '\0';
+		return name;
+	}
+} /* char *channel_simplify_name(const char *chan) */
+
+
+
+/*
+ * Check if name could be a channel name.
+ *
+ * Return non-zero is name could be a channel name.
+ */
+int
+channel_is_name(const char *name)
+{
+	if (name == NULL) {
+		return 0;
+	}
+
+	switch (name[0]) {
+		case '#': /* ordinary channel (rfc 1459) */
+		case '&': /* local channel (rfc 1459) */
+		case '!': /* safe channel (rfc 2811) */
+		case '+': /* modeless channel (rfc 2811) */
+		case '.': /* programmable channel (kineircd) */
+		case '~': /* global channel (what is that? kineircd) */
+			return (int) name[0];
+			break; /* dummy */
+
+		default:
+			return 0;
+			break; /* dummy */
+	}
+} /* int channel_is_name(const char *name) */
+
+
+
 #ifdef OBSOLETE /* Never defined - ignore this. */
+static void
+set_simple_name(channel_type *chan, const char *name)
+{
+	if (chan->name[0] != '!') {
+		/* not safe-channel */
+		chan->simple_set = 1;
+	} else {
+		if (strlen(chan->name) < 2 || strlen(name) < 6) {
+			/* channel name too short -- not safe channel */
+			return;
+		}
+		if (xstrcasecmp(chan->name + 2, name + 6) == 0) {
+			chan->simplename = xstrdup(name);
+			chan->simple_set = 1;
+		}
+	}
+} /* static void set_simple_name(channel_type *chan, const char *name) */
+
+
+
 /*
  * Creates a hash value based on the first 25 chars of a channel name.
  */

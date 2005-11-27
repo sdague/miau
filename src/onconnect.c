@@ -36,7 +36,7 @@ onconnect_add(const char type, const char *target, const char *data)
 			/* if target/data are not ok, parser is broken */
 			mlen = strlen(target) + strlen(data) + 11;
 			msg = (char *) xmalloc(mlen);
-			snprintf(msg, mlen - 1, "%s %s :%s",
+			snprintf(msg, mlen, "%s %s :%s",
 					(type == 'p') ? "PRIVMSG" : "NOTICE",
 					target, data);
 			msg[mlen - 1] = '\0';

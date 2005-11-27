@@ -291,7 +291,7 @@ qlog_write(const int privmsg, char *format, ...)
 	qlog_drop_old();
 
 	va_start(va, format);
-	vsnprintf(buf, BUFFERSIZE - 3, format, va);
+	vsnprintf(buf, BUFFERSIZE - 2, format, va);
 	va_end(va);
 	buf[BUFFERSIZE - 3] = '\0';
 

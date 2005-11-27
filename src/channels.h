@@ -26,10 +26,13 @@
 #include <string.h>
 
 
-#define LIST_PASSIVE	0
-#define LIST_ACTIVE	1
-#define LIST_OLD	2
+enum {
+	LIST_PASSIVE = 0,
+	LIST_ACTIVE,
+	LIST_OLD
+};
 
+#define JOINTRIES_UNSET	-1
 
 struct channel_log {
 	int	type;
@@ -37,12 +40,24 @@ struct channel_log {
 };
 
 typedef struct {
-	char		*name;		/* Channel name. */
+	/*
+	 * name is the real name of a channel. This field should differ from
+	 * simplename only in case of a safe channel or such. If the channel is
+	 * a safe channel, name can be something like "!ONZGEfoobar" while
+	 * simplename is "!foobar". simplename is used e.g. for logging and
+	 * joining the channel. name and simplename will point to the same
+	 * address if they're the same; simple_set will be set once it have
+	 * been checked if they should differ.
+	 */
+	char		*name;
+	char		*simple_name;
+	int		name_set;	/* real name have been set */
+	int		simple_set;	/* simple name have been set */
 	char		*topic;		/* Channel topic. */
 	char		*topicwho;	/* Topic set by ... */
 	char		*topicwhen;	/* Topic set in ... */
 	char		*key;		/* Channel key. */
-	int		jointries;	/* Will try to join # times. */
+	int		jointries;	/* Remaining # of jointries */
 #ifdef AUTOMODE
 	/*
 	 * oper:
@@ -64,15 +79,20 @@ extern llist_list	active_channels;
 extern llist_list	passive_channels;
 extern llist_list	old_channels;
 
+void channel_free(channel_type *chan);
 channel_type *channel_add(const char *channel, const char *key, const int list);
 void channel_rem(channel_type *chptr, const int list);
 void channel_drop_all(const int keeplog);
-channel_type *channel_find(const char *channel, const int list);
+channel_type *channel_find(const char *name, int list);
 void channel_join_list(const int list, const int rejoin,
 		connection_type *client);
 
-void channel_topic(channel_type *, char *);
-void channel_when(channel_type *, char *, char *);
+int channel_is_name(const char *name);
+
+void channel_topic(channel_type *chan, const char *topic);
+void channel_when(channel_type *chan, const char *who, const char *when);
+
+char *channel_simplify_name(const char *chan);
 
 #ifdef OBSOLETE
 extern unsigned int channel_hash(char *);
