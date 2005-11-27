@@ -1500,7 +1500,7 @@ fakeconnect(connection_type *newclient)
 			status.nickname);
 
 	if (i_server.connected == 2) {
-		/* Tell client to set nick to bouncer's. */
+		/* tell client to change nick. yes, case sensitive. */
 		if (xstrcmp(i_client.nickname, status.nickname) != 0) {
 			irc_write(newclient, ":%s NICK :%s",
 					i_client.nickname,

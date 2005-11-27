@@ -362,8 +362,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 	origin[osize - 1] = '\0';
 
 	/* who is it for? */
-	if (status.nickname != NULL
-			&& xstrcasecmp(param1, status.nickname) == 0) {
+	if (xstrcasecmp(param1, status.nickname) == 0) {
 		/* It's for me. Whee! :-) */
 		
 #ifdef PRIVLOG
@@ -1073,7 +1072,8 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			{
 				size_t t;
 				t = pos(param2, ' ');
-				if (xstrncmp(status.nickname, param2, t) == 0 &&
+				if (xstrncasecmp(status.nickname,
+							param2, t) == 0 &&
 						strlen(status.nickname) == t) {
 					report(CLNT_KICK, origin, param1,
 							nextword(param2) + 1);
@@ -1151,7 +1151,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 #endif /* CHANLOG */
 
 			/* Remove channel from list if it was me leaving. */
-			if (xstrcmp(nick, status.nickname) == 0) {
+			if (xstrcasecmp(nick, status.nickname) == 0) {
 				channel_rem(chptr, LIST_ACTIVE);
 			}
 
