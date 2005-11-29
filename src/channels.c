@@ -304,11 +304,11 @@ channel_find(const char *name, int list)
 	for (bmatch = NULL; node != NULL; node = node->next) {
 		chan = (channel_type *) node->data;
 
-		if (xstrcmp(chan->name, name) == 0) {
+		if (xstrcasecmp(chan->name, name) == 0) {
 			/* exact match */
 			xfree(sname);
 			return chan;
-		} else if (xstrcmp(chan->simple_name, sname) == 0) {
+		} else if (xstrcasecmp(chan->simple_name, sname) == 0) {
 			bmatch = chan;
 		}
 	}

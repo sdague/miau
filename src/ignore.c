@@ -48,7 +48,7 @@ add_ignore(char *hostname, int ttl, int type)
 	/* Already in table ? */
 	for (i = 0; i < ignores.amount; i++) {
 		if (ignores.data[i] != NULL
-				&& xstrcmp(ignores.data[i]->hostname,
+				&& xstrcasecmp(ignores.data[i]->hostname,
 					hostname) == 0
 				&& ignores.data[i]->type == type) {
 			return;
@@ -70,7 +70,7 @@ del_ignore(char *hostname)
 	int i;
 	for (i = 0; i < ignores.amount; i++) {
 		if (ignores.data[i] != NULL
-				&& (xstrcmp(ignores.data[i]->hostname,
+				&& (xstrcasecmp(ignores.data[i]->hostname,
 						hostname) == 0)) {
 			xfree(ignores.data[i]->hostname);
 			ignores.data = (ignore_type **) rem_item((void **)
@@ -116,7 +116,7 @@ is_ignore(char *hostname, int type)
 	int i;
 	for (i = 0; i < ignores.amount; i++) {
 		if (ignores.data[i] != NULL
-				&& (xstrcmp(ignores.data[i]->hostname,
+				&& (xstrcasecmp(ignores.data[i]->hostname,
 						hostname) == 0)
 				&& (ignores.data[i]->type == type)) {
 			return 1;

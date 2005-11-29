@@ -760,6 +760,7 @@ rehash(int a)
 	int		oldlistenport;
 	char		*oldlistenhost;
 	llist_node	*node;
+	int host_changed;
 
 	/* First backup some essential stuff. */
 	oldrealname = xstrdup(cfg.realname);
@@ -847,12 +848,16 @@ rehash(int a)
 	nicknames.next = NICK_FIRST;
 
 	/* Listening port or host changed. */
-	if (oldlistenport != cfg.listenport ||
-			(oldlistenhost == NULL ?
-				(cfg.listenhost == NULL ? 0 : 1) :
-				(cfg.listenhost == NULL ? 1 :
-					xstrcmp(oldlistenhost, cfg.listenhost))
-			)) {
+	if (cfg.listenhost != NULL) {
+		if (oldlistenhost == NULL) {
+			host_changed = 1;
+		} else {
+			host_changed = xstrcmp(oldlistenhost, cfg.listenhost);
+		}
+	} else {
+		host_changed = cfg.listenhost == oldlistenhost ? 0 : 1;
+	}
+	if (oldlistenport != cfg.listenport || host_changed == 1) {
 		create_listen();
 	}
 
@@ -1766,7 +1771,7 @@ miau_commands(char *command, char *param, connection_type *client)
 
 	upcase(command);
 
-	if (xstrcmp( command, "REHASH") == 0) {
+	if (xstrcmp(command, "REHASH") == 0) {
 		corr++;
 		rehash(0);
 	}
@@ -1864,7 +1869,7 @@ miau_commands(char *command, char *param, connection_type *client)
 
 
 #ifdef UPTIME
-	else if(xstrcmp(command, "UPTIME") == 0) {
+	else if (xstrcmp(command, "UPTIME") == 0) {
 		time_t now;
 		int seconds, minutes, hours, days;
 		
