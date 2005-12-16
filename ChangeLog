@@ -17,6 +17,9 @@
   * Fixed nick comparison to be case insensitive at PART & KICK
   * Cleaned up client.c
   * Removed duplicated code in several places
+  * Cleaned up extrn-stuff, includes, headers
+  * Reworked configure.ac. Expect trouble.
+  * Compiles on every single *NIX I could get my hands on.
 
 
 0.5.4-p3 - "compatible catnap"

@@ -14,24 +14,26 @@
  * GNU General Public License for more details.
  */
 
-#include <config.h>	/* Need to know what we need. */
-
-#include "common.h"
-
-
-#ifdef _NEED_TABLE
-
-
 #ifndef TABLE_H_
 #define TABLE_H_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
-void **add_item(void **data, int elementsize, int *entries, int *indx);
-void **rem_item(void **data, int number, int *entries);
-void **compact_table(void **data, int *entries);
-void **free_table(void **data, int *entries, int clear);
+#include "etc.h"
 
+#ifdef NEED_TABLE
+
+
+
+void **table_add_item(void **data, int elementsize, int *entries, int *indx);
+void **table_rem_item(void **data, int number, int *entries);
+void **table_compact(void **data, int *entries);
+void **table_free(void **data, int *entries, int clear);
+
+
+
+#endif /* ifdef NEED_TABLE */
 
 #endif /* ifndef TABLE_H_ */
-
-#endif /* ifdef _NEED_TABLE */

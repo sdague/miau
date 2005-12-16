@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fii>
+ * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -17,15 +17,43 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /* ifdef HAVE_CONFIG_H */
-#include <string.h>
-#include <stdlib.h>
+
 #include "common.h"
-#include "messages.h"
 #include "error.h"
+#include "messages.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 
 
 #define REPORT_ERROR(func) error(ERR_UNEXPECTED, func, file, line)
+
+
+
+#if HAVE_MALLOC != 1
+#include <sys/types.h>
+
+static void *
+rpl_malloc(size_t size)
+{
+	if (size == 0) {
+		size = 1;
+	}
+	return malloc(size);
+} /* static void *rpl_malloc(size_t size) */
+
+
+
+static void *
+rpl_realloc(void *ptr, size_t size)
+{
+	if (size == 0) {
+		size = 1;
+	}
+	return realloc(ptr, size);
+} /* static void *rpl_realloc(void *ptr, size_t size) */
+#endif /* if HAVE_MALLOC != 1 */
 
 
 
@@ -187,3 +215,32 @@ xrealloc(void *ptr, size_t size)
 	}
 	return ret;
 } /* void *xrealloc(void *ptr, size_t size) */
+
+
+
+/* these functions are "intentionally" unsafe! */
+#ifndef HAVE_SNPRINTF
+int
+snprintf(char *str, size_t size, const char *format, ...)
+{
+	int r;
+	va_list va;
+
+	va_start(va, format);
+	r = sprintf(str, format, va);
+	va_end(va);
+	str[size - 1] = '\0';
+
+	return r;
+} /* int snprintf(char *str, size_t size, const char *format, ...) */
+#endif /* ifndef HAVE_SNPRINTF */
+
+
+
+#ifndef HAVE_VSNPRINTF
+int
+vsnprintf(char *str, size_t size, const char *format, va_list ap)
+{
+	return vsprintf(str, format, ap);
+} /* int vsnprintf(char *str, size_t size, const char *format, va_list ap) */
+#endif /* ifndef HAVE_VSNPRINTF */

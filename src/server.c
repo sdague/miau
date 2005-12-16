@@ -15,40 +15,45 @@
  * GNU General Public License for more details.
  */
 
-#include "server.h"
-#include "miau.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
-#include "error.h"
-#include "automode.h"
-#include "channels.h"
-#include "commands.h"
-#include "irc.h"
+#include "server.h"
+#include "client.h"
 #include "llist.h"
 #include "messages.h"
+#include "irc.h"
+#include "miau.h"
+#include "error.h"
+#include "tools.h"
 #include "perm.h"
+#include "ignore.h"
+#include "commands.h"
+#include "qlog.h"
 #include "chanlog.h"
 #include "privlog.h"
 #include "log.h"
-#include "qlog.h"
-#include "dcc.h"
-#include "tools.h"
-#ifdef _NEED_PROCESS_IGNORES
-#include "ignore.h"
-#endif /* _NEED_PROCESS_IGNORES */
-#include "remote.h"
 #include "onconnect.h"
+#include "automode.h"
+#include "remote.h"
+#include "etc.h"
+#include "common.h"
+#include "dcc.h"
+
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+
+#if HAVE_CRYPT_H
+#include <crypt.h>
+#endif /* ifdef HAVE_CRYPT_H */
+
 
 
 serverlist_type	servers;
 server_info	i_server;
 connection_type	c_server;
-
-
-
-extern clientlist_type	c_clients;
-extern timer_type	timers;
-extern char		*forwardmsg;
-extern int		forwardmsgsize;
 
 
 
@@ -80,7 +85,7 @@ server_drop(char *reason)
 		chanlog_write_entry_all(LOG_QUIT, LOGM_QUIT,
 				get_short_localtime(), status.nickname, 
 				reason, "", "");
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 		sock_close(&c_server);
 	}
 	i_server.connected = 0;
@@ -98,7 +103,7 @@ server_drop(char *reason)
 #ifdef AUTOMODE
 		/* We no longer know if we're an operator or not. */
 		data->oper = -1;
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 		/*
 		 * We don't need to reset channel topic, it will be erased/reset
 		 * when joining the channel.
@@ -170,7 +175,7 @@ server_drop(char *reason)
 
 #ifdef UPTIME
 	status.startup = 0;	/* Reset uptime-counter. */
-#endif /* UPTIME */
+#endif /* ifdef UPTIME */
 } /* void server_drop(char *reason) */
 
 
@@ -338,7 +343,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 {
 #ifdef CHANLOG
 	channel_type	*chptr;
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 	char		*origin;
 	int		osize;
 	int		isprivmsg = 0;
@@ -346,8 +351,8 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 
 	if (nick == NULL || hostname == NULL || param2 == NULL) {
 #ifdef ENDUSERDEBUG
-		enduserdebug("%s: param2 = %s, nick = %s, hostname = %d",
-				__FUNCTION__,
+		enduserdebug("server_commands(): "
+				"param2 = %s, nick = %s, hostname = %d",
 				param2 == NULL ? "NULL" : param2,
 				nick == NULL ? "NULL" : nick,
 				hostname == NULL ? "NULL" : hostname);
@@ -372,7 +377,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 					&& (cfg.privlog & 0x01))) {
 			privlog_write(nick, PRIVLOG_IN, cmdindex, param2 + 1);
 		}	
-#endif /* PRIVLOG */
+#endif /* ifdef PRIVLOG */
 				
 		
 		/* ignorelist tells who are ignore - not who are allowed. */
@@ -395,12 +400,12 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 						*pass = 0;
 					}
 				}
-#endif /* DCCBOUNCE */
+#endif /* ifdef DCCBOUNCE */
 #ifdef DCCBOUNCE
 #ifdef CTCTPREPLIES
 				else
-#endif /* CTCPREPLIES */
-#endif /* DCCBOUNCE */
+#endif /* ifdef CTCPREPLIES */
+#endif /* ifdef DCCBOUNCE */
 #ifdef CTCPREPLIES
 				if (! is_ignore(hostname, IGNORE_CTCP) &&
 						c_clients.connected == 0 &&
@@ -421,7 +426,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 		irc_notice(&c_server, nick, CLIENTINFOREPLY);
 	}
 					
-					add_ignore(hostname, 6, IGNORE_CTCP);
+					ignore_add(hostname, 6, IGNORE_CTCP);
 					status.allowreply = 0;
 					timers.reply = 0;
 				} /* CTCP-replies */
@@ -430,10 +435,10 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 					report(CLNT_CTCPNOREPLY,
 							param2 + 1, origin);
 				}
-#endif /* CTCPREPLIES */
+#endif /* ifdef CTCPREPLIES */
 			} /* Special (CTCP/DCC) -message. */
 			
-#ifdef _NEED_CMDPASSWD
+#ifdef NEED_CMDPASSWD
 			/* Remote command for bouncer. */
 			else if (cfg.cmdpasswd != NULL && param2 != NULL &&
 					param2[0] != '\0' && param2[1] == ':') {
@@ -479,7 +484,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 					}
 				}
 			}
-#endif /* _NEED_CMDPASSWD */
+#endif /* ifdef NEED_CMDPASSWD */
 
 			/* Normal PRIVMSG/NOTICE to client. */
 			if (normal == 1) {
@@ -497,8 +502,8 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 							origin, param2 + 1);
 					fflush(inbox);
 				}
-#endif /* QUICKLOG */
-#endif /* INBOX */
+#endif /* ifdef QUICKLOG */
+#endif /* ifdef INBOX */
 				
 				if (cfg.forwardmsg) {
 					int pos;
@@ -568,7 +573,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 				chanlog_write_entry(chptr, "%s", t);
 			}
 		}
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 	}
 
 	xfree(origin);
@@ -613,8 +618,8 @@ server_read(void)
 #ifdef OBSOLETE
 		printf("[%s] [%s] [%s] [%s]\n", origin, command,
 				param1, param2);
-#endif /* OBSOLETE */
-#endif /* DEBUG */
+#endif /* ifdef OBSOLETE */
+#endif /* ifdef DEBUG */
 		if (command != 0) {
 			commandno = atoi(command);
 			if (commandno == 0) {
@@ -761,13 +766,13 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			if (! status.startup) {
 				time(&status.startup);
 			}
-#endif /* UPTIME */
+#endif /* ifdef UPTIME */
 
 			report(IRC_CONNECTED, i_server.realname);
 
 #ifdef ONCONNECT
 			onconnect_do();
-#endif /* ONCONNECT */
+#endif /* ifdef ONCONNECT */
 
 			/* Set user modes if any and if no clients connected. */
 			if (cfg.usermode != NULL && c_clients.connected == 0) {
@@ -928,21 +933,21 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				if (t == NULL) {
 #ifdef ENDUSERDEBUG
 					enduserdebug("no channel at NAMREPLY");
-#endif /* ENDUSERDEBUG */
+#endif /* ifdef ENDUSERDEBUG */
 					break;
 				}
 				channel = strtok(t + 1, " ");
 				chptr = channel_find(channel, LIST_ACTIVE);
 #ifdef AUTOMODE
 				if (chptr == NULL || chptr->oper != -1) {
-#else /* AUTOMODE */
+#else /* ifdef AUTOMODE */
 				if (chptr == NULL) {
-#endif /* AUTOMODE */
+#endif /* ifdef else AUTOMODE */
 #ifdef ENDUSERDEBUG
 					if (chptr == NULL) {
 						enduserdebug("NAMREPLY on unjoined channel (%s)", channel);
 					}
-#endif /* ENDUSERDEBUG */
+#endif /* ifdef ENDUSERDEBUG */
 					break;
 				}
 
@@ -952,7 +957,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 					enduserdebug("no users on NAMREPLY");
 					break;
 				}
-#endif /* ENDUSERDEBUG */
+#endif /* ifdef ENDUSERDEBUG */
 				n = 0;
 				while (t != NULL) {
 					n++;
@@ -960,7 +965,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				}
 #ifdef AUTOMODE
 				chptr->oper = (n == 1 ? 1 : 0);
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 			}
 			break;
 
@@ -1023,7 +1028,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			chanlog_write_entry_all(LOG_NICK, LOGM_NICK,
 					get_short_localtime(),
 					nick, param1 + 1);
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 			break;
 
 		/* Ping ?  Pong. */
@@ -1031,7 +1036,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			/* We don't need to reset timer - it is done in irc.c */
 #ifdef PINGSTAT
 			ping_got++;
-#endif /* PINGSTAT */
+#endif /* ifdef PINGSTAT */
 			*pass = 0;
 			break;
 
@@ -1044,7 +1049,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				enduserdebug("command = %d param1 = '%s' "
 						"param2 = '%s'",
 						command, param1, param2);
-#endif /* ENDUSERDEBUG */
+#endif /* ifdef ENDUSERDEBUG */
 				break;
 			}
 
@@ -1066,7 +1071,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 					xfree(target);
 				}
 			}
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 
 			/* Me being kicked ? */
 			{
@@ -1099,7 +1104,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				enduserdebug("command = %d / param1 + n = '%s'"
 						" / param2 = '%s'",
 						command, param1 + n, param2);
-#endif /* ENDUSERDEBUG */
+#endif /* ifdef ENDUSERDEBUG */
 				break;
 			}
 
@@ -1108,7 +1113,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			if (xstrcasecmp(nick, status.nickname) != 0) {
 				automode_queue(nick, hostname, chptr);
 			}
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 	
 #ifdef CHANLOG
 			if (chanlog_has_log(chptr, LOG_JOIN)) {
@@ -1117,7 +1122,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 						nick, hostname,
 						chptr->simple_name);
 			}
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 
 			break;
 
@@ -1138,7 +1143,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 #ifdef AUTOMODE
 			/* No automodes for that person. */
 			automode_drop_channel(chptr, nick, '\0');
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 
 #ifdef CHANLOG
 			if (chanlog_has_log(chptr, LOG_PART)) {
@@ -1148,7 +1153,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 						(param2) ? (param2 + 1) ?
 						param2 + 1 : "" : "");
 			}
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 
 			/* Remove channel from list if it was me leaving. */
 			if (xstrcasecmp(nick, status.nickname) == 0) {
@@ -1161,13 +1166,13 @@ server_reply(const int command, char *original, char *origin, char *param1,
 		case CMD_QUIT + MINCOMMANDVALUE:
 #ifdef AUTOMODE
 			automode_drop_nick(nick, '\0');
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 
 #ifdef CHANLOG
 			chanlog_write_entry_all(LOG_QUIT, LOGM_QUIT,
 					get_short_localtime(),
 					nick, param1 + 1, " ", param2);
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 
 			break;
 
@@ -1197,7 +1202,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				if (xstrcasecmp(param1, status.nickname) != 0) {
 					enduserdebug("MODE on unknown channel");
 				}
-#endif /* ENDUSERDEBUG */
+#endif /* ifdef ENDUSERDEBUG */
 				break;
 			}
 
@@ -1209,7 +1214,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 						get_short_localtime(),
 						nick, param2);
 			}
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 
 			break;
 
@@ -1221,7 +1226,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			if (chptr == NULL) {
 #ifdef ENDUSERDEBUG
 				enduserdebug("TOPIC on channel we're not on");
-#endif /* ENDUSERDEBUG */
+#endif /* ifdef ENDUSERDEBUG */
 				break;
 			}
 
@@ -1249,7 +1254,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 						get_short_localtime(), nick,
 						(param2 + 1) ? param2 + 1 : "");
 			}
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 			
 			break;
 
@@ -1265,7 +1270,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 		default:
 			/* Got something we don't recognize. */
 			break;
-#endif /* OBSOLETE */
+#endif /* ifdef OBSOLETE */
 	}
 
 	if (command < MINCOMMANDVALUE) {
@@ -1312,7 +1317,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				param1 != NULL) {
 		qlog_write(isprivmsg, "%s", original);
 	}
-#endif /* QUICKLOG */
+#endif /* ifdef QUICKLOG */
 
 	xfree(work);
 	xfree(nick);
@@ -1334,7 +1339,7 @@ parse_modes(const char *channel, const char *original)
 	if (chptr == NULL) {
 #ifdef ENDUSERDEBUG
 		enduserdebug("MODE on channel we're not on");
-#endif /* ENDUSERDEBUG */
+#endif /* ifdef ENDUSERDEBUG */
 		return;
 	}
 
@@ -1378,7 +1383,7 @@ parse_modes(const char *channel, const char *original)
 					}
 				}
 
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 				param = strtok(NULL, " ");
 				break;
 

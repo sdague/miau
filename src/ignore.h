@@ -17,17 +17,25 @@
 #ifndef IGNORE_H_
 #define IGNORE_H_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 #ifdef CTCPREPLIES
+
+
 
 /* ignore-types */
 #define IGNORE_MESSAGE 0
 #define IGNORE_CTCP 1
 
-void add_ignore(char *hostname, int ttl, int type);
-void del_ignore(char *hostname);
-void process_ignores(void);
+void ignore_add(char *hostname, int ttl, int type);
+void ignore_del(char *hostname);
+void ignores_process(void);
 int is_ignore(char *hostname, int type);
 
-#endif /* CTCPREPLIES */
 
-#endif /* IGNORE_H_ */
+
+#endif /* ifdef CTCPREPLIES */
+
+#endif /* ifdef IGNORE_H_ */

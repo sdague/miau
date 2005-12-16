@@ -24,11 +24,11 @@ AC_DEFUN([MY_ARG_DISABLE], [
 	test "x${USE_$3}" = "xyes" && AC_DEFINE([$3], [yes])
 ])
 
-AH_TEMPLATE([VSNPRINTF_WORKAROUND], [quick hack to vsnprintf])
-AC_ARG_WITH([vsnprintf-workaround],
-	AC_HELP_STRING([--with-vsnprintf-workaround],
-		[use a quick hack to ignore missing vsnprintf]),
-	[vsnprintf_workaround=yes], [vsnprintf_workaround=no])
+AC_ARG_WITH([snprintf-workaround],
+	AC_HELP_STRING([--with-snprintf-workaround],
+		[use a quick hack to ignore missing (v)snprintf]),
+	[snprintf_workaround=yes], [snprintf_workaround=no])
+
 AC_ARG_WITH([dont-check-select],
 	AC_HELP_STRING([--with-dont-check-select],
 		[don't check existence of "select()" since we can't find it on HP-UX]),
@@ -75,15 +75,38 @@ if test "x$ac_debug" = "xyes"; then
 	CFLAGS="${CFLAGS} -g"
 fi
 
-#AH_TEMPLATE([LOGGING], [need logging-related features])
-#if test "x$USE_chanlog" = "xyes" -o "x$msglog" = "xyes"; then
-#	AC_DEFINE([LOGGING], [yes])
-#fi
 
+dnl Checks for programs.
 AC_PROG_CC
-
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([arpa/inet.h crypt.h fcntl.h netdb.h netinet/in.h])
+AC_CHECK_HEADERS([stdlib.h string.h strings.h sys/socket.h sys/time.h unistd.h])
+
+
+dnl Checks for libraries.
+AC_SEARCH_LIBS(gethostbyname, [inet nsl])
+AC_SEARCH_LIBS(gethostbyaddr, nsl)
+AC_SEARCH_LIBS(socket, socket)
+AC_SEARCH_LIBS(hstrerror, resolv)
+AC_SEARCH_LIBS(crypt, crypt)
+
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_CHECK_MEMBERS([struct stat.st_blksize])
+AC_STRUCT_ST_BLOCKS
+AC_HEADER_TIME
+AC_STRUCT_TM
+AC_HEADER_STDBOOL
+
 
 if test "$ac_local" = yes; then
 	AC_MSG_RESULT(configuring for local installation)
@@ -105,24 +128,31 @@ if test "x$enable_ipv6" = "xyes"; then
 	AC_CHECK_FUNC(gethostbyname2, AC_DEFINE(IPV6))
 fi
 
-dnl Checks for libraries.
-AC_SEARCH_LIBS(gethostbyname, nsl)
-AC_SEARCH_LIBS(gethostbyaddr, nsl)
-AC_SEARCH_LIBS(socket, socket)
-AC_SEARCH_LIBS(hstrerror, resolv)
-AC_SEARCH_LIBS(crypt, crypt)
 
+# Checks for library functions.
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_FORK
+AC_FUNC_LSTAT
+AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_FUNC_SELECT_ARGTYPES
+AC_FUNC_SETVBUF_REVERSED
+AC_FUNC_STAT
+AC_FUNC_STRFTIME
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS([alarm atexit dup2])
+AC_CHECK_FUNCS([gethostbyaddr gethostbyname gethostname getpass gettimeofday])
+AC_CHECK_FUNCS([inet_ntoa memmove mkdir random])
+AC_CHECK_FUNCS([select socket strcasecmp strchr strdup strerror strncasecmp])
+AC_CHECK_FUNCS([strrchr strtol strtoul])
 
-dnl Checks for header files.
-AC_HEADER_STDC
+AC_CHECK_FUNCS([bzero crypt sigaction])
+
 
 if test "$ac_cv_header_stdc" = no; then
 	AC_MSG_ERROR(ansi-c headers are required!)
 fi
-
-AC_CHECK_HEADERS(fcntl.h sys/time.h unistd.h errno.h pwd.h crypt.h)
-AC_CHECK_HEADERS(sys/types.h sys/socket.h sys/stat.h netinet/in.h netdb.h arpa/inet.h signal.h ctype.h strings.h)
-
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -131,13 +161,7 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 
 
-dnl Checks for library functions.
-AC_FUNC_ALLOCA
-AC_FUNC_SETVBUF_REVERSED
-AC_TYPE_SIGNAL
-AC_FUNC_STRFTIME
-AC_CHECK_FUNCS(socket gethostbyname gethostbyaddr inet_ntoa sigemptyset, ,
-		AC_MSG_ERROR(required function not found))
+dnl Checks for platform specific stuff.
 if test "x$dont_check_select" != "xyes"; then
 	AC_CHECK_FUNCS([select], [found_select=yes], [found_select=no])
 	if test "x$found_select" != "xyes"; then
@@ -151,32 +175,21 @@ EOF
 		AC_MSG_ERROR([required function not found])
 	fi
 fi
-AC_CHECK_FUNCS(strchr strdup strerror strncasecmp strcasecmp bzero strtoul, ,
-		AC_MSG_ERROR(required function not found))
-AC_CHECK_FUNCS(crypt getpass gethostname, ,
-		AC_MSG_ERROR(required function not found))
-AC_CHECK_FUNCS(sigaction random hstrerror)
-AC_CHECK_FUNCS([vsnprintf], [have_vsnprintf=yes], [have_vsnprintf=no])
 
-if test "x$have_vsnprintf" != "xyes"; then
-	if test "x$vsnprintf_workaround" = "xyes"; then
-		AC_DEFINE([VSNPRINTF_WORKAROUND])
-	else
+AC_CHECK_FUNCS([vsnprintf], [have_snprintf=yes], [have_snprintf=no])
+AC_CHECK_FUNCS([snprintf], , [have_snprintf=no])
+if test "x$have_snprintf" != "xyes"; then
+	if test "x$snprintf_workaround" != "xyes"; then
 		cat <<EOF
 
-Your system doesn't have function vsnprintf. miau can use vsprintf instead,
-but this may result in illegal memory accesses, which will most definetly
-cause segfaults. If you are sure you want to do this, use
---with-vsnprintf-workaround and watch miau going down, hard. :-)
+Your system doesn't have function (v)snprintf. miau can use (v)sprintf instead,
+but this may result in illegal memory access, which will most definitely be a
+security risk and cause segfaults. If you are sure you want to do this, use
+--with-snprintf-workaround and watch miau going down, hard. :-)
 EOF
 		AC_MSG_ERROR([required function not found])
 	fi
 fi
-
-AC_CHECK_FUNCS([backtrace backtrace_symbols])
-
-
-## System workarounds
 
 # socklen_t stuff (Lars Brinkhoff <lars@nocrew.org>)
 AC_CACHE_CHECK([for socklen_t], [ac_cv_type_socklen_t], [
@@ -190,6 +203,7 @@ AC_CACHE_CHECK([for socklen_t], [ac_cv_type_socklen_t], [
 if test "x$ac_cv_type_socklen_t" != "xyes"; then
 	AC_DEFINE(socklen_t, int, [Substitute for socklen_t])
 fi
+
 
 # hstrerror on Digital UNIX
 _CFLAGS="${CFLAGS}"
@@ -205,23 +219,14 @@ if test "x${ac_cv_func_hstrerror}" = "xyes"; then
 	AH_TEMPLATE([HSTRERROR_PROTO], [need dummy prototype for hstrerror])
 	AC_DEFINE([HSTRERROR_PROTO], [yes])
 fi
-CFLAGS="${_CFLAGS} -Werror"
-
-
-# If this is declared earlier, autoconf's tests will give incorrent answers
-#AC_ARG_ENABLE([werror], AC_HELP_STRING([--disabe-werror],
-#	[don't make all warnings into errors (debug)]),
-#	ac_werrors=no], [ac_werrors=yes])
-#if test "x$ac_werrors" = "xyes"; then
-#	CFLAGS="${CFLAGS} -Werror"
-#fi
+CFLAGS="${_CFLAGS}"
 
 
 AC_OUTPUT([Makefile src/Makefile doc/Makefile misc/Makefile misc/miaurc miau.spec])
 
-if test "x$have_vsnprintf" != "xyes" -a \
-		"x$vsnprintf_workaround" = "xyes"; then
-	echo "- WARNING: Using segfault-prone vsnprintf-workaround."
+if test "x$have_snprintf" != "xyes" -a \
+		"x$snprintf_workaround" = "xyes"; then
+	echo "- WARNING: Using INSECURE and crash-prone snprintf-workaround."
 fi
 if test "x$dont_check_select" = "xtrue"; then
 	echo "- WARNING: Never checked for select."

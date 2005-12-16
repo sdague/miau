@@ -19,6 +19,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
+
 #include <time.h>
 
 
@@ -29,11 +30,6 @@ typedef enum {
 } timestamp_t;
 
 
-
-#ifdef VSNPRINTF_WORKAROUND
-#include <stdarg.h>
-int vsnprintf(char *str, size_t size, const char *format, va_list ap);
-#endif /* ifdef VSNPRINTF_WORKAROUND */
 
 void upcase(char *str);
 void lowcase(char *str);

@@ -14,18 +14,25 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _ASCII_H
-#define _ASCII_H
+#ifndef ASCII_H_
+#define ASCII_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 
 #ifdef ASCIIART
 
 #define PIC_X	29
 #define PIC_Y	4
 
+
+
 extern char pics[2][PIC_Y][PIC_X];
 
-#endif /* ASCIIART */
 
-#endif /* _ASCII_H */
+
+#endif /* ifdef ASCIIART */
+
+#endif /* ifndef ASCII_H_ */

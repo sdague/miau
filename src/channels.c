@@ -15,17 +15,22 @@
  * GNU General Public License for more details.
  */
 
-#include "miau.h"
-#include "error.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 #include "channels.h"
-#include "tools.h"
-#include "llist.h"
-#include "irc.h"
-#include "table.h"
-#include "chanlog.h"
+#include "client.h"
+#include "common.h"
 #include "qlog.h"
+#include "irc.h"
+#include "miau.h"
 #include "messages.h"
+#include "error.h"
+#include "chanlog.h"
 #include "automode.h"
+
+#include <string.h>
 
 
 
@@ -45,8 +50,6 @@ llist_list	active_channels;
 llist_list	passive_channels;
 llist_list	old_channels;
 
-extern clientlist_type	c_clients;
-
 
 
 /*
@@ -57,7 +60,7 @@ channel_free(channel_type *chan)
 {
 	if (chan == NULL) {
 #ifdef ENDUSERDEBUG
-		enduserdebug("%s(NULL)", __FUNCTION__);
+		enduserdebug("channel_free(NULL)");
 #endif /* ifdef ENDUSERDEBUG */
 		return;
 	}
@@ -102,6 +105,25 @@ channel_add(const char *channel, const char *key, const int list)
 			return NULL;
 		}
 	}
+	
+	/* 
+	 * We must do this to keep old GCC (and probably some other compilers
+	 * too) happy.
+	 *
+	 * if (list == LIST_ACTIVE) {
+	 *     either {
+	 *         target = foo;
+	 *     } or {
+	 *         chptr == NULL;
+	 *     }
+	 * }
+	 * if (chptr == NULL) {
+	 *     target = bar;
+	 * }
+	 *
+	 * Some compilers just don't get it!
+	 */
+	target = NULL;
 
 	/*
 	 * See if we could simply move channels from passive/old_channels to
@@ -111,6 +133,7 @@ channel_add(const char *channel, const char *key, const int list)
 		llist_list *source;
 		
 		/* find a list to remove from */
+		source = NULL;
 		chptr = channel_find(channel, LIST_PASSIVE);
 		if (chptr != NULL) {
 			source = &passive_channels;
@@ -121,7 +144,7 @@ channel_add(const char *channel, const char *key, const int list)
 			}
 		}
 
-		if (chptr != NULL) {
+		if (source != NULL) {
 			llist_node *ptr;
 			ptr = llist_find((void *) chptr, source);
 			if (ptr != NULL) {

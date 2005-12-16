@@ -17,13 +17,12 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /* ifdef HAVE_CONFIG_H */
+
 #include "match.h"
 #include "tools.h"
 #include "common.h"
 
 #include <string.h>
-#include <stdio.h>
-
 
 
 /**

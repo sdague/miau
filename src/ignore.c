@@ -14,11 +14,18 @@
  * GNU General Public License for more details.
  */
 
-#include "miau.h"
-#include "ignore.h"
-#include "table.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
 #ifdef CTCPREPLIES
+
+#include "ignore.h"
+#include "common.h"
+#include "table.h"
+#include "etc.h"
+
+#include <stdlib.h>
 
 
 
@@ -33,13 +40,13 @@ typedef struct {
 	int		amount;
 } ignores_type;
 
-static void del_ignorebynumber(int i);
+
 ignores_type ignores;
 
 
 
 void
-add_ignore(char *hostname, int ttl, int type)
+ignore_add(char *hostname, int ttl, int type)
 {
 	int i, indx;
 
@@ -55,17 +62,17 @@ add_ignore(char *hostname, int ttl, int type)
 		}
 	}
 	
-	ignores.data = (ignore_type **) add_item((void **) ignores.data,
+	ignores.data = (ignore_type **) table_add_item((void **) ignores.data,
 			sizeof(ignore_type), &ignores.amount, &indx);
 	ignores.data[indx]->hostname = xstrdup(hostname);
 	ignores.data[indx]->ttl = ttl;
 	ignores.data[indx]->type = type;
-} /* void add_ignore(char *hostname, int ttl, int type) */
+} /* void ignore_add(char *hostname, int ttl, int type) */
 
 
 
 void
-del_ignore(char *hostname)
+ignore_del(char *hostname)
 {
 	int i;
 	for (i = 0; i < ignores.amount; i++) {
@@ -73,28 +80,30 @@ del_ignore(char *hostname)
 				&& (xstrcasecmp(ignores.data[i]->hostname,
 						hostname) == 0)) {
 			xfree(ignores.data[i]->hostname);
-			ignores.data = (ignore_type **) rem_item((void **)
-					ignores.data, i, &ignores.amount);
+			ignores.data = (ignore_type **)
+				table_rem_item((void **) ignores.data,
+						i, &ignores.amount);
 		}
 	}
-} /* void del_ignore(char *hostname) */
+} /* void ignore_del(char *hostname) */
 
 
 
 static void
-del_ignorebynumber(int i)
+ignore_del_by_number(int i)
 {
 	if (i < ignores.amount && ignores.data[i] != NULL) {
 		xfree(ignores.data[i]->hostname);
-		ignores.data = (ignore_type **) rem_item((void **) ignores.data,
-				i, &ignores.amount);
+		ignores.data = (ignore_type **)
+			table_rem_item((void **) ignores.data,
+					i, &ignores.amount);
 	}
-} /* void del_ignorebynumber(int i) */
+} /* void ignore_del_by_number(int i) */
 
 
 
 void
-process_ignores(void)
+ignores_process(void)
 {
 	int i;
 	for (i = 0; i < ignores.amount; i++) {
@@ -102,11 +111,11 @@ process_ignores(void)
 			if (ignores.data[i]->ttl != 0) {	/* > 0 */
 				ignores.data[i]->ttl--;
 			} else {
-				del_ignorebynumber(i);
+				ignore_del_by_number(i);
 			}
 		}
 	}
-} /* void process_ignores(void) */
+} /* void ignores_process(void) */
 
 
 
@@ -127,4 +136,4 @@ is_ignore(char *hostname, int type)
 
 
 
-#endif /* ifndef CTCPREPLIES */
+#endif /* ifdef CTCPREPLIES */

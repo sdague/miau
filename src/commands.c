@@ -14,8 +14,10 @@
  * GNU General Public License for more details.
  */
 
-#include <string.h>
-#include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 #include "commands.h"
 #include "common.h"
 

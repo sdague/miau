@@ -17,7 +17,11 @@
 #ifndef MESSAGES_H_
 #define MESSAGES_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
+
 
 /*
  * General
@@ -281,6 +285,7 @@ Read 'COPYING' for copyright and licence details.\n"
 #define PING_NO_PINGS	"No pings"
 #define PING_STAT	"Pings sent/got: %d/%d - %d %% loss"
 #endif /* PINGSTAT */
+
 
 
 #endif /* ifndef MESSAGE_H_ */

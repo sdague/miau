@@ -16,33 +16,12 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /* ifdef HAVE_CONFIG_H */
+
 #include "tools.h"
-#include "common.h"
 
 #include <ctype.h>
-#include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-
-
-
-#ifdef VSNPRINTF_WORKAROUND
-int
-vsnprintf(char *str, size_t size, const char *format, va_list ap)
-{
-	/*
-	 * TODO:
-	 * Someone must have done this (smaller, better and safe)
-	 * before...
-	 * 
-	 * Now we simply ignore the threat and keep going.
-	 */
-	
-	return vsprintf(str, format, ap); /* "supposed" to be unsafe! */
-} /* int vsnprintf(char *str, size_t size, const char *format, va_list ap) */
-#endif /* ifdef VSNPRINTF_WORKAROUND */
 
 
 

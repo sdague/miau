@@ -17,17 +17,25 @@
 #ifndef DCC_H_
 #define DCC_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include <string.h>
-#include <unistd.h>
+#endif /* HAVE_CONFIG_H */
 
 #ifdef DCCBOUNCE
 
-extern char *dcc_initiate(char *param, size_t dsize, int fromclient);
-extern void dcc_socketsubscribe(fd_set* readset, fd_set* writeset);
-extern void dcc_socketcheck(fd_set* readset, fd_set* writeset);
-extern void dcc_timer(void); /* To be called every second ! */
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#endif /* DCCBOUNCE */
 
-#endif /* DCC_H_ */
+
+char *dcc_initiate(char *param, size_t dsize, int fromclient);
+void dcc_socketsubscribe(fd_set* readset, fd_set* writeset);
+void dcc_socketcheck(fd_set* readset, fd_set* writeset);
+void dcc_timer(void); /* To be called every second ! */
+
+
+
+#endif /* ifdef DCCBOUNCE */
+
+#endif /* ifdef DCC_H_ */

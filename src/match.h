@@ -17,6 +17,10 @@
 #ifndef MATCH_H_
 #define MATCH_H_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 
 
 int match(const char *string, const char *pattern);

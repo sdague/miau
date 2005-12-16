@@ -13,31 +13,35 @@
  * GNU General Public License for more details.
  */
 
-#include "privlog.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
+#ifdef PRIVLOG
+
+#include "privlog.h"
+#include "llist.h"
+#include "common.h"
+#include "tools.h"
 #include "miau.h"
 #include "messages.h"
-#include "tools.h"
 #include "log.h"
 #include "commands.h"
 
-#include <stdio.h>
-#include <time.h>
+#include <string.h>
 
 
-
-#ifdef PRIVLOG
 
 llist_list	open_logs;
 
 
 
-FILE *open_file(char *nick);
-void finalize_log(privlog_type *);
+static FILE *open_file(char *nick);
+static void finalize_log(privlog_type *log);
 
 
 
-FILE *
+static FILE *
 open_file(char *nick)
 {
 	char *lownick;
@@ -60,7 +64,7 @@ open_file(char *nick)
 	xfree(lownick);
 
 	return file;
-} /* FILE *open_file(char *nick) */
+} /* static FILE *open_file(char *nick) */
 
 
 
@@ -160,7 +164,7 @@ privlog_close_all(void)
  * Reopen file for writing footer, then close file and free resources -
  * including structure for logfile.
  */
-void
+static void
 finalize_log(privlog_type *log)
 {
 	/*
@@ -179,7 +183,7 @@ finalize_log(privlog_type *log)
 	}
 	xfree(log->nick);
 	xfree(log);
-} /* void finalize_log(privlog_type *log) */
+} /* static void finalize_log(privlog_type *log) */
 
 
 
@@ -225,8 +229,8 @@ privlog_get_list(void)
 {
 	return &open_logs;
 } /* privlog_get_list(void) */
-#endif /* DUMPSTATUS */
+#endif /* ifdef DUMPSTATUS */
 
 
 
-#endif /* PRIVLOG */
+#endif /* ifdef PRIVLOG */

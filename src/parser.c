@@ -13,17 +13,22 @@
  * GNU General Public License for more details.
  */
 
-#include "miau.h"
-#include "parser.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
+#include "parser.h"
+#include "common.h"
+#include "server.h"
+#include "miau.h"
+#include "perm.h"
 #include "error.h"
 #include "messages.h"
-#include "perm.h"
-#include "tools.h"
-#include "channels.h"
-#include "qlog.h"
 #include "chanlog.h"
 #include "onconnect.h"
+
+#include <errno.h>
+#include <string.h>
 
 
 
@@ -288,17 +293,17 @@ parse_param(char *data)
 #ifdef AUTOMODE
 		} else if (xstrcmp(data, "automodes") == 0) {	/* automode */
 			listid = CFG_AUTOMODELIST;
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 #ifdef CHANLOG
 		} else if (xstrcmp(data, "chanlog") == 0) {	/* chanlog */
 			listid = CFG_CHANLOG;
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 		} else if (xstrcmp(data, "channels") == 0) {	/* channels */
 			listid = CFG_CHANNELS;
 #ifdef ONCONNECT
 		} else if (xstrcmp(data, "onconnect") == 0) {	/* onconnect */
 			listid = CFG_ONCONNECT;
-#endif /* ONCONNECT */
+#endif /* ifdef ONCONNECT */
 		} else {
 			listid = CFG_INVALID;
 			parse_error();
@@ -311,10 +316,10 @@ parse_param(char *data)
 		assign_param(&cfg.realname, val);
 	} else if (xstrcmp(data, "username") == 0) {	/* username */
 		assign_param(&cfg.username, val);
-#ifdef _NEED_CMDPASSWD
+#ifdef NEED_CMDPASSWD
 	} else if (xstrcmp(data, "cmdpasswd") == 0) {	/* cmdpasswd */
 		assign_param(&cfg.cmdpasswd, val);
-#endif /* _NEED_CMDPASSWD */
+#endif /* ifdef NEED_CMDPASSWD */
 #ifdef QUICKLOG
 	} else if (xstrcmp(data, "qloglength") == 0) {	/* qloglength */
 		assign_int(&cfg.qloglength, val, 0);
@@ -324,18 +329,18 @@ parse_param(char *data)
 		/* Double-terminate just to be sure. */
 		assign_option(&cfg.timestamp, val,
 				"none\0beginning\0end\0\0");
-#endif /* QLOGSTAMP */
+#endif /* ifdef QLOGSTAMP */
 	} else if (xstrcmp(data, "flushqlog") == 0) {	/* flushqlog */
 		assign_boolean(&cfg.flushqlog, val);
-#endif /* QUICKLOG */
-#ifdef LOGGING
+#endif /* ifdef QUICKLOG */
+#ifdef NEED_LOGGING
 	} else if (xstrcmp(data, "logpostfix") == 0) {	/* logpostfix */
 		assign_param(&cfg.logpostfix, val);
-#endif /* LOGGING */
+#endif /* ifdef NEED_LOGGING */
 #ifdef INBOX
 	} else if (xstrcmp(data, "inbox") == 0) {	/* inbox */
 		assign_boolean(&cfg.inbox, val);
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 	} else if (xstrcmp(data, "listenport") == 0) {	/* listenport */
 		assign_int(&cfg.listenport, val, 0);
 	} else if (xstrcmp(data, "listenhost") == 0) {	/* listenhost */
@@ -387,7 +392,7 @@ parse_param(char *data)
 #ifdef AUTOMODE
 	} else if (xstrcmp(data, "automodedelay") == 0) { /* automodedelay */
 		assign_int(&cfg.automodedelay, val, 0);
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 	} else if (xstrcmp(data, "antiidle") == 0) {	/* antiide */
 		assign_int(&cfg.antiidle, val, 0);
 	} else if (xstrcmp(data, "nevergiveup") == 0) {	/* nevergiveup */
@@ -412,13 +417,13 @@ parse_param(char *data)
 		/* Double-terminate just to be sure. */
 		assign_option(&cfg.privlog, val,
 				"never\0detached\0attached\0always\0\0");
-#endif /* PRIVLOG */
+#endif /* ifdef PRIVLOG */
 #ifdef DCCBOUNCE
 	} else if (xstrcmp(data, "dccbounce") == 0) {	/* dccbounce */
 		assign_boolean(&cfg.dccbounce, val);
 	} else if (xstrcmp(data, "dccbindhost") == 0) {
 		assign_param(&cfg.dccbindhost, val);
-#endif /* DCCBOUNCE */
+#endif /* ifdef DCCBOUNCE */
 	} else if (xstrcmp(data, "nickfillchar") == 0) { /* nickfillchar */
 		cfg.nickfillchar = val[0];
 	} else if (xstrcmp(data, "usermode") == 0) {	/* usermode */
@@ -458,7 +463,7 @@ parse_list_line(char *data)
 	char		*par;
 #ifdef CHANLOG
 	int		logtype;
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 
 	/* Starting a new list, eh ? */
 	if (strchr(data, '=') != NULL && strchr(data, '{') != NULL) {
@@ -588,7 +593,7 @@ parse_list_line(char *data)
 			permlist = &automodelist;
 			ok = 1;
 			break;
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 			
 #ifdef CHANLOG
 		case CFG_CHANLOG:
@@ -652,7 +657,7 @@ parse_list_line(char *data)
 			chanlog_add_rule(param[0], param[2], logtype);
 			ok = 1;
 			break;
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 
 		case CFG_CHANNELS:
 			if (paramcount > 2) {
@@ -703,7 +708,7 @@ parse_list_line(char *data)
 				ok = 1;
 			}
 			break;
-#endif /* ONCONNECT */
+#endif /* ifdef ONCONNECT */
 
 		case CFG_INVALID:
 			ok = 1;

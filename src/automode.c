@@ -15,15 +15,41 @@
 
 
 
-#include "miau.h"
-#include "automode.h"
-#include "channels.h"
-#include "llist.h"
-#include "irc.h"
-#include "perm.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
 #ifdef AUTOMODE
+
+#include "automode.h"
+#include "common.h"
+#include "llist.h"
+#include "perm.h"
+#include "irc.h"
+#include "miau.h"
+/* vsnprintf */
+#include "tools.h"
+
+#include <string.h>
+
+#if HAVE_STRINGS_H
+#include <strings.h>
+#endif
+
+
+
 permlist_type	automodelist;
+
+
+
+static inline void
+automode_drop(automode_type *line, llist_node *node, llist_list *list)
+{
+	xfree(line->nick);
+	xfree(node->data);
+	llist_delete(node, list);
+} /* static inline void automode_drop(automode_type *line, llist_node *node,
+		llist_list *list) */
 
 
 
@@ -35,10 +61,11 @@ automode_do(void)
 {
 	channel_type	*channel;	/* Channel the modes are for. */
 	char		modes[4];	/* Buffer for three modes */
-	char		*nicks = malloc(1);	/* Buffer for nicks */
+	char		*nicks;		/* Buffer for nicks. */
 	int		modecount;
 
 	bzero(modes, 4);		/* Clear modes. */
+	nicks = xmalloc(1);
 
 	LLIST_WALK_H(active_channels.head, channel_type *);
 		channel = data;
@@ -133,7 +160,7 @@ void
 automode_clear(llist_list *queue)
 {
 	LLIST_WALK_H(queue->head, automode_type *);
-		AUTOMODE_DROP(data, node, queue);
+		automode_drop(data, node, queue);
 		status.automodes--;
 	LLIST_WALK_F;
 } /* void automode_clear(llist_list *queue) */
@@ -164,8 +191,8 @@ automode_drop_channel(channel_type *channel, const char *nick, const char mode)
 		nick_ok = (nick == NULL) || (nick != NULL
 				&& xstrcasecmp(nick, data->nick) == 0);
 		mode_ok = (mode == '\0') || (mode == data->mode);
-		if (nick_ok && mode_ok) {
-			AUTOMODE_DROP(data, node, &channel->mode_queue);
+		if (nick_ok == 1 && mode_ok == 1) {
+			automode_drop(data, node, &channel->mode_queue);
 		}
 	LLIST_WALK_F;
 } /* void automode_drop_channel(channel_type *, const char *, const char) */
@@ -196,4 +223,4 @@ automode_lookup(const char *nick, channel_type *channel, const char mode)
 
 
 
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */

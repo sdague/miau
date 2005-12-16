@@ -16,7 +16,9 @@
 #ifndef PRIVLOG_H_
 #define PRIVLOG_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
 #include "llist.h"
 
@@ -65,10 +67,10 @@ void privlog_close_all(void);
 int privlog_has_open(void);
 #ifdef DUMPSTATUS
 llist_list *privlog_get_list(void);
-#endif /* DUMPSTATUS */
+#endif /* ifdef DUMPSTATUS */
 
 
 
-#endif /* PRIVLOG */
+#endif /* ifdef PRIVLOG */
 
 #endif /* ifndef PRIVLOG_H_ */

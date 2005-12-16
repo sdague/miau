@@ -18,11 +18,11 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
-
-
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "llist.h"
+#endif /* ifdef HAVE_CONFIG_H */
 
+#include "llist.h"
 #include "conntype.h"
 
 

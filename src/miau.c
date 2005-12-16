@@ -17,37 +17,47 @@
 
 /* #define DEBUG */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "miau.h"
-#include "error.h"
-#include "irc.h"
-#include "tools.h"
-#include "table.h"
-#include "messages.h"
-#include "ignore.h"
-#include "channels.h"
-#include "perm.h"
-#include "ascii.h"
-#include "commands.h"
-#include "parser.h"
-#include "chanlog.h"
-#include "server.h"
-#include "client.h"
-#include "dcc.h"
-#include "qlog.h"
-#include "automode.h"
-#include "onconnect.h"
-#include "privlog.h"
-#include "remote.h"
-#include "matchlist.h"
+#endif /* ifdef HAVE_CONFIG_H */
 
-#include <stdlib.h>
+#include "miau.h"
+#include "conntype.h"
+#include "perm.h"
+#include "qlog.h"
+#include "irc.h"
+#include "commands.h"
+#include "error.h"
+#include "messages.h"
+#include "parser.h"
+#include "tools.h"
+#include "ascii.h"
+#include "onconnect.h"
+#include "chanlog.h"
+#include "privlog.h"
+#include "automode.h"
+#include "ignore.h"
+#include "common.h"
+#include "dcc.h"
+
+#include <errno.h>
+#include <signal.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#if HAVE_CRYPT_H
+#include <crypt.h>
+#endif /* ifdef HAVE_CRYPT_H */
 
 
 
 #ifdef INBOX
 FILE	*inbox = NULL;
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 
 
 static int read_newclient(void);
@@ -55,12 +65,12 @@ static int check_config(void);
 
 static void fakeconnect(connection_type *newclient);
 static void sig_term(int a);
+static void connect_timeout(int a);
 static void create_listen(void);
 static void rehash(int a);
 static void run(void);
 static void pre_init(void);
 static void init(void);
-static void connect_timeout(int a);
 
 static void read_cfg(void);
 static void check_timers(void);
@@ -75,7 +85,7 @@ static void setup_home(char *s);
 
 #ifdef DUMPSTATUS
 void dump_status(int a);
-#endif /* DUMPSTATUS */
+#endif /* ifdef DUMPSTATUS */
 
 
 status_type 		status;
@@ -85,18 +95,18 @@ cfg_type cfg = {
 	30,	/* qloglength: 30 minutes */
 #ifdef QLOGSTAMP
 	0,	/* timestamp: no timestamp */
-#endif /* QLOGSTAMP */
+#endif /* ifdef QLOGSTAMP */
 	1,	/* flushqlog: flush */
-#endif /* QUICKLOG */
+#endif /* ifdef QUICKLOG */
 #ifdef DCCBOUNCE
 	0,	/* dccbounce: no */
-#endif /* DCCBOUNCE */
+#endif /* ifdef DCCBOUNCE */
 #ifdef AUTOMODE
 	30,	/* automodedelay: 30 seconds */
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 #ifdef INBOX
 	1,
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 	0,	/* listenport: 0 */
 	2,	/* floodtimer */
 	5,	/* burstsize */
@@ -118,19 +128,19 @@ cfg_type cfg = {
 	1,	/* autoaway: detach */
 #ifdef PRIVLOG
 	0,	/* privlog: no privlog */
-#endif /* PRIVLOG */
+#endif /* ifdef PRIVLOG */
 
 	DEFAULT_NICKFILL,	/* nickfillchar */
 	
-#ifdef LOGGING
+#ifdef NEED_LOGGING
 	NULL,			/* logpostfix */
-#endif /* LOGGING */
+#endif /* ifdef NEED_LOGGING */
 #ifdef DCCBOUNCE
 	NULL,			/* dccbindhost */
-#endif /* DCCBOUNCE */
-#ifdef _NEED_CMDPASSWD
+#endif /* ifdef DCCBOUNCE */
+#ifdef NEED_CMDPASSWD
 	NULL,			/* cmdpasswd */
-#endif /* _NEED_CMDPASSWD */
+#endif /* ifdef NEED_CMDPASSWD */
 	NULL, NULL, NULL,	/* username / realname / password */
 	NULL, NULL, NULL,	/* leavemsg / bind / listenhost */
 	NULL, NULL, NULL,	/* awaymsg / forwardmsg / channels */
@@ -144,7 +154,7 @@ timer_type		timers;
 #ifdef AUTOMODE
 extern permlist_type	automodelist;
 extern llist_list	*tobeautomode;
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 
 extern llist_list	active_channels;
 extern llist_list	passive_channels;
@@ -165,7 +175,7 @@ int		error_code;		/* Used for EXIT-macro. Ugly. */
 #ifdef PINGSTAT
 int	ping_sent = 0;
 int	ping_got = 0;
-#endif
+#endif /* ifdef PINGSTAT */
 
 
 
@@ -183,10 +193,10 @@ free_resources(void)
 	empty_perm(&connhostlist);
 #ifdef AUTOMODE
 	empty_perm(&automodelist);
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 #ifdef ONCONNECT
 	LLIST_EMPTY(onconnect_actions.head, &onconnect_actions);
-#endif /* ONCONNECT */
+#endif /* ifdef ONCONNECT */
 	
 	FREE(cfg.username);
 	FREE(cfg.realname);
@@ -201,15 +211,15 @@ free_resources(void)
 	FREE(cfg.channels);
 #ifdef DCCBOUNCE
 	FREE(cfg.dccbindhost);
-#endif /* DCCBOUNCE */
+#endif /* ifdef DCCBOUNCE */
 #ifdef CHANLOG
 	chanlog_del_rules();
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 
 #ifdef QUICKLOG
 	/* Replay quicklog - no output and don't keep the logs. */
 	qlog_replay(NULL, 0);
-#endif /* QUICKLOG */
+#endif /* ifdef QUICKLOG */
 	FREE(status.awaymsg);
 } /* static void free_resources(void) */
 
@@ -228,7 +238,7 @@ escape(void)
 
 #ifdef PRIVLOG
 	privlog_close_all();
-#endif /* PRIVLOG */
+#endif /* ifdef PRIVLOG */
 
 	/* Close connections and free client list. */
 	rawsock_close(listensocket);
@@ -245,14 +255,14 @@ escape(void)
 	/* Close log-file and remove PID-file. */
 #ifdef INBOX
 	if (inbox != NULL) { fclose(inbox); }
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 	unlink(FILE_PID);
 
 	/* Free permission lists. */
 	empty_perm(&connhostlist);
 #ifdef AUTOMODE
 	empty_perm(&automodelist);
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 
 	/* Free server-info. */
 	xfree(i_server.realname);
@@ -265,12 +275,12 @@ escape(void)
 
 	/* Free configuration parameters. */
 	xfree(cfg.home);
-#ifdef LOGGING
+#ifdef NEED_LOGGING
 	xfree(cfg.logpostfix);
-#endif /* LOGGING */
-#ifdef _NEED_CMDPASSWD
+#endif /* ifdef NEED_LOGGING */
+#ifdef NEED_CMDPASSWD
 	xfree(cfg.cmdpasswd);
-#endif /* _NEED_CMDPASSWD */
+#endif /* ifdef NEED_CMDPASSWD */
 
 	/* Free linked lists. */
 	LLIST_WALK_H(servers.servers.head, server_type *);
@@ -329,14 +339,14 @@ read_cfg(void)
 	LLIST_WALK_F;
 	servers.amount = 1;
 
-#ifdef LOGGING
+#ifdef NEED_LOGGING
 	/*
 	 * cfg.logpostfix _must_ be non-null as it's assumed so everywhere.
 	 * By assuming it's non-NULL, we don't need to do
 	 * 'cfg.logpostfix != NULL ? cfg.logpostfix : ""' every time.
 	 */
 	cfg.logpostfix = xstrdup("");	/* No global logfile-postfix. */
-#endif /* LOGGING */
+#endif /* ifdef NEED_LOGGING */
 	
 	/* Read configuration file. */
 	ret = parse_cfg(MIAURC);
@@ -357,7 +367,6 @@ sig_term(int a)
 	error(MIAU_SIGTERM);
 	exit(EXIT_SUCCESS);
 } /* static void sig_term(int a) */
-
 
 
 #ifdef DUMPSTATUS
@@ -435,7 +444,7 @@ dump_status(int a)
 #ifdef QUICKLOG
 	/* First check qlog. */
 	qlog_check();
-#endif /* QUICKLOG */
+#endif /* ifdef QUICKLOG */
 	dump_string("-- miau status --");
 	dump_string("config:");
 	dump_add("    nicknames = {");
@@ -454,19 +463,19 @@ dump_status(int a)
 	dump_status_int("qloglength", cfg.qloglength);
 #ifdef QLOGSTAMP
 	dump_status_int("timestamp", cfg.timestamp);
-#endif /* QLOGSTAMP */
+#endif /* ifdef QLOGSTAMP */
 	dump_status_int("flushqlog", cfg.flushqlog);
-#endif /* QUICKLOG */
+#endif /* ifdef QUICKLOG */
 #ifdef DCCBOUNCE
 	dump_status_int("dccbounce", cfg.dccbounce);
 	dump_status_char("dccbindhost", cfg.dccbindhost);
-#endif /* DCCBOUNCE */
+#endif /* ifdef DCCBOUNCE */
 #ifdef AUTOMODE
 	dump_status_int("automodedelay", cfg.automodedelay);
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 #ifdef INBOX
 	dump_status_int("inbox", cfg.inbox);
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 	dump_status_int("getnick", cfg.getnick);
 	dump_status_int("getnickinterval", cfg.getnickinterval);
 	dump_status_int("antiidle", cfg.antiidle);
@@ -480,9 +489,9 @@ dump_status(int a)
 	dump_status_int("chandiscon", cfg.chandiscon);
 	dump_status_int("maxnicklen", cfg.maxnicklen);
 	dump_status_int("autoaway", cfg.autoaway);
-#ifdef LOGGING
+#ifdef NEED_LOGGING
 	dump_status_char("logpostfix", cfg.logpostfix);
-#endif /* LOGGING */
+#endif /* ifdef NEED_LOGGING */
 	dump_dump();
 
 	dump_string("connhosts:");
@@ -519,7 +528,7 @@ dump_status(int a)
 	dump_status_int("goodhostname", status.goodhostname);
 #ifdef UPTIME
 	dump_status_int("startup", status.startup);
-#endif
+#endif /* ifdef UPTIME */
 	dump_status_int("c_clients.connected", c_clients.connected);
 	dump_dump();
 
@@ -533,7 +542,7 @@ dump_status(int a)
 		dump_status_char("key", data->key);
 #ifdef QUICKLOG
 		dump_status_int("hasqlog", data->hasqlog);
-#endif /* QUICKLOG */
+#endif /* ifdef QUICKLOG */
 #ifdef AUTOMODE
 		dump_status_int("oper", data->oper);
 		if (data->mode_queue.head == 0) {
@@ -553,7 +562,7 @@ dump_status(int a)
 			}
 			dump_string("      }");
 		}
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 		dump_add("    }"); dump_dump();
 	LLIST_WALK_F;
 	dump_dump();
@@ -569,10 +578,10 @@ dump_status(int a)
 		dump_status_int("jointries", data->jointries);
 #ifdef AUTOMODE
 		dump_status_int("oper", data->oper);
-#endif /* AUTOMODE */
+#endif /* idef AUTOMODE */
 #ifdef QUICKLOG
 		dump_status_int("hasqlog", data->hasqlog);
-#endif /* QUICKLOG */
+#endif /* idef QUICKLOG */
 		dump_add("    }"); dump_dump();
 	LLIST_WALK_F;
 	dump_dump();
@@ -588,10 +597,10 @@ dump_status(int a)
 		dump_status_int("jointries", data->jointries);
 #ifdef AUTOMODE
 		dump_status_int("oper", data->oper);
-#endif /* AUTOMODE */
+#endif /* idef AUTOMODE */
 #ifdef QUICKLOG
 		dump_status_int("hasqlog", data->hasqlog);
-#endif /* QUICKLOG */
+#endif /* idef QUICKLOG */
 		dump_add("    }"); dump_dump();
 	LLIST_WALK_F;
 	dump_dump();
@@ -604,7 +613,7 @@ dump_status(int a)
 		dump_status_int("time", data->updated);
 		dump_add("  }"); dump_dump();
 	LLIST_WALK_F;
-#endif /* PRIVLOG */
+#endif /* idef PRIVLOG */
 
 #ifdef AUTOMODE
 	dump_string("automodes:");
@@ -615,12 +624,12 @@ dump_status(int a)
 		dump_add("  }"); dump_dump();
 	LLIST_WALK_F;
 	dump_dump();
-#endif /* AUTOMODE */
+#endif /* idef AUTOMODE */
 
 	dump_finish();
 	xfree(dumpdata);
 } /* void dump_status(int a) */
-#endif /* DUMPSTATUS */
+#endif /* idef DUMPSTATUS */
 
 
 
@@ -780,7 +789,7 @@ rehash(int a)
 		chanlog_close(data);
 	LLIST_WALK_F;
 	global_logtype = 0;	/* No logging by default. */
-#endif /* CHANLOG */
+#endif /* idef CHANLOG */
 	
 	/* Re-read miaurc and check results. */
 	read_cfg();
@@ -806,7 +815,7 @@ rehash(int a)
 	LLIST_WALK_H(active_channels.head, channel_type *);
 		chanlog_open(data);
 	LLIST_WALK_F;
-#endif /* CHANLOG */
+#endif /* idef CHANLOG */
 
 #ifdef QUICKLOG
 	/*
@@ -817,7 +826,7 @@ rehash(int a)
 			cfg.qloglength == 0) {
 		qlog_replay(NULL, 0);
 	}
-#endif /* QUICKLOG */
+#endif /* idef QUICKLOG */
 
 	/* By default, we don't know anything about server. */
 	servers.fresh = 1;
@@ -875,7 +884,7 @@ rehash(int a)
 			report(MIAU_ERRINBOXFILE);
 		}
 	}
-#endif /* INBOX */
+#endif /* idef INBOX */
 
 	/* Reopen log-file. */
 	/*
@@ -962,7 +971,7 @@ clients_left(const char *reason)
 					 */
 #ifdef AUTOMODE
 					data->oper = -1;
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 					llist_add_tail(llist_create(data),
 							&passive_channels);
 				} else {
@@ -985,7 +994,7 @@ clients_left(const char *reason)
 					get_short_localtime(), "dis");
 		}
 		else
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 		
 		/* We want to send an ACTION on each channel. */
 		if (! cfg.leave && cfg.leavemsg != NULL) {
@@ -1076,9 +1085,9 @@ check_timers(void)
 		timers.connect++;
 	}
 
-#ifdef _NEED_PROCESS_IGNORES
-	process_ignores();
-#endif /* _NEED_PROCESS_IGNORES */
+#ifdef NEED_PROCESS_IGNORES
+	ignores_process();
+#endif /* ifdef NEED_PROCESS_IGNORES */
 
 	client = c_clients.clients->head;
 	while (client != NULL) {
@@ -1160,8 +1169,8 @@ check_timers(void)
 							c_server.timer,
 							timeout);
 				}
-#endif /* ENDUSERDEBUG */
-#endif /* PINGSTAT */
+#endif /* ifdef ENDUSERDEBUG */
+#endif /* ifdef PINGSTAT */
 				break;
 			case 2:
 				server_drop(SERV_STONED);
@@ -1297,7 +1306,7 @@ check_timers(void)
 		/* automode() checks if we have operator-status. */
 		automode_do();
 	}
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 
 #ifdef PRIVLOG
 	/* Close logfiles that haven't been used for a while. */
@@ -1305,14 +1314,14 @@ check_timers(void)
 				0, PRIVLOG_CHECK_PERIOD)) {
 		privlog_close_old();
 	}
-#endif /* PRIVLOG */
+#endif /* ifdef PRIVLOG */
 
 #ifdef DCCBOUNCE
 	/* Bounce DCCs. */
 	if (cfg.dccbounce) {
 		dcc_timer();
 	}
-#endif /* DCCBOUNCE */
+#endif /* ifdef DCCBOUNCE */
 } /* static void check_timers(void) */
 
 
@@ -1408,7 +1417,7 @@ fakeconnect(connection_type *newclient)
 	int		i;
 #ifdef ASCIIART
 	int		pic;
-#endif /* ASCIIART */
+#endif /* ifdef ASCIIART */
 
 	if (status.nickname == NULL) {
 		/* Get us a nick if we don't have one already. */
@@ -1471,7 +1480,7 @@ fakeconnect(connection_type *newclient)
 				status.nickname,
 				pics[pic][i]);
 	}
-#endif /* ASCIIART */
+#endif /* ifdef ASCIIART */
 
 	if (i_server.connected == 2) {
 		irc_write(newclient, ":%s 372 %s :"MIAU_372_RUNNING,
@@ -1488,7 +1497,7 @@ fakeconnect(connection_type *newclient)
 #ifdef QUICKLOG
 	/* Move old qlog-lines to privmsglog. */
 	qlog_drop_old();
-#endif /* QUICKLOG */
+#endif /* ifdef QUICKLOG */
 	if (inbox != NULL && ftell(inbox) != 0) {
 		irc_write(newclient, ":%s 372 %s :- "CLNT_HAVEMSGS,
 				i_server.realname,
@@ -1498,7 +1507,7 @@ fakeconnect(connection_type *newclient)
 				i_server.realname,
 				status.nickname);
 	}
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 
 	irc_write(newclient, ":%s 376 %s :"MIAU_END_OF_MOTD,
 			i_server.realname,
@@ -1646,104 +1655,104 @@ read_newclient(void)
 	llist_node	*node;
 	char		*command;
 	char		*param;
-	int		c_status;
+	int t;
 
-	c_status = irc_read(&c_newclient);
+	t = irc_read(&c_newclient);
 	
-	if (c_status > 0) {
-		c_status = 0;
-		c_newclient.buffer[30] = 0;
-		command = strtok(c_newclient.buffer, " ");
-		param = strtok(NULL, "\0");
-		
-		if (command != NULL && param != NULL) {
-			upcase(command);
-			if ((xstrcmp(command, "PASS") == 0) &&
-					! (status.init & 1)) {
-				/* Only accept password once */
-				if (*param == ':') {
-					param++;
-				}
-				if (strlen(cfg.password) == 13) {
-					/* Assume it's crypted */
-					if (xstrcmp(crypt(param, cfg.password),
-								cfg.password)
-							== 0) {
-						status.passok = 1;
-					}
-				}
-				
-				else {
-					if (xstrcmp(param, cfg.password) == 0) {
-						status.passok = 1;
-					}
-				}
+	if (t <= 0) {
+		return t;
+	}
+	
+	c_newclient.buffer[30] = 0;
+	command = strtok(c_newclient.buffer, " ");
+	param = strtok(NULL, "\0");
 
-				status.init = status.init | 1;
+	if (command == NULL || param == NULL) {
+		return 0;
+	}
+
+	upcase(command);
+	if ((xstrcmp(command, "PASS") == 0) && !(status.init & 1)) {
+		/* Only accept password once */
+		if (*param == ':') {
+			param++;
+		}
+		if (strlen(cfg.password) == 13) {
+			/* Assume it's crypted */
+			char *crypted;
+			crypted = crypt(param, cfg.password);
+			if (xstrcmp(crypted, cfg.password) == 0) {
+				status.passok = 1;
 			}
-			
-			if (xstrcmp(command, "NICK") == 0) {
-				status.init = status.init | 2;
-				xfree(i_newclient.nickname);
-				i_newclient.nickname = xstrdup(
-						strtok(param, " "));
-			}
-			
-			if (xstrcmp(command, "USER") == 0) {
-				status.init = status.init | 4;
-				xfree(i_newclient.username);
-				i_newclient.username = xstrdup(
-						strtok(param, " "));
-			}
-			
-			if (status.init == 7 && status.passok) {
-				connection_type	*newclient;
-				
-				/* Client is in! */
-				report(CLNT_AUTHOK);
-
-				xfree(i_client.nickname);
-				xfree(i_client.username);
-				xfree(i_client.hostname);
-				
-				i_client.nickname = i_newclient.nickname;
-				i_client.username = i_newclient.username;
-				i_client.hostname = i_newclient.hostname;
-				
-				i_newclient.nickname = NULL;
-				i_newclient.username = NULL;
-				i_newclient.hostname = NULL;
-
-				newclient = (connection_type *)
-					xmalloc(sizeof(connection_type));
-				node = llist_create(newclient);
-				llist_add(node, c_clients.clients);
-				c_clients.connected++;
-		
-				newclient->socket = c_newclient.socket;
-				newclient->timer = 0;
-				newclient->offset = 0;
-
-				i_newclient.connected = 0;
-				c_newclient.socket = 0;
-				status.passok = 0;
-				status.init = 0;
-
-				fakeconnect(newclient);
-				
-				/* 
-				 * Reporting number of connected clients
-				 * is irrevelant if only one is allowed at
-				 * a time.
-				 */
-				if (cfg.maxclients != 1) {
-					report(CLNT_CLIENTS,
-							c_clients.connected);
-				}
+		} else {
+			if (xstrcmp(param, cfg.password) == 0) {
+				status.passok = 1;
 			}
 		}
+
+		status.init = status.init | 1;
 	}
-	return c_status;
+
+	if (xstrcmp(command, "NICK") == 0) {
+		status.init = status.init | 2;
+		xfree(i_newclient.nickname);
+		i_newclient.nickname = xstrdup(
+				strtok(param, " "));
+	}
+
+	if (xstrcmp(command, "USER") == 0) {
+		status.init = status.init | 4;
+		xfree(i_newclient.username);
+		i_newclient.username = xstrdup(
+				strtok(param, " "));
+	}
+
+	if (status.init == 7 && status.passok == 1) {
+		connection_type	*newclient;
+
+		/* Client is in! */
+		report(CLNT_AUTHOK);
+
+		xfree(i_client.nickname);
+		xfree(i_client.username);
+		xfree(i_client.hostname);
+
+		i_client.nickname = i_newclient.nickname;
+		i_client.username = i_newclient.username;
+		i_client.hostname = i_newclient.hostname;
+
+		i_newclient.nickname = NULL;
+		i_newclient.username = NULL;
+		i_newclient.hostname = NULL;
+
+		newclient = (connection_type *)
+			xmalloc(sizeof(connection_type));
+		node = llist_create(newclient);
+		llist_add(node, c_clients.clients);
+		c_clients.connected++;
+
+		newclient->socket = c_newclient.socket;
+		newclient->timer = 0;
+		newclient->offset = 0;
+
+		i_newclient.connected = 0;
+		c_newclient.socket = 0;
+		status.passok = 0;
+		status.init = 0;
+
+		fakeconnect(newclient);
+
+		/* 
+		 * Reporting number of connected clients
+		 * is irrevelant if only one is allowed at
+		 * a time.
+		 */
+		if (cfg.maxclients != 1) {
+			report(CLNT_CLIENTS, c_clients.connected);
+		}
+	}
+
+	return 0;
 } /* static int read_newclient(void) */
 
 
@@ -1811,7 +1820,7 @@ miau_commands(char *command, char *param, connection_type *client)
 
 		irc_notice(client, status.nickname, CLNT_KILLEDMSGS);
 	}
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 
 	else if (xstrcmp(command, "RESET") == 0) {
 		corr++;
@@ -1831,7 +1840,7 @@ miau_commands(char *command, char *param, connection_type *client)
 		}
 		corr++;
 	}
-#endif
+#endif /* ifdef PINGSTAT */
 
 	
 #ifdef FAKECMD
@@ -1865,7 +1874,7 @@ miau_commands(char *command, char *param, connection_type *client)
 		}
 		xfree(tbackup);
 	}
-#endif /* FAKECMD */
+#endif /* ifdef FAKECMD */
 
 
 #ifdef UPTIME
@@ -1881,14 +1890,14 @@ miau_commands(char *command, char *param, connection_type *client)
 		irc_notice(client, status.nickname, MIAU_UPTIME,
 				days, hours, minutes, seconds);
 	}
-#endif /* UPTIME */
+#endif /* ifdef UPTIME */
 	
 #ifdef DUMPSTATUS
 	else if (xstrcmp(command, "DUMP") == 0) {
 		corr++;
 		dump_status(0);
 	}
-#endif /* DUMPSTATUS */
+#endif /* ifdef DUMPSTATUS */
 
 	else if (xstrcmp(command, "JUMP") == 0) {
 		status.good_server = 0;	/* Don't try this server again. :-) */
@@ -2141,7 +2150,7 @@ run(void)
 		if (cfg.dccbounce) {
 			dcc_socketsubscribe(&rfds, &wfds);
 		}
-#endif /* DCCBOUNCE */
+#endif /* ifdef DCCBOUNCE */
 	
 		tv.tv_usec = 0;
 		tv.tv_sec = 1;
@@ -2231,7 +2240,7 @@ run(void)
 			if (cfg.dccbounce) {
 				dcc_socketcheck(&rfds, &wfds);
 			}
-#endif
+#endif /* ifdef DCCBOUNCE */
 		}
 		
 		check_timers();
@@ -2291,7 +2300,7 @@ init(void)
 #ifdef DUMPSTATUS
 	sv.sa_handler = dump_status;
 	sigaction(SIGUSR2, &sv, NULL);
-#endif /* DUMPSTATUS */
+#endif /* ifdef DUMPSTATUS */
 
 	sv.sa_handler = SIG_IGN;
 	sigaction(SIGUSR1, &sv, NULL);
@@ -2310,7 +2319,7 @@ init(void)
 	status.allowconnect = 1;	/* We're listening for clients. */
 #ifdef UPTIME
 	status.startup = 0;		/* Uptime set to zero. */
-#endif /* UPTIME */
+#endif /* ifdef UPTIME */
 
 	/* We try the first nick when connecting anyway. */
 	nicknames.next = NICK_NEXT;
@@ -2323,7 +2332,7 @@ init(void)
 
 #ifdef AUTOMODE
 	status.automodes = 0;
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 
 	srand(time(NULL));
 
@@ -2334,7 +2343,7 @@ init(void)
 	if (inbox == NULL) {
 		report(MIAU_ERRINBOXFILE);
 	}
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 } /* static void init(void) */
 
 
@@ -2496,7 +2505,7 @@ main(int argc, char **argv)
 
 				return EXIT_SUCCESS;
 				break;
-#endif /* MKPASSWD */
+#endif /* ifdef MKPASSWD */
 			case 'd':
 				miaudir = optarg;
 				break;
@@ -2551,9 +2560,9 @@ main(int argc, char **argv)
 			}
 #ifndef SETVBUF_REVERSED
 			setvbuf(stdout, NULL, _IONBF, 0);
-#else
+#else /* ifndef SETVBUF_REVERSED */
 			setvbuf(stdout, _IONBF, NULL, 0);
-#endif
+#endif /* ifndef else SETVBUF_REVERSED */
 			printf("\n");
 			report(MIAU_NEWSESSION);
 			report(MIAU_STARTINGLOG);

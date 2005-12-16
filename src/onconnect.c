@@ -13,12 +13,22 @@
  * GNU General Public License for more details.
  */
 
-#include "onconnect.h"
-
-#include "irc.h"
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
 #ifdef ONCONNECT
+
+#include "onconnect.h"
+
+#include "common.h"
+#include "list.h"
+#include "irc.h"
+
+#include <stdio.h>
+#include <string.h>
+
+
 
 
 llist_list	onconnect_actions;
@@ -69,4 +79,4 @@ onconnect_do(void)
 } /* void onconnect_commit(void) */
 
 
-#endif /* ONCONNECT */
+#endif /* ifdef ONCONNECT */

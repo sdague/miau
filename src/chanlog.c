@@ -14,21 +14,30 @@
  * GNU General Public License for more details.
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "chanlog.h"
-
-#include "miau.h"
-#include "messages.h"
-#include "tools.h"
-
-
+#endif /* ifdef HAVE_CONFIG_H */
 
 #ifdef CHANLOG
 
+#include "chanlog.h"
+#include "llist.h"
+#include "common.h"
+#include "channels.h"
+#include "client.h"
+#include "miau.h"
+#include "tools.h"
+#include "messages.h"
+#include "etc.h"
+
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
+
+
+
 int		global_logtype;
 llist_list	chanlog_list;
-
-extern clientlist_type	c_clients;	/* Needed. No, really. */
 
 
 
@@ -293,7 +302,7 @@ chanlog_write_entry_all(int type, char *format, ...)
 
 
 
-inline int
+int
 chanlog_has_log(const channel_type *chan, int type)
 {
 	if (chan == NULL || chan->log == NULL) {
@@ -301,8 +310,8 @@ chanlog_has_log(const channel_type *chan, int type)
 	} else {
 		return (chan->log->type & type) == type;
 	}
-} /* inline int chanlog_has_log(const channel_type *chan, int type) */
+} /* int chanlog_has_log(const channel_type *chan, int type) */
 
 
 
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */

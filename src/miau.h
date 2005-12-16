@@ -18,8 +18,17 @@
 #ifndef MIAU_H_
 #define MIAU_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
+#include "etc.h"
+
+#include "server.h"
+#include "client.h"
+#include "llist.h"
+
+#include <time.h>
 
 
 #define MIAURC		"miaurc"
@@ -29,7 +38,7 @@
 #define FILE_LOG	"log"
 #define FILE_INBOX	"inbox"
 
-#define MIAU_URL	"http://miau.sourceforge.net/"
+#define MIAU_URL	"http://miau.sf.net/"
 #ifndef VERSION
 #define VERSION		"???"
 #endif
@@ -44,99 +53,6 @@
 #define GOOD_SERVER_DELAY	60
 
 #define CONN_DISABLED	999
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-
-#if HAVE_ERRNO_H
-#include <errno.h>
-#endif
-#if HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-#ifdef HAVE_SELECT_H
-#include <sys/select.h>
-#endif
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#if HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#if HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#if HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#if HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#if HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#if HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#if HAVE_SIGNAL_H
-#include <signal.h>
-#endif
-#if HAVE_CTYPE_H
-#include <ctype.h>
-#endif
-#if HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#if HAVE_CRYPT_H
-#include <crypt.h>
-#endif
-#if HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
-
-#if TIME_WITH_SYS_TIME
-#include <sys/time.h>
-#include <time.h>
-#else
-
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
-#else
-#include <time.h>
-#endif
-#endif
-
-#if !HAVE_RANDOM
-#define random()	(rand()/16)
-#endif
-
-#if !HAVE_SIGACTION     /* old "weird signals" */
-#define sigaction	sigvec
-#ifndef sa_handler
-#define sa_handler	sv_handler
-#define sa_mask		sv_mask
-#define sa_flags	sv_flags
-#endif
-#endif
-
-
-
-#ifdef CHANLOG
-#define LOGGING
-#endif /* CHANLOG */
-#ifdef PRIVLOG
-#define LOGGING
-#endif /* PRIVLOG */
-
-
-
-#include "common.h"
-#include "llist.h"
-#include "server.h"
-#include "client.h"
-
 
 
 typedef struct {
@@ -155,10 +71,10 @@ typedef struct {
 	int	good_server;	/* This server is recognized as "good". */
 #ifdef UPTIME
 	time_t	startup;
-#endif /* UPTIME */
+#endif /* ifdef UPTIME */
 #ifdef AUTOMODE
 	int	automodes;
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 	char	*idhostname;	/* ident@host where miau runs from */
 	int	goodhostname;	/* -1 if we haven't got hostname containing @ */
 } status_type;
@@ -188,18 +104,18 @@ typedef struct {
 	int	qloglength;
 #ifdef QLOGSTAMP
 	int	timestamp;	/* Timestamp type in quicklog. */
-#endif /* QLOGSTAMP */
+#endif /* ifdef QLOGSTAMP */
 	int	flushqlog;	/* Flush quicklog on fakeconnect() ? */
-#endif /* QUICKLOG */
+#endif /* ifdef QUICKLOG */
 #ifdef DCCBOUNCE
 	int	dccbounce;	/* DCC-bounce */
-#endif /* DCCBOUNCE */
+#endif /* ifdef DCCBOUNCE */
 #ifdef AUTOMODE
 	int	automodedelay;
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 #ifdef INBOX
 	int	inbox;
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 	int	listenport;
 	int	floodtimer;	/* Sending one message takes n seconds. */
 	int	burstsize;	/* We may send up to n messages in a burst. */
@@ -221,19 +137,19 @@ typedef struct {
 	int	autoaway;	/* Autoaway never/detach/noclients */
 #ifdef PRIVLOG
 	int	privlog;	/* Write log of _private_ messages. */
-#endif /* PRIVLOG */
+#endif /* ifdef PRIVLOG */
 
 	char	nickfillchar;	/* Character to fill nick with. */
 
-#ifdef LOGGING
+#ifdef NEED_LOGGING
 	char	*logpostfix;	/* Postfix for global logfiles. */
-#endif /* LOGGING */
+#endif /* ifdef NEED_LOGGING */
 #ifdef DCCBOUNCE
 	char	*dccbindhost;
-#endif /* DCCBOUNCE */
-#ifdef _NEED_CMDPASSWD
+#endif /* ifdef DCCBOUNCE */
+#ifdef NEED_CMDPASSWD
 	char	*cmdpasswd;
-#endif /* _NEED_CMDPASSWD */
+#endif /* ifdef NEED_CMDPASSWD */
 	char	*username;
 	char	*realname;
 	char	*password;
@@ -258,14 +174,15 @@ typedef struct {
 	int		good_server;
 #ifdef AUTOMODE
 	int		automode;
-#endif /* AUTOMODE */
+#endif /* ifdef AUTOMODE */
 #ifdef PRIVLOG
 	int		privlog;
-#endif /* PRIVLOG */
+#endif /* ifdef PRIVLOG */
 } timer_type;
 
 
 
+/* export global stuff */
 extern serverlist_type  servers;
 
 extern server_info      i_server;
@@ -273,7 +190,7 @@ extern client_info	i_client;
 extern client_info	i_newclient;
 
 extern connection_type  c_server;
-extern connection_type	c_client;
+/* extern connection_type	c_client; */
 extern connection_type	c_newclient;
 extern clientlist_type	c_clients;
 
@@ -285,12 +202,18 @@ extern FILE		*inbox;
 
 extern timer_type	timers;
 
+extern char		*forwardmsg;
+extern int		forwardmsgsize;
+
+
 #ifdef PINGSTAT
 extern int	ping_sent;
 extern int	ping_got;
-#endif /* PINGSTAT */
+#endif /* ifdef PINGSTAT */
 
 extern int	error_code;
+
+
 
 void get_nick(char *format);
 void join_channels(connection_type *client);
@@ -302,11 +225,6 @@ void set_away(const char *reason);
 void clients_left(const char *reason);
 void drop_newclient(char *reason);
 
-/* parse-section */
-/*
-extern int lineno;
-extern FILE *yyin;
-*/
 
 
 #endif /* ifndef MIAU_H_ */

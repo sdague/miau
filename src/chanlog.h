@@ -17,18 +17,15 @@
 #ifndef CHANLOG_H_
 #define CHANLOG_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "llist.h"
-#include "channels.h"
-
-
+#endif /* ifdef HAVE_CONFIG_H */
 
 #ifdef CHANLOG
+
+#include "channels.h"
+#include "llist.h"
+
 
 
 #define MAX_CHANNELS 40
@@ -88,9 +85,9 @@ void chanlog_close(channel_type *channel);
 void chanlog_write_entry(channel_type *chptr, char *format, ...);
 void chanlog_write_entry_all(int type, char *format, ...);
 
-inline int chanlog_has_log(const channel_type *chan, int type);
+int chanlog_has_log(const channel_type *chan, int type);
 
-#endif /* CHANLOG */
+#endif /* ifdef CHANLOG */
 
 
 

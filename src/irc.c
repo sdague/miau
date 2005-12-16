@@ -15,13 +15,34 @@
  * GNU General Public License for more details.
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "miau.h"
+#endif /* ifdef HAVE_CONFIG_H */
+
 #include "irc.h"
-#include "perm.h"
-#include "server.h"
-#include "tools.h"
+#include "common.h"
+#include "conntype.h"
 #include "llist.h"
+#include "perm.h"
+
+#include <fcntl.h>
+#include <errno.h>
+#include <netdb.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+#if HAVE_STRINGS_H
+#include <strings.h>
+#endif
+
+
 
 /* #define DEBUG */
 

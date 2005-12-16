@@ -14,10 +14,17 @@
  * GNU General Public License for more details.
  */
 
-#include "miau.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 #include "perm.h"
+#include "common.h"
+#include "miau.h"
 #include "match.h"
-#include "table.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 
 

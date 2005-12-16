@@ -14,16 +14,25 @@
  * GNU General Public License for more details.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
+#include "etc.h"
+
+#ifdef NEED_TABLE
+
 #include "table.h"
+#include "common.h"
+
+#include <stdlib.h>
 
 /* #define DEBUG */
 
 
-#ifdef _NEED_TABLE
-
 
 void **
-add_item(void **data, int elementsize, int *entries, int *indx)
+table_add_item(void **data, int elementsize, int *entries, int *indx)
 {
 	int	i;
 	int	ind = -1;
@@ -33,7 +42,7 @@ add_item(void **data, int elementsize, int *entries, int *indx)
 			ind = i; /* xfree pointer found */
 #ifdef DEBUG
 			printf("using empty pointer at index %d.\n", ind);
-#endif
+#endif /* ifdef DEBUG */
 		}
 	}
 	if (ind < 0) {
@@ -44,7 +53,7 @@ add_item(void **data, int elementsize, int *entries, int *indx)
 #ifdef DEBUG
 		printf("allocating new pointer. %d entries, index %d\n",
 				*entries, ind);
-#endif
+#endif /* ifdef DEBUG */
 	}
 
 	data[ind] = (void *) xmalloc(elementsize);
@@ -52,16 +61,17 @@ add_item(void **data, int elementsize, int *entries, int *indx)
 	*indx = ind;
 
 	return data;
-} /* void **add_item(void **data, int elementsize, int *entries, int *indx) */
+} /* void **table_add_item(void **data, int elementsize, int *entries,
+		int *indx) */
 
 
 
 void **
-compact_table(void **data, int *entries)
+table_compact(void **data, int *entries)
 {
 #ifdef DEBUG
 	int	x = 0;
-#endif
+#endif /* ifdef DEBUG */
 	int	i = *entries - 1;
 
 	while (i >= 0 && data[i] == NULL) { i--; }
@@ -79,51 +89,46 @@ compact_table(void **data, int *entries)
 	if (*entries == 0) {
 		printf("ignore: pointer-array is now empty\n");
 	}
-#endif
+#endif /* ifdef DEBUG */
 	return data;
-} /* void **compact_table(void **data, int *entries) */
+} /* void **table_compact(void **data, int *entries) */
 
 
 
 void **
-rem_item(void **data, int number, int *entries)
+table_rem_item(void **data, int number, int *entries)
 {
 	if (number >= 0 && number < *entries) {
 #ifdef DEBUG
 		printf("deleting entry %d, compacting table: ", number);
-#endif
+#endif /* ifdef DEBUG */
 		xfree(data[number]);
 		data[number] = NULL;
 	}
-	data = compact_table(data, entries);
+	data = table_compact(data, entries);
 	return data;
-}
+} /* void **table_rem_item(void **data, int number, int *entries) */
 
 
 
-void **free_table(
-		void	**data,
-		int	*entries,
-		int	clear
-		)
+void **
+table_free(void **data, int *entries, int clear)
 {
 	int	i;
 
 	for (i = 0; i < *entries; i++) {
-		if (data[i]) {
-			xfree(data[i]);
-		}
+		xfree(data[i]);
 	}
 
 	xfree(data);
 
-	if (clear) {
+	if (clear == 1) {
 		*entries = 0;
 	}
 
 	return 0;
-} /* void **rem_item(void **data, int number, int *entries) */
+} /* void **table_free(void **data, int *entries, int clear) */
 
 
 
-#endif /* _NEED_TABLE */
+#endif /* ifdef NEED_TABLE */

@@ -13,30 +13,21 @@
  * GNU General Public License for more details.
  */
 
+#ifndef AUTOMODE_H
+#define AUTOMODE_H
 
-
-#ifndef _AUTOMODE_H
-#define _AUTOMODE_H
-
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
 #ifdef AUTOMODE
 
 #include "llist.h"
-#include "miau.h"
+#include "channels.h"
 
-#include <stdlib.h>
-#include <string.h>
 
 
 #define ANY_MODE	'\0'
-
-#define AUTOMODE_DROP(mode_act, node, list) \
-	xfree((mode_act)->nick); \
-	xfree((node)->data); \
-	llist_delete((node), list);
-
-
 
 typedef struct {
 	char	*nick;		/* Nick to be mode'd */
@@ -55,6 +46,8 @@ void automode_drop_channel(channel_type *channel, const char *nick,
 llist_node *automode_lookup(const char *nick, channel_type *channel,
 		const char mode);
 
-#endif /* AUTOMODE */
 
-#endif /* _AUTOMODE_H */
+
+#endif /* ifdef AUTOMODE */
+
+#endif /* ifndef AUTOMODE_H_ */

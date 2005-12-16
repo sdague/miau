@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -14,8 +14,14 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _COMMANDS_H
-#define _COMMANDS_H
+#ifndef COMMANDS_H_
+#define COMMANDS_H_
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
+
 
 /* The maximum number that can be supported in 4 bits. */
 #define MAX_CMD 16
@@ -49,4 +55,4 @@ void command_free(void);
 
 
 
-#endif /* _COMMANDS_H */
+#endif /* ifdef COMMANDS_H_ */

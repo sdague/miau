@@ -15,10 +15,14 @@
  */
 
 
-#ifndef _PERM_H
-#define _PERM_H
+#ifndef PERM_H_
+#define PERM_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
+#include "llist.h"
 
 
 
@@ -47,8 +51,8 @@ extern permlist_type automodelist;
 
 #ifdef DUMPSTATUS
 char *perm_dump(permlist_type *);
-#endif /* DUMPSTATUS */
+#endif /* ifdef DUMPSTATUS */
 
 
 
-#endif /* _PERM_H */
+#endif /* ifdef PERM_H_ */

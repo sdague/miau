@@ -16,6 +16,10 @@
 
 /* ASCII-art by Felix Lee, see http://tigerfood.org/felix/ascii-art */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 #include "ascii.h"
 
 #ifdef ASCIIART
@@ -39,4 +43,4 @@ char pics[2][PIC_Y][PIC_X] =
 
 };
 
-#endif /* ASCIIART */
+#endif /* ifdef ASCIIART */

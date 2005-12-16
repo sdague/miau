@@ -13,10 +13,14 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _PARSER_H
-#define _PARSER_H
+#ifndef PARSER_H_
+#define PARSER_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
+
 
 #define MAXNUMOFPARAMS	4
 
@@ -46,4 +50,4 @@ int parse_cfg(const char *cfgfile);
 
 
 
-#endif /* _PARSER_H */
+#endif /* ifdef PARSER_H_ */

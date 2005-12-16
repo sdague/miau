@@ -10,6 +10,7 @@ miau_SOURCES = ascii.c ascii.h \
 		commands.c commands.h \
 		common.c common.h \
 		conntype.h \
+		etc.h \
 		dcc.c dcc.h \
 		error.c error.h \
 		list.c list.h \

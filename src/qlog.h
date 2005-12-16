@@ -13,30 +13,28 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _QLOG_H
-#define _QLOG_H
+#ifndef QLOG_H_
+#define QLOG_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "miau.h"
+#endif /* ifdef HAVE_CONFIG_H */
+
+#ifdef QUICKLOG
+
+#include "conntype.h"
 #include "llist.h"
 
-#include "channels.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 
-
-#ifdef QUICKLOG
 
 #ifdef QLOGSTAMP 
 #define TS_TYPES	"nbe"
 #define TS_NONE		0
 #define TS_BEGINNING	1
 #define TS_END		2
-#endif /* QLOGSTAMP */
+#endif /* ifdef QLOGSTAMP */
 
 llist_list	qlog;
 
@@ -48,7 +46,7 @@ typedef struct {
 	time_t	timestamp;
 #ifdef INBOX
 	int	privmsg;
-#endif /* INBOX */
+#endif /* ifdef INBOX */
 } qlogentry;
 
 
@@ -56,6 +54,9 @@ void qlog_check(void);
 void qlog_replay(connection_type *client, const int keep);
 void qlog_drop_old(void);
 void qlog_write(const int privmsg, char *format, ...);
-#endif /* QUICKLOG */
 
-#endif /* _QLOG_H */
+
+
+#endif /* ifdef QUICKLOG */
+
+#endif /* ifdef QLOG_H_ */

@@ -15,8 +15,13 @@
  */
 
 
-#ifndef _LLIST_H
-#define _LLIST_H
+#ifndef LLIST_H_
+#define LLIST_H_
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
+
 
 typedef struct _llist_node llist_node;
 typedef struct _llist_list llist_list;
@@ -94,4 +99,4 @@ void llist_empty(llist_list *list, void (* action) (void *));
 */
 
 
-#endif /* _LLIST_H */
+#endif /* LLIST_H_ */

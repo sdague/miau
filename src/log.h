@@ -13,20 +13,23 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LOG_H
-#define _LOG_H
+#ifndef LOG_H_
+#define LOG_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG */
 
-#include <stdio.h>
-#include <string.h>
+#include "etc.h"
+
+#ifdef NEED_LOGGING
 
 
 
-#ifdef LOGGING
 char *log_prepare_entry(const char *nick, const char *msg);
-#endif /* LOGGING */
 
 
 
-#endif /* _LOG_H */
+#endif /* ifdef NEED_LOGGING */
+
+#endif /* ifndef LOG_H_ */

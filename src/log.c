@@ -13,17 +13,25 @@
  * GNU General Public License for more details.
  */
 
-#include "log.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
-#include "miau.h"
+#include "etc.h"
+
+#ifdef NEED_LOGGING
+
+#include "log.h"
+#include "error.h"
+#include "irc.h"
 #include "messages.h"
 #include "tools.h"
-#include "irc.h"
-#include "error.h"
+#include "common.h"
+
+#include <string.h>
 
 
 
-#ifdef LOGGING
 /*
  * Prepare message for logging. Returns pointer to printable message or NULL
  * if message is normal PRIVMSG.
@@ -39,8 +47,7 @@ log_prepare_entry(const char *nick, const char *msg)
 
 	if (nick == NULL || msg == NULL) {
 #ifdef ENDUSERDEBUG
-		enduserdebug("%s: nick = %s, msg = %s",
-				__FUNCTION__,
+		enduserdebug("log_prepare_entry(): nick = %s, msg = %s",
 				nick == NULL ? "NULL" : nick,
 				msg == NULL ? "NULL" : msg);
 #endif /* ifdef ENDUSERDEBUG */
@@ -72,4 +79,7 @@ log_prepare_entry(const char *nick, const char *msg)
 
 	return buf;
 } /* char *log_prepare_entry(const char *nick, const char *msg) */
-#endif /* LOGGING */
+
+
+
+#endif /* ifdef NEED_LOGGING */

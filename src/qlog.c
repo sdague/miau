@@ -13,24 +13,27 @@
  * GNU General Public License for more details.
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "qlog.h"
-
-#include "error.h"
-#include "miau.h"
-#include "commands.h"
-#include "channels.h"
-#include "tools.h"
-#include "llist.h"
-#include "irc.h"
-#include "table.h"
-#include "log.h"
-#include "messages.h"
-
-
+#endif /* ifdef HAVE_CONFIG_H */
 
 #ifdef QUICKLOG
-extern clientlist_type	c_clients;
+
+#include "qlog.h"
+#include "client.h"
+#include "irc.h"
+#include "miau.h"
+#include "tools.h"
+#include "commands.h"
+#include "error.h"
+#include "common.h"
+
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
+
+
 llist_list		qlog;
 
 
@@ -340,4 +343,4 @@ qlog_get_channel(const char *msg)
 
 
 
-#endif /* QUICKLOG */
+#endif /* ifdef QUICKLOG */

@@ -13,12 +13,16 @@
  * GNU General Public License for more details.
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "error.h"
+#endif /* ifdef HAVE_CONFIG_H */
+
 #include "tools.h"
 #ifndef TESTING
 #include "irc.h"
 #endif /* ifndef TESTING */
+#include "client.h"
+#include "miau.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -27,6 +31,7 @@
 
 #ifdef ENDUSERDEBUG
 #define ENDUSER_BUF_SIZE	8196
+
 void
 enduserdebug(char *format, ...)
 {

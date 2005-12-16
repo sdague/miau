@@ -15,20 +15,25 @@
  * GNU General Public License for more details.
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
 #include "client.h"
-
-#include "error.h"
 #include "conntype.h"
-#include "common.h"
+#include "error.h"
+#include "messages.h"
+#include "miau.h"
 #include "irc.h"
+#include "qlog.h"
 #include "tools.h"
-#include "log.h"
-#include "privlog.h"
-#include "chanlog.h"
+#include "channels.h"
 #include "dcc.h"
+#include "privlog.h"
 #include "commands.h"
+#include "chanlog.h"
+#include "log.h"
+#include "common.h"
 
 #include <string.h>
 
@@ -223,20 +228,16 @@ cmd_privmsg_ctcp(char *par0, char *par1)
 
 
 
-#ifdef LOGGING
+#ifdef NEED_LOGGING
 static int
 cmd_privmsg(char *par0, char *par1)
 {
-#ifdef LOGGING
 	int is_chan;
-#endif /* ifdef LOGGING */
 	if (par0 == NULL) {
 		return 1;
 	}
 
-#ifdef LOGGING
 	is_chan = channel_is_name(par0);
-#endif /* ifdef LOGGING */
 
 #ifdef PRIVLOG
 	if (is_chan == 0) {
@@ -279,7 +280,7 @@ cmd_privmsg(char *par0, char *par1)
 
 	return 1;
 } /* static int cmd_privmsg(char *par0, char *par1) */
-#endif /* LOGGING */
+#endif /* ifdef NEED_LOGGING */
 
 
 
@@ -431,8 +432,7 @@ client_read(connection_type *client)
 		pass = 1; /* default */
 		if (param2 == NULL) {
 #ifdef ENDUSERDEBUG
-			enduserdebug("%s: PRIVMSG, param2 = NULL",
-					__FUNCTION__);
+			enduserdebug("client_read(): PRIVMSG, param2 = NULL");
 #endif /* ifdef ENDUSERDEBUG */
 		}
 #ifdef DCCBOUNCE
@@ -440,11 +440,11 @@ client_read(connection_type *client)
 			pass = cmd_privmsg_ctcp(param1, param2);
 		}
 #endif /* ifdef DCCBOUNCE */
-#ifdef LOGGING
+#ifdef NEED_LOGGING
 		else {
 			pass = cmd_privmsg(param1, param2);
 		}
-#endif /* ifdef LOGGING */
+#endif /* ifdef NEED_LOGGING */
 	}
 
 	else if (xstrcmp(command, "PONG") == 0) {

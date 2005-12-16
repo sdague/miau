@@ -16,7 +16,10 @@
 #ifndef ERROR_H_
 #define ERROR_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIF_H */
+
 #include <stdarg.h>
 
 

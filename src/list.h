@@ -18,6 +18,10 @@
 #ifndef LIST_H_
 #define LIST_H_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 
 
 typedef struct _list_type list_type;

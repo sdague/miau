@@ -13,11 +13,14 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CONNTYPE_H
-#define _CONNTYPE_H
+#ifndef CONNTYPE_H_
+#define CONNTYPE_H_
 
-#include <sys/types.h>
-#include <sys/socket.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
+
 
 #define BUFFERSIZE	1024
 
@@ -32,4 +35,4 @@ typedef struct {
 
 
 
-#endif /* _CONNTYPE_H */
+#endif /* ifdef CONNTYPE_H_ */

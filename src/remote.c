@@ -13,14 +13,25 @@
  * GNU General Public License for more details.
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
+#include "etc.h"
+
+#ifdef NEED_CMDPASSWD
+
 #include "remote.h"
 #include "error.h"
-
+#include "common.h"
+#include "miau.h"
 #include "irc.h"
+#include "messages.h"
+
+#include <string.h>
 
 
-#ifdef _NEED_CMDPASSWD
+
 /*
  * Process remote sent (thru IRC-network) commands.
  */
@@ -67,7 +78,7 @@ remote_cmd(char *command, char *params, char *nick)
 			pass = 0;
 		}
 	}
-#endif /* RELEASENICK */
+#endif /* ifdef RELEASENICK */
 	
 	/* Free parameter-list. */
 	xfree(param);
@@ -78,4 +89,4 @@ remote_cmd(char *command, char *params, char *nick)
 
 
 
-#endif /* _NEED_CMDPASSWD */
+#endif /* ifdef NEED_CMDPASSWD */

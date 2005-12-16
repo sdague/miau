@@ -16,27 +16,25 @@
 #ifndef ONCONNECT_H_
 #define ONCONNECT_H_
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "miau.h"
-#include "llist.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-
+#endif /* ifdef HAVE_CONFIG_H */
 
 #ifdef ONCONNECT
 
+#include "miau.h"
+#include "llist.h"
 
-
-llist_list	onconnect_actions;
 
 
 void onconnect_add(const char type, const char *target, const char *data);
 void onconnect_flush(void);
 void onconnect_do(void);
+
+
+
+/* export global stuff */
+extern llist_list	onconnect_actions;
 
 
 #endif /* ONCONNECT */

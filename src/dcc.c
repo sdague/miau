@@ -15,21 +15,38 @@
  */
 
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include "dcc.h"
-#include "error.h"
-#include "table.h"
-#include "irc.h"
-#include "miau.h"
-#include "messages.h"
-#include "tools.h"
-
-
+#endif /* HAVE_CONFIG_H */
 
 #ifdef DCCBOUNCE
+
+#include "table.h"
+#include "irc.h"
+#include "error.h"
+#include "messages.h"
+#include "tools.h"
+#include "miau.h"
+#include "common.h"
+
+#include <errno.h>
+#include <netdb.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#if HAVE_STRINGS_H
+#include <strings.h>
+#endif
+
+
 
 static int dcc_bouncedata(int a, int b, int *wrflag);
 static int dcc_addbounce();
@@ -91,7 +108,7 @@ dcccall dcccalls[] = {
 };
 
 
-int
+static int
 dcc_bouncedata(int a, int b, int *wrflag)
 {
 	static char	buffer[2048];
@@ -125,13 +142,13 @@ dcc_bouncedata(int a, int b, int *wrflag)
 
 
 
-int
+static int
 dcc_addbounce(void)
 {
 	int	dccindex;
-	dccs.data = (dccbounce **) add_item((void **) dccs.data,
+	dccs.data = (dccbounce **) table_add_item((void **) dccs.data,
 			sizeof(dccbounce), &dccs.amount, &dccindex);
-	bzero(dccs.data[dccindex], sizeof(dccbounce));
+	bzero((void *) dccs.data[dccindex], sizeof(dccbounce));
 	dccs.data[dccindex]->created = time(NULL);
 #ifdef DEBUG
 	printf("added bounce %d\n", dccindex);
@@ -141,7 +158,7 @@ dcc_addbounce(void)
 
 
 
-void
+static void
 dcc_killbounce(int dccindex)
 {
 	if (dccs.data[dccindex]->src) {
@@ -150,7 +167,7 @@ dcc_killbounce(int dccindex)
 	if (dccs.data[dccindex]->dest) {
 		rawsock_close(dccs.data[dccindex]->dest);
 	}
-	dccs.data = (dccbounce **) rem_item((void **) dccs.data, dccindex,
+	dccs.data = (dccbounce **) table_rem_item((void **) dccs.data, dccindex,
 			&dccs.amount);
 #ifdef DEBUG
 	printf("killed bounce %d\n", dccindex);
@@ -333,15 +350,6 @@ dcc_socketcheck(fd_set *readset, fd_set *writeset)
 
 
 
-static int
-dcc_realinitiate(
-		char		*dest,
-		size_t		dsize,
-		dcccommand	*dcc
-		);
-
-
-
 char *
 dcc_initiate(char *param, size_t dsize, int fromclient)
 {
@@ -349,7 +357,7 @@ dcc_initiate(char *param, size_t dsize, int fromclient)
 	char		*dparam, *chop, *check;
 	int		i;
 
-	bzero(&dcc, sizeof(dcccommand));
+	bzero((void *) &dcc, sizeof(dcccommand));
 
 	dparam = xstrdup(param);
 	chop = dparam;
@@ -441,6 +449,8 @@ dcc_realinitiate(char *dest, size_t dsize, dcccommand *dcc)
 		}
 	}
 
+	/* TODO take care of host being NULL */
+
 	dccindex = dcc_addbounce();
 	dccs.data[dccindex]->src = sock_open();
 	if (dccs.data[dccindex]->src < 0) {
@@ -470,10 +480,9 @@ dcc_realinitiate(char *dest, size_t dsize, dcccommand *dcc)
 		return 0;
 	}
 
-	snprintf(dest, dsize, "\1DCC %s %s %u %u", dcc->type,
-			dcc->arg1,
+	snprintf(dest, dsize, "\1DCC %s %s %u %u", dcc->type, dcc->arg1,
 			(unsigned int) ntohl(*(unsigned long int *)
-					host->h_addr),
+					     host->h_addr),
 			myport);
 	dest[dsize - 1] = '\0';
 
@@ -489,7 +498,7 @@ dcc_realinitiate(char *dest, size_t dsize, dcccommand *dcc)
 	memcpy((char *) &dccs.data[dccindex]->destaddr.sin_addr, host->h_addr,
 			host->h_length);
 	dccs.data[dccindex]->destaddr.sin_port = htons((u_short) port);
-	dccs.data[dccindex]->destaddr.sin_family = host->h_addrtype;
+	dccs.data[dccindex]->destaddr.sin_family = (short) host->h_addrtype;
 	
 	report(DCC_START, inet_ntoa(*(struct in_addr *) &address), port,
 			dccindex);
@@ -542,4 +551,4 @@ dcc_resume(char *dest, size_t dsize, dcccommand *dcc)
 
 
 
-#endif /* DCCBOUNCE */
+#endif /* ifdef DCCBOUNCE */

@@ -13,7 +13,10 @@
  * GNU General Public License for more details.
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 #include "matchlist.h"
 #include "match.h"
 #include "common.h"

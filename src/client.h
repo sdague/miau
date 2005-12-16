@@ -16,10 +16,11 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
-
-
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
+#include "channels.h"
 #include "llist.h"
 
 
@@ -39,14 +40,14 @@ typedef struct {
 
 
 
-#include "channels.h"
+#if 0
 #include "conntype.h"
 #include "messages.h"
 #ifdef QUICKLOG
 #include "qlog.h"
 #endif /* QUICKLOG */
 #include "tools.h"
-
+#endif
 
 
 #define ERROR	1
@@ -59,6 +60,7 @@ void client_free(void);
 
 
 
+/* export global stuff */
 extern client_info	i_client;
 extern clientlist_type	c_clients;
 

@@ -18,12 +18,15 @@
 #ifndef CHANNELS_H_
 #define CHANNELS_H_
 
-#include "conntype.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
+
 #include "llist.h"
+#include "conntype.h"
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 
 
 enum {
@@ -97,5 +100,7 @@ char *channel_simplify_name(const char *chan);
 #ifdef OBSOLETE
 extern unsigned int channel_hash(char *);
 #endif /* OBSOLETE */
+
+
 
 #endif /* ifndef CHANNELS_H_ */

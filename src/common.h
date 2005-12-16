@@ -20,27 +20,8 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /* ifdef HAVE_CONFIG_H */
+
 #include <stdlib.h>
-
-
-
-/* _NEED_CMDPASSWD */
-#ifdef RELEASENICK
-#define _NEED_CMDPASSWD
-#endif /* RELEASENICK */
-
-/* _NEED_TABLE */
-#ifdef DCCBOUNCE
-#define _NEED_TABLE
-#endif /* DCCBOUNCE */
-#ifdef CTCPREPLIES
-#define _NEED_TABLE
-#endif /* CTCPREPLIES */
-
-/* _NEED_PROCESS_IGNORES */
-#ifdef CTCPREPLIES
-#define _NEED_PROCESS_IGNORES
-#endif 
 
 
 
@@ -89,7 +70,21 @@ void *xrealloc(void *ptr, size_t size);
 
 
 /* #define FREE(ptr) xnullfree((void *) &ptr) */
-#define FREE(ptr) { if (ptr != NULL) { free(ptr); ptr = NULL; } }
+#define FREE(ptr) { xfree(ptr); ptr = NULL; }
+
+
+
+#ifndef HAVE_VSNPRINTF
+#include <stdio.h>
+#include <stdarg.h>
+int vsnprintf(char *str, size_t size, const char *format, va_list ap);
+#endif /* ifndef HAVE_VSNPRINTF */
+
+#ifndef HAVE_SNPRINTF
+#include <stdio.h>
+#include <stdarg.h>
+int snprintf(char *str, size_t size, const char *format, ...);
+#endif /* ifndef HAVE_SNPRINTF */
 
 
 

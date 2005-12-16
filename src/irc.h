@@ -18,15 +18,13 @@
 #ifndef IRC_H_
 #define IRC_H_
 
-#include "miau.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /* ifdef HAVE_CONFIG_H */
 
+#include "server.h"
+#include "client.h"
 
-
-extern int		highest_socket;
-extern const char	*net_errstr;
-
-/* Flood-control counter. If greated than zero, can send messages to server. */
-extern int	msgtimer;
 
 
 #define QUEUESIZE	16
@@ -66,7 +64,7 @@ int irc_write(connection_type *connection, char *format, ...);
 int irc_write_head(connection_type *connection, char *format, ...);
 /* returns: on success -> number of written bytes; -1 on error */
 
-int irc_read( connection_type *connection );
+int irc_read(connection_type *connection);
 /* returns: 1/0(no data (if blocking)) on success; -1 on error */
 
 #define CONN_FINALIZING	-2	/* Connected, but waiting for thread to die. */
@@ -148,6 +146,16 @@ void irc_notice(connection_type *connection, char nickname[],
 #define RPL_WHOISIDLE		317
 #define RPL_WHOISCHANNELS	319
 #define RPL_ENDOFWHOIS		318
+
+
+
+/* export global stuff */
+extern int		highest_socket;
+extern const char	*net_errstr;
+
+/* Flood-control counter. If greated than zero, can send messages to server. */
+extern int	msgtimer;
+
 
 
 #endif /* ifndef IRC_H_ */

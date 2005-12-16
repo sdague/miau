@@ -18,16 +18,15 @@
 #ifndef REMOTE_H_
 #define REMOTE_H_
 
-
-
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "miau.h"
+#endif /* ifdef HAVE_CONFIG_H */
 
 
 
-#ifdef _NEED_CMDPASSWD
+#ifdef NEED_CMDPASSWD
 int remote_cmd(char *command, char *params, char *nick);
-#endif /* _NEED_CMDPASSWD */
+#endif /* ifdef NEED_CMDPASSWD */
 
 
 
