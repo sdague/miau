@@ -1,6 +1,7 @@
 
 EXTRA_DIST = debian/changelog debian/compat debian/control \
-	debian/copyright debian/info debian/examples debian/rules
+	debian/copyright debian/info debian/examples debian/rules \
+	BUGS
 SUBDIRS = src doc misc
 ac_local = @ac_local@
 version = @PACKAGE_VERSION@
