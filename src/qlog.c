@@ -138,28 +138,26 @@ qlog_replay(connection_type *client, int keep)
 static const char *
 qlog_add_timestamp(qlogentry *entry, char *buf, size_t size)
 {
-	int cmd;
+	int cmd, i;
 	char *p;
 /* TSLEN: "[HH:MM:SS]\0" == 11 */
 #define TSLEN 11
 	char stamp[TSLEN];
 	
+	/* attach tag only if we know what we're doing */
 	p = nextword(entry->text);
-	/*
-	 * If we can't handle it - ignore it. We give up in "if (! (i == ...".
-	 * What we can't see, can't hurt us, right? :-)
-	 */
-	if (p != NULL) {
-		/* Next find out what command it was. */
-		cmd = pos(p, ' ');
-		if (cmd < TSLEN - 1 || cmd > 16) {
-			char tmp[18];
-			strncpy(tmp, p, cmd);
-			tmp[cmd] = '\0';
-			cmd = command_find(tmp);
-		} else {
-			return entry->text;
-		}
+	if (p == NULL) {
+		return entry->text;
+	}
+	/* Next find out what command it was. */
+	i = pos(p, ' ');
+	if (i != -1 && i < TSLEN) {
+		char tmp[18];
+		strncpy(tmp, p, i);
+		tmp[i] = '\0';
+		cmd = command_find(tmp);
+	} else {
+		return entry->text;
 	}
 
 	/* Is this something we can handle? */
