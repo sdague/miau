@@ -22,6 +22,8 @@
 #include "qlog.h"
 #include "client.h"
 #include "irc.h"
+#include "list.h"
+#include "llist.h"
 #include "miau.h"
 #include "tools.h"
 #include "commands.h"
@@ -34,12 +36,13 @@
 
 
 
-llist_list		qlog;
+static list_type *qlog = NULL;
 
 
 
 #ifdef QLOGSTAMP
-void qlog_add_timestamp(qlogentry *data, char *buf, int size);
+static const char *qlog_add_timestamp(qlogentry *entry, char *buf,
+		size_t size);
 #endif /* QLOGSTAMP */
 
 static channel_type *qlog_get_channel(const char *msg);
@@ -54,27 +57,32 @@ static channel_type *qlog_get_channel(const char *msg);
 void
 qlog_check(void)
 {
-	channel_type *chan;
+	llist_node *iterl;
+	list_type *iter;
 
 	/* First set each channel not to have qlog. */
-	LLIST_WALK_H(active_channels.head, channel_type *);
-		data->hasqlog = 0;
-	LLIST_WALK_F;
-	
-	LLIST_WALK_H(qlog.head, qlogentry *);
+	for (iterl = active_channels.head; iterl != NULL; iterl = iterl->next) {
+		channel_type *chan;
+		chan = (channel_type *) iterl->data;
+		chan->hasqlog = 0;
+	}
+
+	for (iter = qlog; iter != NULL; iter = iter->next) {
+		qlogentry *entry;
+		entry = (qlogentry *) iter->data;
 		/* Don't waste time looking for channel if line's privmsg. */
 #ifdef INBOX
-		if (! data->privmsg) {
-#endif /* ifdef INBOX */
-			chan = qlog_get_channel(data->text);
+		if (entry->privmsg == 0)
+#endif /* ifdef else INBOX */
+		{
+			channel_type *chan;
+			chan = qlog_get_channel(entry->text);
 			if (chan != NULL) {
 				chan->hasqlog = 1;
 			}
-#ifdef INBOX
 		}
-#endif /* ifdef INBOX */
-	LLIST_WALK_F;
-} /* qlog_check(void) */
+	}
+} /* void qlog_check(void) */
 
 		
 
@@ -82,8 +90,10 @@ qlog_check(void)
  * (Replay and) clean quicklog data.
  */
 void
-qlog_replay(connection_type *client, const int keep)
+qlog_replay(connection_type *client, int keep)
 {
+	list_type *iter;
+	list_type *next;
 #ifdef QLOGSTAMP
 	char qlogbuf[IRC_MSGLEN];
 #endif /* QLOGSTAMP */
@@ -91,26 +101,33 @@ qlog_replay(connection_type *client, const int keep)
 	qlog_drop_old();
 
 	/* Walk thru quicklog. */
-	LLIST_WALK_H(qlog.head, qlogentry *);
+	for (iter = qlog; iter != NULL; ) { /* handle next at the end */
+		qlogentry *entry;
+		next = iter->next;
+		entry = (qlogentry *) iter->data;
+		
 		if (client != NULL) {
 #ifdef QLOGSTAMP
 			if (cfg.timestamp != TS_NONE) {
-				qlog_add_timestamp(data, qlogbuf, IRC_MSGLEN);
-				irc_write(client, "%s", qlogbuf);
+				const char *out;
+				out = qlog_add_timestamp(entry, qlogbuf,
+						IRC_MSGLEN);
+				irc_write(client, "%s", out);
 			} else {
-				irc_write(client, "%s", data->text);
+				irc_write(client, "%s", entry->text);
 			}
 #else /* ifdef QLOGSTAMP */
-			irc_write(client, "%s", data->text);
-#endif /* QLOGSTAMP */
+			irc_write(client, "%s", entry->text);
+#endif /* ifdef else QLOGSTAMP */
 		}
-		if (! keep) {
-			xfree(data->text);
-			xfree(data);
-			llist_delete(node, &qlog);
+		if (keep == 0) {
+			xfree(entry->text);
+			xfree(entry);
+			qlog = list_delete(qlog, iter);
 		}
-	LLIST_WALK_F;
-} /* void qlog_replay(connection_type *client, const int keep) */
+		iter = next;
+	}
+} /* void qlog_replay(connection_type *client, int keep) */
 
 
 
@@ -118,50 +135,45 @@ qlog_replay(connection_type *client, const int keep)
 /*
  * Add timestamp in qlogentry.
  */
-void
-qlog_add_timestamp(qlogentry *data, char *buf, int size)
+static const char *
+qlog_add_timestamp(qlogentry *entry, char *buf, size_t size)
 {
-	int		i = -1;
-	int		len;
-	char		*p;
-	char		*t;
-/* TSLEN: "[HH:MM:SS] \0" == 12 */
-#define TSLEN	12
-	char		stamp[TSLEN];
-
-	strncpy(buf, data->text, size);
-	buf[size - 1] = '\0';
+	int cmd;
+	char *p;
+/* TSLEN: "[HH:MM:SS]\0" == 11 */
+#define TSLEN 11
+	char stamp[TSLEN];
 	
-	p = nextword(data->text);
+	p = nextword(entry->text);
 	/*
 	 * If we can't handle it - ignore it. We give up in "if (! (i == ...".
 	 * What we can't see, can't hurt us, right? :-)
 	 */
 	if (p != NULL) {
 		/* Next find out what command it was. */
-		i = pos(p, ' ');
-		if (i < TSLEN - 1 || i > 16) {
+		cmd = pos(p, ' ');
+		if (cmd < TSLEN - 1 || cmd > 16) {
 			char tmp[18];
-			strncpy(tmp, p, i);
-			tmp[i - 1] = '\0';
-			i = command_find(tmp);
+			strncpy(tmp, p, cmd);
+			tmp[cmd] = '\0';
+			cmd = command_find(tmp);
 		} else {
-			return;
+			return entry->text;
 		}
 	}
 
 	/* Is this something we can handle? */
-	if (i != CMD_PRIVMSG && i != CMD_NOTICE && i != CMD_QUIT &&
-			i != CMD_PART && i != CMD_KICK && i != CMD_KILL) {
-		return;
+	if (cmd != CMD_PRIVMSG && cmd != CMD_NOTICE && cmd != CMD_QUIT &&
+			cmd != CMD_PART && cmd != CMD_KICK && cmd != CMD_KILL) {
+		return entry->text;
 	}
 
-	p = buf + (p - data->text); /* Skip first word as discovered before. */
-
-	/* Get place to insert timestamp. */
 	switch (cfg.timestamp) {
 		case TS_BEGINNING:
-			p = strchr(p, (int) ':');
+		{
+			char rep;
+
+			p = strchr(entry->text + 1, (int) ':');
 			if (p != NULL) {
 				if (p[1] == '\0') {
 					p = NULL;
@@ -174,48 +186,49 @@ qlog_add_timestamp(qlogentry *data, char *buf, int size)
 			 * further.
 			 */
 			if (p == NULL) {
-				return;
+				return entry->text;
 			}
+			rep = *p;
+			*p = '\0';
 			p++;
-			break;
+
+			strftime(stamp, TSLEN, "[%H:%M:%S]",
+					localtime(&entry->timestamp));
+
+			snprintf(buf, size, "%s%c%s %s",
+					entry->text, rep, stamp, p);
+			buf[size - 1] = '\0';
+			return buf;
+		}
 
 		case TS_END:
-			p = strchr(p, (int) ':');
-			if (p == NULL) {
-				return;
-			}
-			t = strrchr(p + 1, '\1');
-			if (t != NULL) {
-				p = t;
+		{
+			int add_one;
+			int len;
+
+			len = strlen(entry->text);
+			if (entry->text[len - 1] == '\1') {
+				entry->text[len - 1] = '\0';
+				add_one = 1;
 			} else {
-				p = buf + strlen(buf);
+				add_one = 0;
 			}
-			break;
+
+			strftime(stamp, TSLEN, "[%H:%M:%S]",
+					localtime(&entry->timestamp));
+
+			snprintf(buf, size, "%s %s%s", entry->text,
+					stamp, add_one == 1 ? "\1" : "");
+			buf[size - 1] = '\0';
+			return buf;
+		}
 
 		default:
-			/* Do nothing by default. Return, don't break. */
-			return;
+			return entry->text;
 	}
-	
-	/* Insert timestamp. */
-	i = (int) (p - buf);
-	len = (int) strlen(p);
-	memmove(p + TSLEN - 1, p, len); /* Move '\0' as well. */
-	switch (cfg.timestamp) {
-		case TS_BEGINNING:
-			strftime(stamp, TSLEN, "[%H:%M:%S] ",
-					localtime(&data->timestamp));
-			break;
-		case TS_END:
-			strftime(stamp, TSLEN, " [%H:%M:%S]",
-					localtime(&data->timestamp));
-			break;
-		default:
-			break;
-	}
-	memcpy(p, stamp, TSLEN - 1);
-} /* void qlog_add_timestamp(qlogentry *data, char *buf, int size) */
-#endif /* QLOGSTAMP */
+} /* static const char *qlog_add_timestamp(qlogentry *entry, char *buf,
+		size_t size) */
+#endif /* ifdef QLOGSTAMP */
 
 
 
@@ -225,56 +238,59 @@ qlog_add_timestamp(qlogentry *data, char *buf, int size)
 void
 qlog_drop_old(void)
 {
-	qlogentry	*line;
-	time_t		oldest;
+	time_t oldest;
 
-	if (qlog.head == NULL) { return; } /* Perhaps there's nothing to do. */
+	if (qlog == NULL) {
+		return;
+	}
 
-	/* We want seconds. */
 	oldest = time(NULL) - (cfg.qloglength * 60);
 
-	line = (qlogentry *) qlog.head->data;
-	while (line != NULL && line->timestamp <= oldest) {
+	while (qlog != NULL) { /* secondary exit condition */
+		qlogentry *entry;
+		entry = (qlogentry *) qlog->data;
+
+		/* primary exit condition */
+		if (entry->timestamp > oldest) {
+			break;
+		}
+
 #ifdef INBOX
-		if (line->privmsg == 1) {
+		if (entry->privmsg == 1) {
 			char *message;
 
 			/* Get sender (split it) and beginning of payload. */
-			message = strchr(line->text + 1, (int) ':');
+			message = strchr(entry->text + 1, (int) ':');
 
 			if (message == NULL) {
 #ifdef ENDUSERDEBUG
 				enduserdebug("converting invalid qlog-line?");
-				enduserdebug("%s", line->text);
+				enduserdebug("%s", entry->text);
 #endif /* ifdef ENDUSERDEBUG */
-				continue;
+				goto drop_free;
 			}
-			strtok(line->text, " ");
+			strtok(entry->text, " ");
 
-			if (line->text[0] == '\0' || message[0] == '\0') {
+			if (entry->text[0] == '\0' || message[0] == '\0') {
 #ifdef ENDUSERDEBUG
 				enduserdebug("invalud stuff in qlog");
 #endif /* ifdef else ENDUSERDEBUG */
-				continue;
+				goto drop_free;
 			}
 
 			/* termination and validity guaranteed */
 			fprintf(inbox, "%s <%s> %s\n",
-					get_timestamp(&line->timestamp,
+					get_timestamp(&entry->timestamp,
 						TIMESTAMP_SHORT),
-					line->text + 1, message + 1);
+					entry->text + 1, message + 1);
 			fflush(inbox);
 		}
 #endif /* INBOX */
 
-		xfree(line->text);
-		xfree(line);
-		llist_delete(qlog.head, &qlog);
-		if (qlog.head != NULL) {
-			line = (qlogentry *) qlog.head->data;
-		} else {
-			line = NULL;
-		}
+drop_free:
+		xfree(entry->text);
+		xfree(entry);
+		qlog = list_delete(qlog, qlog);
 	}
 } /* void qlog_drop_old(void) */
 
@@ -305,7 +321,7 @@ qlog_write(const int privmsg, char *format, ...)
 #ifdef INBOX
 	line->privmsg = privmsg;
 #endif /* ifdef INBOX */
-	llist_add_tail(llist_create(line), &qlog);
+	qlog = list_add_tail(qlog, line);
 } /* void qlog_write(const int privmsg, char *format, ...) */
 
 

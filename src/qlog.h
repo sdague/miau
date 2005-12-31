@@ -23,7 +23,6 @@
 #ifdef QUICKLOG
 
 #include "conntype.h"
-#include "llist.h"
 
 #include <time.h>
 
@@ -35,8 +34,6 @@
 #define TS_BEGINNING	1
 #define TS_END		2
 #endif /* ifdef QLOGSTAMP */
-
-llist_list	qlog;
 
 
 

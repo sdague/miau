@@ -1,3 +1,10 @@
+0.6.0.2
+
+  * Hopefully fix problems configure switches for once and for all.
+  * Fix quicklog timestamping.
+  * Change quicklog to use list.[ch] instead of obsolete llist.[ch]
+
+
 0.6.0.1
 
   * Don't compile irc.c with DEBUG by default :-P

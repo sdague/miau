@@ -1,4 +1,4 @@
-AC_INIT([miau], [0.6.0.1])
+AC_INIT([miau], [0.6.0.2])
 AC_CONFIG_SRCDIR([src/miau.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -9,19 +9,19 @@ AC_DEFINE([VERSIONNAME], ["only 18446744073709551615 bugs remaining"])
 # option, explanation, define
 AC_DEFUN([MY_ARG_ENABLE], [
 	AH_TEMPLATE([$3], [$2])
-	AC_ARG_ENABLE([$1], AC_HELP_STRING([--enable-$1], [$2]),
-		[USE_$3=yes], [USE_$3=no])
-	AC_CACHE_CHECK([whether to use $1], [USE_$3], [USE_$3=no])
-	test "x${USE_$3}" = "xyes" && AC_DEFINE([$3], [yes])
+	AC_ARG_ENABLE([$1],
+		AC_HELP_STRING([--enable-$1], [$2]),
+		[use_$3=$enableval], [use_$3=no])
+	test "x${use_$3}" = "xyes" && AC_DEFINE([$3], [yes])
 ])
 
 # option, explanation, define
 AC_DEFUN([MY_ARG_DISABLE], [
 	AH_TEMPLATE([$3], [$2])
-	AC_ARG_ENABLE([$1], AC_HELP_STRING([--disable-$1], [$2]),
-		[USE_$3=no], [USE_$3=yes])
-	AC_CACHE_CHECK([whether to use $1], [USE_$3], [USE_$3=yes])
-	test "x${USE_$3}" = "xyes" && AC_DEFINE([$3], [yes])
+	AC_ARG_ENABLE([$1],
+		AC_HELP_STRING([--disable-$1], [$2]),
+		[use_$3=$enableval], [use_$3=yes])
+	test "x${use_$3}" = "xyes" && AC_DEFINE([$3], [yes])
 ])
 
 AC_ARG_WITH([snprintf-workaround],
@@ -39,14 +39,15 @@ AC_ARG_ENABLE([local], AC_HELP_STRING([--enable-local],
 	[ac_local=yes], [ac_local=no])
 
 AH_TEMPLATE([IPV6], [IPV6 available?])
-AC_ARG_ENABLE([ipv6], AC_HELP_STRING([--enable-ipv6],
-	[enable IPv6 ONLY -support (no IPv4!)]))
+AC_ARG_ENABLE([ipv6],
+	AC_HELP_STRING([--enable-ipv6],
+	[enable IPv6 ONLY -support (no IPv4!)]),
+	[use_IPV6=$enableval], [use_IPV6=no])
 
 MY_ARG_ENABLE([dccbounce], [enable DCC-bouncing capability], [DCCBOUNCE])
 MY_ARG_ENABLE([automode], [enable automode -capability], [AUTOMODE])
 MY_ARG_ENABLE([releasenick], [enable release nick -feature], [RELEASENICK])
 
-MY_ARG_DISABLE([ctcp-replies], [disable ctcp-replies], [CTCPREPLIES])
 MY_ARG_ENABLE([mkpasswd], [enable mkpasswd-capability], [MKPASSWD])
 MY_ARG_ENABLE([uptime], [enable uptime-command], [UPTIME])
 MY_ARG_ENABLE([chanlog], [enable channel logging], [CHANLOG])
@@ -54,6 +55,7 @@ MY_ARG_ENABLE([privlog], [enable private message logging], [PRIVLOG])
 MY_ARG_ENABLE([onconnect], [enable on-connect actions], [ONCONNECT])
 MY_ARG_ENABLE([empty-awaymsg], [allow empty AWAY messages], [EMPTYAWAY])
 
+MY_ARG_DISABLE([ctcp-replies], [disable ctcp-replies], [CTCPREPLIES])
 MY_ARG_DISABLE([ascii-art], [disable fancy ascii-art], [ASCIIART])
 MY_ARG_DISABLE([quicklog], [disable quicklog], [QUICKLOG])
 MY_ARG_DISABLE([qlogstamp], [disable quicklog timestamps], [QLOGSTAMP])
@@ -70,8 +72,8 @@ MY_ARG_ENABLE([dumpstatus], [enable command to dump miau's status (debug)],
 
 AC_ARG_ENABLE([debug], AC_HELP_STRING([--enable-debug],
 		[produce debugging information (for gdb etc.) (debug)]),
-	[ac_debug=yes], [ac_debug=no])
-if test "x$ac_debug" = "xyes"; then
+	[use_DEBUG=yes], [use_DEBUG=no])
+if test "x$use_DEBUG" = "xyes"; then
 	CFLAGS="${CFLAGS} -g"
 fi
 
@@ -124,7 +126,7 @@ if test "x$GCC" = "xyes"; then
 	CFLAGS="${CFLAGS} -Wall"
 fi
 
-if test "x$enable_ipv6" = "xyes"; then
+if test "x$use_IPV6" = "xyes"; then
 	AC_CHECK_FUNC(gethostbyname2, AC_DEFINE(IPV6))
 fi
 
@@ -232,5 +234,24 @@ if test "x$dont_check_select" = "xtrue"; then
 	echo "- WARNING: Never checked for select."
 fi
 
+test "x$use_QLOGSTAMP" && have_QLOGSTAMP=", with timestamps"
+cat <<EOF
 
-AC_MSG_RESULT([Now type 'make' to compile.])
+miau $VERSION
+
+quicklog ...... : $use_QUICKLOG$have_QLOGSTAMP
+chanlog ....... : $use_CHANLOG	privlog	....... : $use_PRIVLOG	inbox ......... : $use_INBOX
+CTCP-replies .. : $use_CTCPREPLIES	on-connect .... : $use_ONCONNECT	DCC-bounce .... : $use_DCCBOUNCE
+automode ...... : $use_AUTOMODE	ascii-art ..... : $use_ASCIIART	mkpasswd ...... : $use_MKPASSWD
+releasenick ... : $use_RELEASENICK
+
+empty-awaymsg . : $use_EMPTYAWAY	uptime ........ : $use_UPTIME	pingstat ...... : $use_PINGSTAT
+dumpstatus .... : $use_DUMPSTATUS	enduserdebug .. : $use_ENDUSERDEBUG	debug ......... : $use_DEBUG
+
+hstrerror: $ac_cv_func_hstrerror	socklen_t: $ac_cv_type_socklen_t	snprintf: $have_snprintf
+
+EOF
+if test "x$use_IPV6" = "xyes"; then
+	echo "Uses IPv6, exclusively!"
+	echo ""
+fi
