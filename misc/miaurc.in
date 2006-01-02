@@ -561,6 +561,9 @@
 #	D: log when a client is detached
 #	C: log continuously (status of clients doesn't matter)
 #
+# Note that all channelless messages (such as QUIT) are logged on every active
+# channel. This is a feature, not a bug.
+#
 # This option might not be compiled in.
 #
 # Default: none
