@@ -1,3 +1,9 @@
+miau (0.6.0.2-1) unstable; urgency=low
+
+  * Yet another release to fix some stupid bugs.
+
+ -- Tommi Saviranta <wnd@iki.fi>  Sat, 31 Dec 2005 16:08:31 +0200
+
 miau (0.6.0.1-1) unstable; urgency=low
 
   * New release
