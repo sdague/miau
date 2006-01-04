@@ -1,5 +1,7 @@
 TODO:
 
+- configure-option to disable forwardmsg
+
 - user-tracking for decent QUIT log
 
 - nicks-list should have nick-pairs for attached/detached -state
