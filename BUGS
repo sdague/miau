@@ -1,6 +1,8 @@
 Bugs:
 
-- QUIT is logged on every channel
+- QUIT is logged on every channel (ok fine it's a feature)
+
+- Stuff left unfreed if binding fails
 
 - If server changes user's nick, miau doesn't try to get it back!?
 
