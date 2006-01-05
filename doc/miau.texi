@@ -413,9 +413,13 @@ the server when connection to the server is established. Leave unset or set to
 empty to disable this feature.
 
 @item @command{forwardmsg = "command"}
-miau can collect the (private) messages within three (3) minutes and pipe them
-into the program specified. Leave this unset or set to empty to disable this
-feature.
+miau can collect the (private) messages within specified time (see
+@command{forwardtime}) and pipe them into the program specified. Leave this
+unset or set to empty to disable this feature.
+
+@item @command{forwardtime = "seconds"}
+Time in seconds after first inserted line into forwardmsg queue before piping
+the stuff out. Default is 180 seconds (or three mintues).
 
 @item @command{ignore = @{ "mask":"ignored" @}}
 List of users whose private messages (PRIVMSG) and noticies (NOTICE) are

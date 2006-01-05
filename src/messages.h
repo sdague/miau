@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -123,10 +123,11 @@ Usage: %s [-f] "OPT_CRYPT_S"[-d dir]\n\
 #define MIAU_THISPASS	"Set this as password in your miaurc: %s\n\n"
 #endif /* MKPASSWD */
 
+#define MIAU_URL	"http://miau.sf.net/"
 #define BANNER "\
 miau v"VERSION" \""VERSIONNAME"\"\n\
   "MIAU_URL"\n\
-Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>\n\
+Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>\n\
         (C) 2002 Lee Hardy <lee@leeh.co.uk>\n\
         (C) 1998-2002 Sebastian Kienzl <zap@riot.org>\n\
 \n\

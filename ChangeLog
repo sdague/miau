@@ -1,3 +1,10 @@
+0.6.0.3
+
+  * Fixed snprintf size with forwardmsg in server.c
+  * Free forwardmsg in miauc.c:escape
+  * Added an option to define time between forwardmsg commits
+
+
 0.6.0.2
 
   * Hopefully fix problems configure switches for once and for all.

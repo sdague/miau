@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -38,7 +38,6 @@
 #define FILE_LOG	"log"
 #define FILE_INBOX	"inbox"
 
-#define MIAU_URL	"http://miau.sf.net/"
 #ifndef VERSION
 #define VERSION		"???"
 #endif
@@ -158,6 +157,7 @@ typedef struct {
 	char	*listenhost;
 	char	*awaymsg;
 	char	*forwardmsg;
+	int	forwardtime;
 	char	*channels;
 	char	*home;
 	char	*usermode;	/* User modes. Set on connect. */

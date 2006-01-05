@@ -1,6 +1,6 @@
 #
 # miau @VERSION@ configuration file example
-#	(C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+#	(C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
 #
 
 # About structure of this configuration file:
@@ -496,14 +496,25 @@
 
 # forwardmsg = "command": Commands to pipe private messages to.
 #
-# miau can collect the (private) messages within three (3) minutes and pipe
-# them into the program specified. Leave this unset or set to empty to disable
-# this feature.
+# miau can collect the (private) messages within specified time (see
+# forwardtime) and pipe them into the program specified. Leave this unset or
+# set to empty to disable this feature.
 #
 # Default: none
 #
 # Example:
 #forwardmsg = "mail user@host"
+
+
+# forwardtime = "seconds": Time between sending stuff in forwardmsg queue.
+#
+# Time in seconds after first inserted line into forwardmsg queue before
+# piping the stuff out.
+#
+# Default: 180
+#
+# Example:
+#forwardtime = "3600"
 
 
 # ignore = { "mask":"ignored" }: Ignored users.

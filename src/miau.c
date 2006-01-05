@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -141,10 +141,18 @@ cfg_type cfg = {
 #ifdef NEED_CMDPASSWD
 	NULL,			/* cmdpasswd */
 #endif /* ifdef NEED_CMDPASSWD */
-	NULL, NULL, NULL,	/* username / realname / password */
-	NULL, NULL, NULL,	/* leavemsg / bind / listenhost */
-	NULL, NULL, NULL,	/* awaymsg / forwardmsg / channels */
-	NULL, NULL		/* home / usermode */
+	NULL,	/* username */
+	NULL,	/* realname */
+	NULL,	/* password */
+	NULL,	/* leavemsg */
+	NULL,	/* bind */
+	NULL,	/* listenhost */
+	NULL,	/* awaymsg */
+	NULL,	/* forwardmsg */
+	180,	/* forwardtime */
+	NULL,	/* channels */
+	NULL,	/* home */
+	NULL,	/* usermode */
 };
 nicknames_type		nicknames;
 
@@ -281,6 +289,8 @@ escape(void)
 #ifdef NEED_CMDPASSWD
 	xfree(cfg.cmdpasswd);
 #endif /* ifdef NEED_CMDPASSWD */
+
+	xfree(forwardmsg);
 
 	/* Free linked lists. */
 	LLIST_WALK_H(servers.servers.head, server_type *);
@@ -625,6 +635,11 @@ dump_status(int a)
 	LLIST_WALK_F;
 	dump_dump();
 #endif /* idef AUTOMODE */
+
+	/*
+	dump_string("forwardmsg:");
+	dump_string(forwardmsg ? forwardmsg : "-");
+	*/
 
 	dump_finish();
 	xfree(dumpdata);
@@ -1270,7 +1285,7 @@ check_timers(void)
 
 	/* Handle forwarded messages. */
 	if (cfg.forwardmsg) {
-		switch (proceed_timer(&timers.forward, 0, 180)) {
+		switch (proceed_timer(&timers.forward, 0, cfg.forwardtime)) {
 			case 0:
 			case 1:
 				break;
@@ -1292,7 +1307,10 @@ check_timers(void)
 				if (fwd) {
 					fprintf(fwd, "%s", forwardmsg);
 					pclose(fwd);
-					FREE(forwardmsg);
+					xfree(forwardmsg);
+					forwardmsg = NULL;
+					/* redundant, but makes it clearer */
+					forwardmsgsize = 0;
 				}
 				
 				break;

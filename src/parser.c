@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -409,6 +409,8 @@ parse_param(char *data)
 		assign_boolean(&cfg.rejoin, val);
 	} else if (xstrcmp(data, "forwardmsg") == 0) {	/* forwardmsg */
 		assign_param(&cfg.forwardmsg, val);
+	} else if (xstrcmp(data, "forwardtime") == 0) {	/* forwardtime */
+		assign_int(&cfg.forwardtime, val, 30);
 	} else if (xstrcmp(data, "maxclients") == 0) {	/* maxclients */
 		assign_int(&cfg.maxclients, val, 1);
 #ifdef PRIVLOG

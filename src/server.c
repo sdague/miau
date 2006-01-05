@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
  *      (C) 2002 Lee Hardy <lee@leeh.co.uk>
  *      (C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -507,23 +507,24 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 				
 				if (cfg.forwardmsg) {
 					int pos;
-					
+
 					timers.forward = 0;
-					pos = forwardmsgsize;
+					if (forwardmsg == NULL) {
+						/* initial size */
+						/* need space for terminator */
+						forwardmsgsize = 1;
+					}
+					pos = forwardmsgsize - 1;
 					forwardmsgsize +=
 						strlen(origin) +
 						strlen(param2 + 1) +
-						4;
-					if (forwardmsg == NULL) {
-						/* need space for terminator */
-						forwardmsgsize += 1;
-					}
+						4; /* strlen("() \n") */
 					forwardmsg =
 						(char *) xrealloc(forwardmsg,
 								forwardmsgsize);
 					/* paranoid! */
 					snprintf(forwardmsg + pos,
-							forwardmsgsize,
+							forwardmsgsize - pos,
 							"(%s) %s\n",
 							origin, param2 + 1);
 					forwardmsg[forwardmsgsize - 1] = '\0';
