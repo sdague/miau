@@ -1,8 +1,16 @@
 0.6.0.3
 
   * Fixed snprintf size with forwardmsg in server.c
+  * Fixed buffer size in irc.c:irc_notice
   * Free forwardmsg in miauc.c:escape
+  * Fixed getopt
+  * Realloc-optimization in channels.c, automode.c
   * Added an option to define time between forwardmsg commits
+  * Call setvbuf only if statelog is enabled
+  * Fool-proofed reading inbox
+  * Fixed one-byte memory leak with logsuffix
+  * Changed logpostfix into logsuffix
+  * Code cleanup (yes, it was a horrible mess and it's still a horrible mess)
 
 
 0.6.0.2

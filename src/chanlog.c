@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -100,24 +100,24 @@ chanlog_add_rule(char *channels, char *file, int type)
 		 */
 		if (file == NULL || multi) {
 			char *file;
-			int flen;
+			size_t size;
 			/* termination and validity guaranteed */
-			flen = strlen(LOGDIR) + strlen(chan)
-				+ strlen(cfg.logpostfix) + 3;
-			file = (char *) xmalloc(flen);
-			snprintf(file, flen, LOGDIR"/%s%s",
-					chan, cfg.logpostfix);
-			file[flen - 1] = '\0';
+			size = strlen(LOGDIR) + strlen(chan)
+				+ strlen(cfg.logsuffix) + 3;
+			file = (char *) xmalloc(size);
+			snprintf(file, size, LOGDIR"/%s%s",
+					chan, cfg.logsuffix);
+			file[size - 1] = '\0';
 			logptr->filename = file;
 		} else { /* basically "if (file != NULL)" */
-			int fsize;
+			size_t size;
 			/* If filename is relative, add LOGDIR. */
 			/* termination and validity guaranteed */
-			fsize = strlen(LOGDIR) + strlen(file) + 3;
-			logptr->filename = (char *) xmalloc(fsize);
-			snprintf(logptr->filename, fsize, LOGDIR"/%s",
+			size = strlen(LOGDIR) + strlen(file) + 3;
+			logptr->filename = (char *) xmalloc(size);
+			snprintf(logptr->filename, size, LOGDIR"/%s",
 					file);
-			logptr->filename[fsize - 1] = '\0';
+			logptr->filename[size - 1] = '\0';
 		}
 	}
 } /* void chanlog_add_rule(char *channels, char *file, int type) */
@@ -175,7 +175,7 @@ chanlog_open(channel_type *channel)
 
 	/* Didn't find a direct match. Use global logtype. */
 	if (channel->log == NULL && global_logtype) {
-		int plen;
+		size_t plen;
 		char *p;
 		char *lowchan;
 
@@ -188,9 +188,9 @@ chanlog_open(channel_type *channel)
 
 		/* termination and validity guaranteed */
 		plen = strlen(LOGDIR) + strlen(lowchan)
-			+ strlen(cfg.logpostfix) + 3;
+			+ strlen(cfg.logsuffix) + 3;
 		p = (char *) xmalloc(plen);
-		snprintf(p, plen, LOGDIR"/%s%s", lowchan, cfg.logpostfix);
+		snprintf(p, plen, LOGDIR"/%s%s", lowchan, cfg.logsuffix);
 		p[plen - 1] = '\0';
 		channel->log->file = fopen(p, "a");
 		xfree(p);
@@ -275,7 +275,7 @@ chanlog_write_entry_all(int type, char *format, ...)
 	va_list		va;
 
 	va_start(va, format);
-	vsnprintf(buffer, 1023, format, va);
+	vsnprintf(buffer, 1024, format, va);
 	va_end(va);
 	buffer[1023] = '\0';
 

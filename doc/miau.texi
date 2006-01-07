@@ -459,7 +459,7 @@ global log and write log to it's own file. When defining global log,
 @command{#foobar,#miau}).
 
 If logfile is left undefined, logfile will be named after the channel with
-possible postfix (see @command{logpostfix}). All filenames are relative and are,
+possible suffix (see @command{logsuffix}). All filenames are relative and are,
 by default, written in miau's log directory (@command{logs}).
 
 Options consist of abritary set of following possibilities:
@@ -495,9 +495,9 @@ channel. This is a feature, not a bug.
 
 This option might not be compiled in.
 
-@item @command{logpostfix = "postfix"}
+@item @command{logsuffix = "suffix"}
 When writing log to undefined logfile, each logfile consists of channel name
-followed by postfix. Postfix can be defined here.
+followed by suffix. Suffix can be defined here.
 
 @item @command{onconnect = @{ "mode":"target/data"(:"data") @}}
 When miau connects and registers user to server, miau can send pre-defined

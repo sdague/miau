@@ -86,7 +86,7 @@ randname(char *target, const size_t length, const char fillchar)
 		for (i = 0; i < length; i++) {
 			/*
 			 * Using rand() here could be unwise due to bad
-			 * randomness of it. We ignore the thread, as
+			 * randomness of it. We ignore the threat, as
 			 *   a) user can always run mkpasswd,
 			 *   b) knowing the password _should_ only expose
 			 *      your IRC client for public, not your computer

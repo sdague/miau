@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -387,11 +387,18 @@ channel_when(channel_type *chan, const char *who, const char *when)
 void
 channel_join_list(const int list, const int rejoin, connection_type *client)
 {
-	llist_node *first = (list == LIST_PASSIVE) ?
-		passive_channels.head : active_channels.head;
-	char	*chans = NULL;
-	char	*keys = NULL;
-	int	try_joining = 0;
+	llist_node *first;
+	char *chans, *keys;
+	size_t csize, ksize;
+	size_t tclen, tklen;
+	int try_joining;
+
+	if (list == LIST_PASSIVE) {
+		first = passive_channels.head;
+	} else {
+		first = active_channels.head;
+	}
+	try_joining = 0;
 
 	/* Join old_channels if client was defined. */
 	if (client != NULL) {
@@ -403,10 +410,14 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 		LLIST_WALK_F;
 	}
 
-	if (first != NULL) {
-		chans = (char *) xcalloc(1, 1);
-		keys = (char *) xcalloc(1, 1);
+	if (first == NULL) {
+		return;
 	}
+
+	csize = ksize = 256;
+	chans = (char *) xcalloc(csize, 1);
+	keys = (char *) xcalloc(ksize, 1);
+	tclen = tklen = 1;
 
 #ifdef QUICKLOG
 	/*
@@ -440,7 +451,7 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 			}
 			
 			if (data->jointries > 0) {
-				int nlen, klen;
+				size_t clen, klen;
 				try_joining = 1;
 				data->jointries--;
 				/* Add channel and key in queue. */
@@ -454,14 +465,20 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 				 * join with "simple" name, "real" name
 				 * of a safe channel won't do here
 				 */
-				nlen = strlen(data->name);
+				clen = strlen(data->name);
 				klen = strlen(data->key);
-				chans = (char *) xrealloc(chans,
-						nlen + strlen(chans) + 2);
-				keys = (char *) xrealloc(keys,
-						klen + strlen(keys) + 2);
+				tclen += clen + 1;
+				tklen += klen + 1;
+				if (tclen > csize) {
+					csize = tclen;
+					chans = (char *) xrealloc(chans, csize);
+				}
+				if (tklen > ksize) {
+					ksize = tklen;
+					keys = (char *) xrealloc(keys, ksize);
+				}
 				strcat(chans, ",");
-				strncat(chans, data->name, nlen);
+				strncat(chans, data->name, clen);
 				strcat(keys, ",");
 				strncat(keys, data->key, klen);
 			} else if (data->jointries == 0) {
@@ -540,10 +557,8 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 		irc_write(&c_server, "JOIN %s %s", chans + 1, keys + 1);
 	}
 	
-	if (first != NULL) {
-		xfree(chans);
-		xfree(keys);
-	}
+	xfree(chans);
+	xfree(keys);
 } /* void channel_join_list(const int, const int, connection_type *) */
 
 

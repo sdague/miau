@@ -338,8 +338,8 @@ pass_cmd(connection_type *client, char *cmd, char *par0, char *par1,
 		/* Pass the message to server. */
 		irc_write(&c_server, "%s", buf);
 
-		msg = (xstrcmp(cmd, "PRIVMSG") == 0) ||
-			(xstrcmp(cmd, "NOTICE") == 0) ? 1 : 0;
+		msg = ((xstrcmp(cmd, "PRIVMSG") == 0) ||
+			(xstrcmp(cmd, "NOTICE") == 0)) ? 1 : 0;
 		/* Echo the meesage to other clients. */
 		if (msg == 1) {
 			llist_node *iter;

@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,33 +59,40 @@ automode_drop(automode_type *line, llist_node *node, llist_list *list)
 void
 automode_do(void)
 {
-	channel_type	*channel;	/* Channel the modes are for. */
-	char		modes[4];	/* Buffer for three modes */
-	char		*nicks;		/* Buffer for nicks. */
-	int		modecount;
+	channel_type *channel;
+	char modes[4];
+	char *nicks;
+	size_t size;
 
-	bzero(modes, 4);		/* Clear modes. */
-	nicks = xmalloc(1);
+	size = 1;
+	nicks = (char *) xmalloc(size);
 
 	LLIST_WALK_H(active_channels.head, channel_type *);
 		channel = data;
 
 		if (channel->oper == 1) {
-			int nlen;
-			nicks[0] = '\0';	/* Clear nicks. */
-			bzero(modes, 4);	/* Clear modes. */
-			modecount = 0;
+			int count;
+			size_t nlen, tlen;
+
+			nicks[0] = '\0';	/* clear nicks */
+			tlen = 1;
+			bzero(modes, sizeof(modes));	/* clear modes */
+			count = 0;
 		
 			/* Commit three modes at a time. */
 			LLIST_WALK_H(channel->mode_queue.head, automode_type *);
-				modes[modecount] = data->mode;
-				nlen = strlen(data->nick); /* paranoid */
-				nicks = (char *) xrealloc(nicks, strlen(nicks)
-						+ nlen + 2);
+				modes[count] = data->mode;
+				/* paranoid */
+				nlen = strlen(data->nick);
+				tlen += nlen + 1;
+				if (tlen > size) {
+					size = tlen;
+					nicks = (char *) xrealloc(nicks, size);
+				}
 				strcat(nicks, " ");
 				strncat(nicks, data->nick, nlen);
-				modecount++;
-				if (modecount == 3) {
+				count++;
+				if (count == 3) {
 					irc_write_head(&c_server,
 							"MODE %s +%s%s",
 							channel->name,
@@ -93,12 +100,13 @@ automode_do(void)
 							nicks);
 					nicks[0] = '\0'; /* Clear nicks. */
 					bzero(modes, 4); /* Clear modes. */
-					modecount = 0;
+					count = 0;
+					tlen = 1;
 				}
 			LLIST_WALK_F; /* walk queue */
 
 			/* Commit remaining modes. */
-			if (modecount > 0) {
+			if (count > 0) {
 				irc_write_head(&c_server,
 						"MODE %s +%s%s",
 						channel->name,
@@ -124,17 +132,17 @@ automode_queue(const char *nick, const char *hostname, channel_type *channel)
 {
 	automode_type	*modeact;
 	char		*mask;
-	int		msize;
+	size_t		msize;
 
-	char		modes[3] = "ov";
-	int		mode_c = 2;
+	char		modes[] = "ov";
+	int		mode_c;
 
 	/* termination and validity guaranteed */
 	msize = strlen(nick) + strlen(hostname) + strlen(channel->name) + 5;
 	mask = (char *) xmalloc(msize);
 
-	/* Generate mask and see if any automode should take place. */
-	while (mode_c-- > 0) {
+	for (mode_c = 0; mode_c < 2; mode_c++) { /* strlen(ov) - 1 */
+		/* generate mask and see if any automode should take place */
 		snprintf(mask, msize, "%c:%s!%s/%s",
 				modes[mode_c], nick, hostname,
 				channel->name);

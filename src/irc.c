@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -677,9 +677,9 @@ irc_notice(connection_type *connection, char nickname[], char *format, ...)
 	char	buffer[BUFFERSIZE];
 	
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 8, format, va);
+	vsnprintf(buffer, BUFFERSIZE - 9, format, va);
 	va_end(va);
-	buffer[BUFFERSIZE - 9] = '\0';
+	buffer[BUFFERSIZE - 10] = '\0';
 
 	irc_write(connection, "NOTICE %s :%s", nickname, buffer);
 } /* void irc_notice(connection_type *connection, char nickname[],

@@ -141,7 +141,7 @@ typedef struct {
 	char	nickfillchar;	/* Character to fill nick with. */
 
 #ifdef NEED_LOGGING
-	char	*logpostfix;	/* Postfix for global logfiles. */
+	char	*logsuffix;	/* Suffix for global logfiles. */
 #endif /* ifdef NEED_LOGGING */
 #ifdef DCCBOUNCE
 	char	*dccbindhost;

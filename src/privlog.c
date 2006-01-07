@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2004-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2004-2006 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ open_file(char *nick)
 {
 	char *lownick;
 	char *filename;
-	int fsize;
+	size_t fsize;
 	FILE *file;
 
 	/* Get nick in lowercase. */
@@ -55,9 +55,9 @@ open_file(char *nick)
 	lowcase(lownick);
 
 	/* termination and validity guaranteed */
-	fsize = strlen(LOGDIR) + strlen(lownick) + strlen(cfg.logpostfix) + 3;
+	fsize = strlen(LOGDIR) + strlen(lownick) + strlen(cfg.logsuffix) + 3;
 	filename = (char *) xmalloc(fsize);
-	snprintf(filename, fsize, LOGDIR"/%s%s", lownick, cfg.logpostfix);
+	snprintf(filename, fsize, LOGDIR"/%s%s", lownick, cfg.logsuffix);
 	filename[fsize - 1] = '\0';
 	file = fopen(filename, "a+");
 	xfree(filename);

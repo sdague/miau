@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,10 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+
+
+
+#define ERRBUFSIZE	256
 
 
 
@@ -63,13 +67,13 @@ enduserdebug(char *format, ...)
 void
 report(char *format, ...)
 {
-	char	buffer[256];
+	char	buffer[ERRBUFSIZE];
 	va_list	va;
 	
 	va_start(va, format);
-	vsnprintf(buffer, 256, format, va);
+	vsnprintf(buffer, ERRBUFSIZE, format, va);
 	va_end(va);
-	buffer[255] = '\0';
+	buffer[ERRBUFSIZE - 1] = '\0';
 
 	fprintf(stdout, "%s + %s\n", get_short_localtime(), buffer);
 #ifndef TESTING
@@ -82,13 +86,13 @@ report(char *format, ...)
 void
 error(char *format, ...)
 {
-	char	buffer[256];
-	va_list	va;
+	char buffer[ERRBUFSIZE];
+	va_list va;
 
 	va_start(va, format);
-	vsnprintf(buffer, 256, format, va);
+	vsnprintf(buffer, ERRBUFSIZE, format, va);
 	va_end(va);
-	buffer[255] = '\0';
+	buffer[ERRBUFSIZE - 1] = '\0';
 	
 	fprintf(stdout, "%s - %s\n", get_short_localtime(), buffer);
 #ifndef TESTING

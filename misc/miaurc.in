@@ -555,7 +555,7 @@
 # (like "#foobar,#miau").
 #
 # If logfile is left undefined, logfile will be named after the channel with
-# possible postfix (see logpostfix). All lofiles are written in miau's work
+# possible suffix (see logsuffix). All lofiles are written in miau's work
 # directory.
 #
 # Options consist of abritary set of following possibilities:
@@ -589,17 +589,17 @@
 #}
 
 
-# logpostfix = "postfix": Postfix for logfiles.
+# logsuffix = "suffix": Suffix for logfiles.
 #
 # When writing log to undefined logfile, each logfile consists of channel name
-# followed by postfix. Postfix can be defined here.
+# followed by suffix. Suffix can be defined here.
 #
 # This option might not be compiled in.
 #
-# Default: no postfix
+# Default: no suffix
 #
 # Example:
-#logpostfix = ".log"
+#logsuffix = ".log"
 
 
 # onconnect = { "mode":"target/data"(:"data") }: Commands to write at server

@@ -133,7 +133,7 @@ cfg_type cfg = {
 	DEFAULT_NICKFILL,	/* nickfillchar */
 	
 #ifdef NEED_LOGGING
-	NULL,			/* logpostfix */
+	NULL,			/* logsuffix */
 #endif /* ifdef NEED_LOGGING */
 #ifdef DCCBOUNCE
 	NULL,			/* dccbindhost */
@@ -284,7 +284,7 @@ escape(void)
 	/* Free configuration parameters. */
 	xfree(cfg.home);
 #ifdef NEED_LOGGING
-	xfree(cfg.logpostfix);
+	xfree(cfg.logsuffix);
 #endif /* ifdef NEED_LOGGING */
 #ifdef NEED_CMDPASSWD
 	xfree(cfg.cmdpasswd);
@@ -351,11 +351,12 @@ read_cfg(void)
 
 #ifdef NEED_LOGGING
 	/*
-	 * cfg.logpostfix _must_ be non-null as it's assumed so everywhere.
+	 * cfg.logsuffix _must_ be non-null as it's assumed so everywhere.
 	 * By assuming it's non-NULL, we don't need to do
-	 * 'cfg.logpostfix != NULL ? cfg.logpostfix : ""' every time.
+	 * 'cfg.logsuffix != NULL ? cfg.logsuffix : ""' every time.
 	 */
-	cfg.logpostfix = xstrdup("");	/* No global logfile-postfix. */
+	xfree(cfg.logsuffix);
+	cfg.logsuffix = xstrdup("");	/* No global logfile-suffix. */
 #endif /* ifdef NEED_LOGGING */
 	
 	/* Read configuration file. */
@@ -500,7 +501,7 @@ dump_status(int a)
 	dump_status_int("maxnicklen", cfg.maxnicklen);
 	dump_status_int("autoaway", cfg.autoaway);
 #ifdef NEED_LOGGING
-	dump_status_char("logpostfix", cfg.logpostfix);
+	dump_status_char("logsuffix", cfg.logsuffix);
 #endif /* ifdef NEED_LOGGING */
 	dump_dump();
 
@@ -1805,20 +1806,28 @@ miau_commands(char *command, char *param, connection_type *client)
 
 #ifdef INBOX
 	if (xstrcmp(command, "READ") == 0) {
-		char	*s;
 		corr++;
 		if (inbox != NULL && ftell(inbox) != 0) {
+			char s[1024];
+			char *r;
 			fflush(inbox);
 			rewind(inbox);
 
 			irc_notice(client, status.nickname, CLNT_INBOXSTART);
 
-			s = (char *) xmalloc(1024);
-			while (fgets(s, 1023, inbox)) {
-				s[strlen(s)] = '\0';
+			while (1) {
+				size_t size;
+				r = fgets(s, 1023, inbox);
+				if (r == NULL) {
+					break;
+				}
+				size = strlen(s);
+				if (s[size - 1] == '\n') {
+					s[size - 1] = '\0';
+				}
+				s[1023] = '\0';
 				irc_notice(client, status.nickname, "%s", s);
 			}
-			xfree(s);
 
 			irc_notice(client, status.nickname, CLNT_INBOXEND);
 			fseek(inbox, 0, SEEK_END);
@@ -2352,6 +2361,10 @@ init(void)
 	status.automodes = 0;
 #endif /* ifdef AUTOMODE */
 
+#ifdef NEED_LOGGING
+	cfg.logsuffix = NULL;
+#endif /* ifdef NEED_LOGGING */
+
 	srand(time(NULL));
 
 	create_listen();
@@ -2494,7 +2507,16 @@ main(int argc, char **argv)
 	 * getopt could have an overflow problem. If user runs miau with
 	 * evil parameters, that his problem!
 	 */
-	while ((c = getopt(argc, argv, ":cfd:v")) > 0) {
+	while (1) {
+#ifdef MKPASSWD
+		c = getopt(argc, argv, "cfd:v");
+#else /* ifdef MKPASSWD */
+		c = getopt(argc, argv, "fd:v");
+#endif /* ifdef else MKPASSWD */
+		if (c == -1) {
+			break;
+		}
+
 		switch (c) {
 #ifdef MKPASSWD
 		        case 'c':
@@ -2575,12 +2597,12 @@ main(int argc, char **argv)
 					error(MIAU_ERRFILE, cfg.home);
 					exit(ERR_CODE_HOME);
 				}
-			}
 #ifndef SETVBUF_REVERSED
-			setvbuf(stdout, NULL, _IONBF, 0);
+				setvbuf(stdout, NULL, _IONBF, 0);
 #else /* ifndef SETVBUF_REVERSED */
-			setvbuf(stdout, _IONBF, NULL, 0);
+				setvbuf(stdout, _IONBF, NULL, 0);
 #endif /* ifndef else SETVBUF_REVERSED */
+			}
 			printf("\n");
 			report(MIAU_NEWSESSION);
 			report(MIAU_STARTINGLOG);

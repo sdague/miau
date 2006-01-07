@@ -334,8 +334,9 @@ parse_param(char *data)
 		assign_boolean(&cfg.flushqlog, val);
 #endif /* ifdef QUICKLOG */
 #ifdef NEED_LOGGING
-	} else if (xstrcmp(data, "logpostfix") == 0) {	/* logpostfix */
-		assign_param(&cfg.logpostfix, val);
+	} else if (xstrcmp(data, "logsuffix") == 0 ||	/* logsuffix */
+			xstrcmp(data, "logpostfix") == 0) { /* TODO remove me */
+		assign_param(&cfg.logsuffix, val);
 #endif /* ifdef NEED_LOGGING */
 #ifdef INBOX
 	} else if (xstrcmp(data, "inbox") == 0) {	/* inbox */
