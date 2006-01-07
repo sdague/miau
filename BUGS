@@ -14,16 +14,16 @@ Bugs:
   channels are rejoined even if user did "JOIN 0" meanwhile. It is likely that
   passive_channels are not cleared if rejoin is set to false and conf-file is
   reread...
-  
+
 - If quicklog expired for channel we got kicked out while detached, miau tells
   client to join this channel. The problem is that user is _not_ on this
   channel.
-	
+
 - Fails silently if cannot write into ~/.miau/log
 
 - stdout is redirected into file we cannot write to!
 
-- dcc doesn't probably work with IPv6
+- dcc probably won't work with IPv6
 
 
 Removed unconfirmed bugs from this list.
