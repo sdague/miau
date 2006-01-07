@@ -79,8 +79,13 @@ server_drop(char *reason)
 	irc_clear_queue();
 	
 	if (c_server.socket) {
-		sock_setblock(c_server.socket);
-		irc_write(&c_server, "QUIT :%s", reason);
+		char buf[IRC_MSGLEN];
+		int r;
+
+		snprintf(buf, IRC_MSGLEN, "QUIT :%s\r\n", reason);
+		buf[IRC_MSGLEN - 1] = '\0';
+		r = sock_setblock(c_server.socket);
+		irc_write_real(&c_server, buf);
 #ifdef CHANLOG
 		chanlog_write_entry_all(LOG_QUIT, LOGM_QUIT,
 				get_short_localtime(), status.nickname, 
@@ -233,19 +238,19 @@ server_reset(void)
 
 
 /*
- * Jump to next server on list.
+ * Change server.
  *
- * If there are no more servers to connect, miau will either reset all servers
- * to working or quit, depending on the configuration.
+ * If next is set and there are no more servers to connect, miau will either
+ * reset all servers to working or quit, depending on the configuration.
  *
- * If disablecurrent != 0, old server will be marked as disfunctional.
+ * If disable != 0, old server will be marked as disfunctional.
  */
 void
-server_next(const int disablecurrent)
+server_change(int next, int disable)
 {
-	llist_node	*i = i_server.current;
+	llist_node *i;
 
-	if (status.good_server) {
+	if (status.good_server == 1) {
 		status.good_server = 0;
 		return;
 	}
@@ -258,6 +263,12 @@ server_next(const int disablecurrent)
 		return;
 	}
 
+	if (status.reconnectdelay == CONN_DISABLED) {
+		return;
+	}
+
+	i = i_server.current;
+
 	if (servers.fresh == 1) {
 		/*
 		 * We don't know which server of those new ones we are on, so
@@ -267,38 +278,45 @@ server_next(const int disablecurrent)
 		i = servers.servers.head;
 	}
 
-	if (disablecurrent && i != servers.servers.head) {
+	if (disable == 1 && i != servers.servers.head) {
 		((server_type *) i_server.current->data)->working = 0;
 	}
 
-	do {
-		i_server.current = i_server.current->next;
-		if (i_server.current == NULL) {
-			i_server.current = servers.servers.head->next;
-		}
-	} while (! ((server_type *) i_server.current->data)->working &&
-			i_server.current != i);
+	if (next == 1) {
+		do {
+			i_server.current = i_server.current->next;
+			if (i_server.current == NULL) {
+				i_server.current = servers.servers.head->next;
+			}
+		} while (! ((server_type *) i_server.current->data)->working &&
+				i_server.current != i);
+	}
 	
-	if (! ((server_type *) i_server.current->data)->working) {
-		if (cfg.nevergiveup) {
+	if (((server_type *) i_server.current->data)->working == 0) {
+		if (cfg.nevergiveup == 1) {
 			report(MIAU_OUTOFSERVERSNEVER);
 			server_reset();
 			i_server.current = servers.servers.head->next;
-		}
-
-		else {
+		} else {
 			error(MIAU_OUTOFSERVERS);
 			exit(EXIT_SUCCESS);
 		}
 	}
 
-	if (i == i_server.current) {
+	if (next == 0) {
+		report(SOCK_RECONNECTNOW,
+				((server_type *) i_server.current->data)->name);
+		timers.connect = cfg.reconnectdelay - 1;
+		if (timers.connect < 0) {
+			timers.connect = 0;
+		}
+	} else if (i == i_server.current) {
 		report(SOCK_RECONNECT,
 				((server_type *) i_server.current->data)->name,
 				cfg.reconnectdelay);
 		timers.connect = 0;
 	}
-} /* void server_next(const int disablecurrent) */
+} /* void server_change(int next, int disable) */
 
 
 
@@ -331,7 +349,7 @@ server_commands(char *command, char *param, int *pass)
 		drop_newclient(NULL);
 		error(IRC_SERVERERROR, (param == NULL) ? "unknown" : param);
 
-		server_next(i_server.connected == 0);
+		server_change(1, i_server.connected == 0);
 	}
 } /* void server_commands(char *command, char *param, int *pass) */
 
@@ -824,7 +842,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			if (cfg.jumprestricted) {
 				server_drop(CLNT_RESTRICTED);
 				report(SERV_RESTRICTED);
-				server_next(1);
+				server_change(1, 1);
 			}
 			break;
 			

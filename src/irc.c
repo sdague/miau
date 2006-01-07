@@ -56,11 +56,11 @@ const char *hstrerror(int err);
 #define HEAD	1
 #define TAIL	2
 
-void track_highest(void);
-void track_add(int s);
-void track_del(int s);
-int irc_write_real(connection_type *connection, char *buffer);
-int irc_write_smart(connection_type *connection, char *buffer, int queue);
+static void track_highest(void);
+static void track_add(int s);
+static void track_del(int s);
+static int irc_write_smart(connection_type *connection, int queue,
+		char *format, va_list va);
 
 struct hostent *hostinfo = NULL;
 #ifdef IPV6
@@ -467,29 +467,30 @@ sock_accept(int sock, char **s, int checkperm)
 int
 irc_mwrite(clientlist_type *clients, char *format, ...)
 {
-	llist_node	*client;
-	va_list		va;
-	char		buffer[BUFFERSIZE];
-	int		ret = 0;
+	llist_node *client;
+	va_list va;
+	int ret;
 
 	if (clients->connected == 0) {
 		return 0;
 	}
 
+	ret = 0;
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 2, format, va);
-	va_end(va);
-	buffer[BUFFERSIZE - 3] = '\0';
 	for (client = clients->clients->head; client != NULL;
 			client = client->next) {
+		va_list cva;
 		/*
 		 * Having '"%s", buffer' instead of plain 'buffer' is essential
 		 * because we don't want our string processed any further by
 		 * va.
 		 */
-		ret += irc_write((connection_type *) client->data,
-				"%s", buffer);
+		va_copy(cva, va);
+		ret += irc_write_smart((connection_type *) client->data, TAIL,
+				format, cva);
+		va_end(cva);
 	}
+	va_end(va);
 
 	return (ret != 0);
 } /* int irc_mwrite(clientlist_type *clients, char *format, ...) */
@@ -504,33 +505,30 @@ irc_mwrite(clientlist_type *clients, char *format, ...)
 int
 irc_write_head(connection_type *connection, char *format, ...)
 {
-	va_list	va;
-	char	buffer[BUFFERSIZE];
+	va_list va;
+	int r;
 
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 2, format, va);
+	r = irc_write_smart(connection, HEAD, format, va);
 	va_end(va);
-	buffer[BUFFERSIZE - 3] = '\0';
-	strcat(buffer, "\r\n");
 
-	return irc_write_smart(connection, buffer, HEAD);
+	return r;
 } /* int irc_write_head(connection_type *connection, char *format, ...) */
 
 
 
+/* must NOT be called internally -- call irc_write_smart instead */
 int
 irc_write(connection_type *connection, char *format, ...)
 {
-	va_list	va;
-	char	buffer[BUFFERSIZE];
+	va_list va;
+	int r;
 
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 2, format, va);
+	r = irc_write_smart(connection, TAIL, format, va);
 	va_end(va);
-	buffer[BUFFERSIZE - 3] = '\0';
-	strcat(buffer, "\r\n");
 
-	return irc_write_smart(connection, buffer, TAIL);
+	return r;
 } /* int irc_write(connection_type *connection, char *format, ...) */
 
 
@@ -541,9 +539,16 @@ irc_write(connection_type *connection, char *format, ...)
  * to the server and flood control allows this, send message and decrease flood
  * counter. Otherwise put message in queue.
  */
-int
-irc_write_smart(connection_type *connection, char *buffer, const int queue)
+static int
+irc_write_smart(connection_type *connection, int queue,
+		char *format, va_list va)
 {
+	char buffer[IRC_MSGLEN];
+
+	vsnprintf(buffer, IRC_MSGLEN - 2, format, va);
+	buffer[IRC_MSGLEN - 3] = '\0';
+	strcat(buffer, "\r\n");
+
 	if (connection != &c_server) {
 		return irc_write_real(connection, buffer);
 	} else if (msgtimer > 1) {
@@ -563,8 +568,8 @@ irc_write_smart(connection_type *connection, char *buffer, const int queue)
 		}
 		return strlen(buffer);
 	}
-} /* int irc_write_smart(connection_type *connection, char *buffer,
-		const int queue) */
+} /* int irc_write_smart(connection_type *connection, int queue,
+		char *foramt, va_list va) */
 
 
 
@@ -638,51 +643,62 @@ irc_clear_queue(void)
 
 
 
+static int
+irc_notice_va(connection_type *conn, char *nick, char *format, va_list va)
+{
+	char buf[IRC_MSGLEN];
+	int r;
+
+	vsnprintf(buf, IRC_MSGLEN - 9, format, va);
+	buf[IRC_MSGLEN - 10] = '\0';
+	r = irc_write(conn, "NOTICE %s :%s", nick, buf);
+
+	return r;
+} /* static int irc_notice_va(connection_type *conn, char *nick,
+		char *format, va_list va) */
+
+
+
 /*
  * Send data to all connected clients.
  */
 int
-irc_mnotice(clientlist_type *clients, char nickname[], char *format, ...)
+irc_mnotice(clientlist_type *clients, char *nick, char *format, ...)
 {
-	llist_node	*client;
-	va_list		va;
-	char		buffer[BUFFERSIZE];
-	int		ret = 0;
+	llist_node *client;
+	va_list va;
+	int ret;
 
 	if (clients->connected == 0) {
 		return 0;
 	}
 
+	ret = 0;
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 8, format, va);
-	va_end(va);
-	buffer[BUFFERSIZE - 9] = '\0';
-
 	for (client = clients->clients->head; client != NULL;
 			client = client->next) {
-		ret += irc_write((connection_type *) client->data,
-				"NOTICE %s :%s", nickname, buffer);
+		va_list cva;
+		va_copy(cva, va);
+		ret += irc_notice_va((connection_type *) client->data,
+				nick, format, cva);
+		va_end(cva);
 	}
+	va_end(va);
 
 	return ret;
-} /* int irc_mnotice(clientlist_type *clients, char nickname[],
-		char *format, ...) */
+} /* int irc_mnotice(clientlist_type *clients, char *nick, char *format, ...) */
 
 
 
 void
-irc_notice(connection_type *connection, char nickname[], char *format, ...)
+irc_notice(connection_type *connection, char *nick, char *format, ...)
 {
-	va_list	va;
-	char	buffer[BUFFERSIZE];
+	va_list va;
 	
 	va_start(va, format);
-	vsnprintf(buffer, BUFFERSIZE - 9, format, va);
+	irc_notice_va(connection, nick, format, va);
 	va_end(va);
-	buffer[BUFFERSIZE - 10] = '\0';
-
-	irc_write(connection, "NOTICE %s :%s", nickname, buffer);
-} /* void irc_notice(connection_type *connection, char nickname[],
+} /* void irc_notice(connection_type *connection, char *nick,
 		char *format, ...) */
 
 
@@ -740,7 +756,7 @@ irc_read(connection_type *connection)
  *	CONN_OTHER	Setting to nonblocking failed
  */
 int
-irc_connect(connection_type *connection, server_type *server, char *nickname,
+irc_connect(connection_type *connection, server_type *server, char *nick,
 		char *username, char *realname, char *bindto)
 {
 	int		randport = 0;
@@ -803,7 +819,7 @@ irc_connect(connection_type *connection, server_type *server, char *nickname,
 	if (server->password) {
 		irc_write(connection, "PASS %s", server->password);
 	}
-	if (irc_write(connection, "NICK %s", nickname) < 0) {
+	if (irc_write(connection, "NICK %s", nick) < 0) {
 		return CONN_WRITE;
 	}
 	/* We be lazy - modes not set here. */

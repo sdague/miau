@@ -72,7 +72,6 @@ void
 randname(char *target, const size_t length, const char fillchar)
 {
 	size_t oldlen;
-	size_t i;
 	char shift;
 	
 	/* TODO paranoia */
@@ -83,6 +82,7 @@ randname(char *target, const size_t length, const char fillchar)
 
 	/* Genereate from scratch? */
 	if (target[0] == '\0') {
+		size_t i;
 		for (i = 0; i < length; i++) {
 			/*
 			 * Using rand() here could be unwise due to bad

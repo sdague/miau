@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -42,7 +42,7 @@
  * all these function return 0 on error (except sock_open, this will return -1)
  * on error net_errstr will point to the error_string
  */
-int sock_open();
+int sock_open(void);
 int sock_close(connection_type *connection);
 int sock_listen(int sock);
 int sock_setnonblock(int sock);
@@ -56,12 +56,13 @@ int sock_accept(int sock, char **hostname, int checkperm);
 int rawsock_close(int sock);
 struct hostent *name_lookup(char *bindhost);
 
-void irc_process_queue();
-void irc_clear_queue();
+void irc_process_queue(void);
+void irc_clear_queue(void);
 
 int irc_mwrite(clientlist_type *clients, char *format, ...);
 int irc_write(connection_type *connection, char *format, ...);
 int irc_write_head(connection_type *connection, char *format, ...);
+int irc_write_real(connection_type *connection, char *buffer);
 /* returns: on success -> number of written bytes; -1 on error */
 
 int irc_read(connection_type *connection);
@@ -78,11 +79,10 @@ int irc_read(connection_type *connection);
 #define CONN_OTHER	6	/* Other error (setting nonblocking failed) */
 /* IMPORTANT! connection->connected does NOT get set ! */
 int irc_connect(connection_type *connection, server_type *server,
-		char *nickname, char *username, char *realname, char *bindto);
+		char *nick, char *username, char *realname, char *bindto);
 
-int irc_mnotice(clientlist_type *clients, char nickname[], char *format, ...);
-void irc_notice(connection_type *connection, char nickname[],
-		char *format, ...);
+int irc_mnotice(clientlist_type *clients, char *nick, char *format, ...);
+void irc_notice(connection_type *connection, char *nick, char *format, ...);
 
 
 #define RPL_MYINFO_LEN		4

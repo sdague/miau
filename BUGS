@@ -2,8 +2,6 @@ Bugs:
 
 - QUIT is logged on every channel (ok fine it's a feature)
 
-- Stuff left unfreed if binding fails
-
 - If server changes user's nick, miau doesn't try to get it back!?
 
 - Wildcard '*' matches one or more character, not any number as it's supposed
@@ -18,10 +16,6 @@ Bugs:
 - If quicklog expired for channel we got kicked out while detached, miau tells
   client to join this channel. The problem is that user is _not_ on this
   channel.
-
-- Fails silently if cannot write into ~/.miau/log
-
-- stdout is redirected into file we cannot write to!
 
 - dcc probably won't work with IPv6
 

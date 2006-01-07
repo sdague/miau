@@ -300,17 +300,17 @@ drop_free:
 void
 qlog_write(const int privmsg, char *format, ...)
 {
-	qlogentry	*line;
-	va_list		va;
-	char		buf[BUFFERSIZE];
+	qlogentry *line;
+	va_list va;
+	char buf[BUFFERSIZE];
 
 	/* First remove possible outdated lines. */
 	qlog_drop_old();
 
 	va_start(va, format);
-	vsnprintf(buf, BUFFERSIZE - 2, format, va);
+	vsnprintf(buf, IRC_MSGLEN - 2, format, va);
 	va_end(va);
-	buf[BUFFERSIZE - 3] = '\0';
+	buf[IRC_MSGLEN - 3] = '\0';
 
 	/* Create new line of quicklog. */
 	line = (qlogentry *) xmalloc(sizeof(qlogentry));

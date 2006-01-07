@@ -83,6 +83,7 @@ Usage: %s [-f] "OPT_CRYPT_S"[-d dir]\n\
 #define MIAU_STARTINGLOG	"miau version "VERSION" - starting log..."
 #define MIAU_CLOSINGLINK	"ERROR: Closing link: %s"
 #define MIAU_USERKILLED	"ERROR: "CLNT_DIE" %s"
+#define MIAU_LOGNOWRITE	"Cannot write to logfile (%s)!"
 
 #define MIAU_VERSION	"- miau version "VERSION" - \""VERSIONNAME"\" -"
 #define MIAU_372_RUNNING	"- Running on server %s with nickname %s"
@@ -151,6 +152,7 @@ Read 'COPYING' for copyright and licence details.\n"
 #define SOCK_ERRCONNECT	"Unable to connect to '%s'! (%s)"
 #define SOCK_ERRWRITE	"Error while sending data to '%s'!"
 #define SOCK_RECONNECT	"Trying to reconnect to '%s' in %d seconds."
+#define SOCK_RECONNECTNOW	"Trying to reconnect to '%s'."
 #define SOCK_ERRTIMEOUT	"Connection timeout"
 
 /*

@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ typedef struct {
 void server_drop(char *reason);
 void server_set_fallback(const llist_node *safenode);
 void server_reset(void);
-void server_next(const int disablecurrent);
+void server_change(int next, int disablee);
 int server_read(void);
 void server_commands(char *command, char *param, int *pass);
 int parse_privmsg(char *param1, char *param2, char *nick, char *hostname,

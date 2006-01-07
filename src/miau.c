@@ -210,6 +210,7 @@ free_resources(void)
 	FREE(cfg.realname);
 	FREE(cfg.password);
 
+	FREE(cfg.bind);
 	FREE(cfg.usermode);
 	FREE(cfg.awaymsg);
 	FREE(cfg.leavemsg);
@@ -318,10 +319,6 @@ escape(void)
 	xfree(i_newclient.nickname);
 	xfree(i_newclient.username);
 	xfree(i_newclient.hostname);
-
-	/* And some more... */
-	free_resources();
-	command_free();
 	
 	/* We're done. */
 	error(MIAU_ERREXIT);
@@ -419,9 +416,9 @@ dump_finish(void)
 static void
 dump_status_int(const char *id, const int val)
 {
-	char	buf[BUFFERSIZE];
-	snprintf(buf, BUFFERSIZE, "    %s=%d", id, val);
-	buf[BUFFERSIZE - 1] = '\0';
+	char buf[IRC_MSGLEN];
+	snprintf(buf, IRC_MSGLEN, "    %s=%d", id, val);
+	buf[IRC_MSGLEN - 1] = '\0';
 	if (foocount + strlen(buf) > 80) {
 		dump_dump();
 	}
@@ -431,9 +428,9 @@ dump_status_int(const char *id, const int val)
 static void
 dump_status_char(const char *id, const char *val)
 {
-	char	buf[BUFFERSIZE];
-	snprintf(buf, BUFFERSIZE, "    %s='%s'", id, val);
-	buf[BUFFERSIZE - 1] = '\0';
+	char buf[IRC_MSGLEN];
+	snprintf(buf, IRC_MSGLEN, "    %s='%s'", id, val);
+	buf[IRC_MSGLEN - 1] = '\0';
 	if (foocount + strlen(buf) > 80) {
 		dump_dump();
 	}
@@ -769,9 +766,11 @@ connect_timeout(int a)
  *
  * Clear lists but don't touch settings aleady set. Perhaps this isn't a good
  * idea and we should reset all values to default...
+ *
+ * Parameter for signal handler, value ignored.
  */
 static void
-rehash(int a)
+rehash(int sigparam)
 {
 	/*
 	 * Save old configuration so we can complain about missing entris and
@@ -782,10 +781,12 @@ rehash(int a)
 	char		*oldrealname;
 	char		*oldusername;
 	char		*oldpassword;
+	char		*oldbind;
 	int		oldlistenport;
 	char		*oldlistenhost;
 	llist_node	*node;
 	int host_changed;
+	int bind_changed;
 
 	/* First backup some essential stuff. */
 	oldrealname = xstrdup(cfg.realname);
@@ -794,6 +795,7 @@ rehash(int a)
 	oldlistenport = cfg.listenport;
 	oldlistenhost = (cfg.listenhost != NULL)
 		? xstrdup(cfg.listenhost) : NULL;
+	oldbind = (cfg.bind != NULL) ? xstrdup(cfg.bind) : NULL;
 
 	/* Free non-must parameters. */
 	free_resources();
@@ -873,17 +875,32 @@ rehash(int a)
 	nicknames.next = NICK_FIRST;
 
 	/* Listening port or host changed. */
-	if (cfg.listenhost != NULL) {
-		if (oldlistenhost == NULL) {
+	if (cfg.listenhost == NULL || oldlistenhost == NULL) {
+		if (cfg.listenhost != oldlistenhost) {
 			host_changed = 1;
 		} else {
-			host_changed = xstrcmp(oldlistenhost, cfg.listenhost);
+			host_changed = 0;
 		}
 	} else {
-		host_changed = cfg.listenhost == oldlistenhost ? 0 : 1;
+		host_changed = xstrcmp(oldlistenhost, cfg.listenhost);
 	}
-	if (oldlistenport != cfg.listenport || host_changed == 1) {
+	if (oldlistenport != cfg.listenport || host_changed != 0) {
 		create_listen();
+	}
+
+	/* Bind address changed. */
+	if (cfg.bind == NULL || oldbind == NULL) {
+		if (cfg.bind != oldbind) {
+			bind_changed = 1;
+		} else {
+			bind_changed = 0;
+		}
+	} else {
+		bind_changed = xstrcmp(oldbind, cfg.bind);
+	}
+	if (bind_changed != 0) {
+		server_drop(MIAU_RECONNECT);
+		server_change(1, 0); /* reconnect to current */
 	}
 
 #ifdef INBOX
@@ -900,7 +917,7 @@ rehash(int a)
 			report(MIAU_ERRINBOXFILE);
 		}
 	}
-#endif /* idef INBOX */
+#endif /* ifdef INBOX */
 
 	/* Reopen log-file. */
 	/*
@@ -920,7 +937,7 @@ rehash(int a)
 		i_server.current--;
 		status.reconnectdelay = cfg.reconnectdelay;
 		timers.connect = cfg.reconnectdelay - 3;
-		server_next(0);
+		server_change(1, 0);
 	}
 
 	/* Free backuped stuff. */
@@ -928,6 +945,7 @@ rehash(int a)
 	xfree(oldpassword);
 	xfree(oldusername);
 	xfree(oldlistenhost);
+	xfree(oldbind);
 } /* static void rehash(int a) */
 
 
@@ -1191,7 +1209,7 @@ check_timers(void)
 			case 2:
 				server_drop(SERV_STONED);
 				error(SERV_STONED);
-				server_next(0);
+				server_change(1, 0);
 				break;
 		}
 	}
@@ -1407,6 +1425,8 @@ get_nick(char *format)
 			} else {
 				nicknames.gen_tries++;
 			}
+			status.nickname = xrealloc(status.nickname,
+					cfg.maxnicklen + 1);
 			randname(status.nickname, cfg.maxnicklen,
 					cfg.nickfillchar);
 		} else {
@@ -1927,28 +1947,36 @@ miau_commands(char *command, char *param, connection_type *client)
 #endif /* ifdef DUMPSTATUS */
 
 	else if (xstrcmp(command, "JUMP") == 0) {
-		status.good_server = 0;	/* Don't try this server again. :-) */
 		corr++;
 		/* Are there any other servers ? */
 		if (servers.amount != 0) {
 			server_drop(MIAU_JUMP);
 			report(MIAU_JUMP);
-			if (param) {
+			miau_welcome();
+
+			if (param != NULL) {
 				i = atoi(param);
-				if (i < 1) i = 1;
-				if (i >= servers.amount) i = servers.amount - 1;
-				i--;
+				if (i < 1) {
+					i = 1;
+				}
+				if (i >= servers.amount) {
+					i = servers.amount - 1;
+				}
 				i_server.current = servers.servers.head;
-				while (i--) {
+				for (; i > 0; i--) {
 					i_server.current =
 						i_server.current->next;
 				}
-				((server_type *) i_server.current->next->data)->working = 1;
+				((server_type *) i_server.current->data)
+					->working = 1;
+				/* we know what we're doing */
+				servers.fresh = 0;
+				server_change(0, 0);
+			} else {
+				/* Don't try this server again. :-) */
+				status.good_server = 0;
+				server_change(1,0);
 			}
-
-			/* Reconnecting to current server is ok. */
-			miau_welcome();
-			server_next(0);
 
 			/* Try connecting ASAP. */
 			timers.connect = cfg.reconnectdelay;
@@ -1964,18 +1992,20 @@ miau_commands(char *command, char *param, connection_type *client)
 		 * where the original reason came from, is freed when we
 		 * need it.
 		 */
-		char *reason = (param == NULL ?
-				xstrdup(MIAU_DIE_CL) : xstrdup(param));
+		char *reason;
+		
+		reason = (param == NULL) ?
+			xstrdup(MIAU_DIE_CL) : xstrdup(param);
 		/*
-		 * If user issues a DIE-command, (s) most likely knows why
+		 * If user issues a DIE-command, (s)he most likely knows why
 		 * connection was lost. Therefore we don't need to tell clients
 		 * what's going on.
 		 */
 		/* (all clients, reason, notice, echo, no) */
+		drop_newclient(NULL);
 		client_drop(NULL, reason, DYING, 1, NULL);
 		server_drop(reason);
-		drop_newclient(NULL);
-		if (reason != NULL) { xfree(reason); }
+		xfree(reason);
 		/*
 		 * Finally free memory allocated by copy of user's command.
 		 * (See client_free() for more info.
@@ -2099,7 +2129,7 @@ run(void)
 				case CONN_LOOKUP:
 					error(SOCK_ERRRESOLVE, server->name);
 					server_drop(NULL);
-					server_next(1);
+					server_change(1, 1);
 					break;	
 			
 				case CONN_BIND:
@@ -2126,13 +2156,13 @@ run(void)
 						error(SOCK_ERRCONNECT, server->name, strerror(errno));
 						sock_close(&c_server);
 					}
-					server_next(1);
+					server_change(1, 1);
 					break;
 					
 				case CONN_WRITE:
 					error(SOCK_ERRWRITE, server->name);
 					server_drop(NULL);
-					server_next(0);
+					server_change(1, 0);
 					break;
 			
 				case CONN_OTHER:
@@ -2190,7 +2220,7 @@ run(void)
 				if (server_read() < 0) {
 					server_drop(SERV_DROPPED);
 					error(SERV_DROPPED);
-					server_next(0);
+					server_change(1, 0);
 				}
 			} /* Data from server. */
 
@@ -2334,6 +2364,8 @@ init(void)
 	sigaction(SIGPIPE, &sv, NULL);	/* Ignore SIGPIPEs for good. */
 
 	atexit(client_free);		/* free temp memory for client_read */
+	atexit(free_resources);		/* free mem taken by config etc. */
+	atexit(command_free);		/* free mem taken by hash table */
 
 	umask(~S_IRUSR & ~S_IWUSR);	/* For logfile(s). */
 
@@ -2364,6 +2396,7 @@ init(void)
 #ifdef NEED_LOGGING
 	cfg.logsuffix = NULL;
 #endif /* ifdef NEED_LOGGING */
+	i_server.realname = xstrdup("miau");
 
 	srand(time(NULL));
 
@@ -2580,6 +2613,23 @@ main(int argc, char **argv)
 	init();
 
 	if (dofork == 1) {
+		if (cfg.statelog == 1) {
+			/*
+			 * See if file can be written to. If freopen fails,
+			 * stdout would be lost. This check is not fool-proof,
+			 * if someone changes the permissions before we get
+			 * to call freopen, we will still fail. Lets consider
+			 * this effort good enough.
+			 */
+			FILE *f;
+			f = fopen(FILE_LOG, "a");
+			if (f == NULL) {
+				error(MIAU_LOGNOWRITE, FILE_LOG);
+				exit(ERR_CODE_LOG);
+			}
+			fclose(f);
+		}
+
 		pid = fork();
 		if (pid < 0) {
 			error(MIAU_ERRFORK);
@@ -2593,7 +2643,10 @@ main(int argc, char **argv)
 			 * low on disk space.
 			 */
 			if (cfg.statelog == 1) {
-				if (! freopen(FILE_LOG, "a", stdout)) {
+				FILE *f;
+				
+				f = freopen(FILE_LOG, "a", stdout);
+				if (f == NULL) {
 					error(MIAU_ERRFILE, cfg.home);
 					exit(ERR_CODE_HOME);
 				}

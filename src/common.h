@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2004 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@
 #define ERR_CODE_HOME		2
 #define ERR_CODE_CONFIG		3
 #define ERR_CODE_NETWORK	4
+#define ERR_CODE_LOG		5
 #define ERR_CODE_MEMORY		9
 
 
