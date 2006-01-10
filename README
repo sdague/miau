@@ -6,12 +6,12 @@ ready, concider finding me more spare time from work. :-)
 
 
 Notes:
-- cmdpasswd and related things are space-sensitive.
 - epic _may_ act funny when using getnick-feature.
 - Automodes do not track nick-changes. if target changes nick, invalid
   mode-change will be done and error will be passed to the client.
 - Don't reboot your Mac running X-Chat Aqua (2.0.5) unless you want to part
   _some_ of the channels you are on.
+- cmdpasswd (do NOT use) and related things are space-sensitive
 
 
 About multi-client support
@@ -29,26 +29,6 @@ About multi-client support
       client and again, fastest gets it all - this means another client, with
       auto-accept on, connected to bouncer could get the file instead of the
       original target.
-
-
-miau has been compiled succesfully on following platforms:
-	- COMPAQ AlphaServer DS20 (Alpha EV67) running Linux 2.2.20
-	- Darwin 5.5 Darwin Kernel Version 5.5 Power Macintosh powerpc
-	- FreeBSD 4.9-PRERELEASE FreeBSD 4.9-PRERELEASE i386
-	- HP-UX B.10.20 A 9000/785 2013691475
-	- Intel StrongARM-1110 rev 8 (v4l) running
-		Linux 2.4.9-ac10-rmk2-np1-cerf2
-	- Linux 2.2.20 alpha unknown
-	- Linux 2.4.21-143-smp x86_64 unknown
-	- Linux 2.6.3 i686 GNU/Linux
-	- NetBSD 1.6.1 NetBSD 1.6.1 (GENERIC) i386
-	- SunOS sparc-solaris1 5.9 Generic_112233-03 sun4u sparc SUNW,Ultra-60
-
-miau also compiles on following, but with some trouble:
-	- OSF1 V4.0 1229 alpha
-
-Following platforms are also reported to work:
-	- HP-UX B.11.00 U 9000/800 (complains about -O2)
 
 
 If you have compiled miau on other platforms than those above, please let me
