@@ -1,5 +1,9 @@
 Bugs:
 
+- Created LOG_DIR even if logging is not compiled in
+
+- Created empty FILE_INBOX even if inbox is disabled
+
 - QUIT is logged on every channel (ok fine it's a feature)
 
 - If server changes user's nick, miau doesn't try to get it back!?
