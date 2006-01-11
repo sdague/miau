@@ -47,10 +47,20 @@
 /* #define DEBUG */
 
 #ifdef HAVE_HSTRERROR
-#ifdef HSTRERROR_PROTO
+#ifndef HAVE_HSTRERROR_PROTO
 const char *hstrerror(int err);
-#endif /* ifdef HSTRERROR_PROTO */
+#endif /* ifndef HAVE_HSTRERROR_PROTO */
 #endif /* ifdef HAVE_HSTRERROR */
+
+/* va_copy */
+#ifndef va_copy
+#ifdef HAVE___VA_COPY
+#define va_copy __va_copy
+#else /* ifdef HAVE___VA_COPY */
+/* we may need "memcpy(&dest, &src, sizeof(va_list))" on some systems */
+#define va_copy(dest, src) ((dest) = (src))
+#endif /* ifdef else HAVE___VA_COPY */
+#endif /* ifndef va_copy */
 
 
 #define HEAD	1
@@ -81,7 +91,7 @@ llist_list	msg_queue;	/* Message queue */
 
 
 
-void
+static void
 track_highest(void)
 {
 	int	i;
@@ -95,7 +105,7 @@ track_highest(void)
 
 
 
-void
+static void
 track_add(int s)
 {
 	int	i = 0;
@@ -110,7 +120,7 @@ track_add(int s)
 
 
 
-void
+static void
 track_del(int s)
 {
 	int	i;
@@ -568,7 +578,7 @@ irc_write_smart(connection_type *connection, int queue,
 		}
 		return strlen(buffer);
 	}
-} /* int irc_write_smart(connection_type *connection, int queue,
+} /* static int irc_write_smart(connection_type *connection, int queue,
 		char *foramt, va_list va) */
 
 

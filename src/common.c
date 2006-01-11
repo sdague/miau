@@ -32,28 +32,46 @@
 
 
 #if HAVE_MALLOC != 1
-#include <sys/types.h>
+/*
+ * Need to undef. Will cause warnings, but until someone can provide me a
+ * better way to do this, warnings shall we have. Same goes for rpl_realloc.
+ */
+#undef malloc
+#include <stdlib.h>
 
-static void *
+void *
 rpl_malloc(size_t size)
 {
 	if (size == 0) {
 		size = 1;
 	}
 	return malloc(size);
-} /* static void *rpl_malloc(size_t size) */
+} /* void *rpl_malloc(size_t size) */
+#endif /* if HAVE_MALLOC != 1 */
 
 
 
-static void *
+#if HAVE_REALLOC != 1
+#undef realloc
+#include <stdlib.h>
+
+void *
 rpl_realloc(void *ptr, size_t size)
 {
 	if (size == 0) {
 		size = 1;
+		if (ptr != NULL) {
+			free(ptr);
+			ptr = NULL;
+		}
 	}
-	return realloc(ptr, size);
-} /* static void *rpl_realloc(void *ptr, size_t size) */
-#endif /* if HAVE_MALLOC != 1 */
+	if (ptr == NULL) {
+		return malloc(size);
+	} else {
+		return realloc(ptr, size);
+	}
+} /* void *rpl_realloc(void *ptr, size_t size) */
+#endif /* if HAVE_REALLOC != 1 */
 
 
 

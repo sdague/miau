@@ -353,7 +353,7 @@ read_cfg(void)
 	 * 'cfg.logsuffix != NULL ? cfg.logsuffix : ""' every time.
 	 */
 	xfree(cfg.logsuffix);
-	cfg.logsuffix = xstrdup("");	/* No global logfile-suffix. */
+	cfg.logsuffix = NULL;
 #endif /* ifdef NEED_LOGGING */
 	
 	/* Read configuration file. */
@@ -362,6 +362,12 @@ read_cfg(void)
 		error(MIAU_ERRCFG, cfg.home);
 		exit(ERR_CODE_CONFIG);
 	}
+#ifdef NEED_LOGGING
+	/* cfg.logsuffix _must_ be set */
+	if (cfg.logsuffix == NULL) {
+		cfg.logsuffix = xstrdup("");
+	}
+#endif /* ifdef NEED_LOGGING */
 
 	report(MIAU_READ_RC);
 } /* static void read_cfg(void) */
@@ -2393,9 +2399,6 @@ init(void)
 	status.automodes = 0;
 #endif /* ifdef AUTOMODE */
 
-#ifdef NEED_LOGGING
-	cfg.logsuffix = NULL;
-#endif /* ifdef NEED_LOGGING */
 	i_server.realname = xstrdup("miau");
 
 	srand(time(NULL));

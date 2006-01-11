@@ -92,10 +92,10 @@ AC_CHECK_HEADERS([stdlib.h string.h strings.h sys/socket.h sys/time.h unistd.h])
 
 dnl Checks for libraries.
 AC_SEARCH_LIBS(gethostbyname, [inet nsl])
-AC_SEARCH_LIBS(gethostbyaddr, nsl)
-AC_SEARCH_LIBS(socket, socket)
-AC_SEARCH_LIBS(hstrerror, resolv)
-AC_SEARCH_LIBS(crypt, crypt)
+AC_SEARCH_LIBS(gethostbyaddr, [nsl])
+AC_SEARCH_LIBS(socket, [socket])
+AC_SEARCH_LIBS(hstrerror, [resolv])
+AC_SEARCH_LIBS(crypt, [crypt])
 
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -203,28 +203,52 @@ AC_CACHE_CHECK([for socklen_t], [ac_cv_type_socklen_t], [
 		[ac_cv_type_socklen_t=no])
 ])
 if test "x$ac_cv_type_socklen_t" != "xyes"; then
-	AC_DEFINE(socklen_t, int, [Substitute for socklen_t])
+	AC_DEFINE([socklen_t], [int], [Substitute for socklen_t])
 fi
-
 
 # hstrerror on Digital UNIX
 _CFLAGS="${CFLAGS}"
 CFLGAS="-Werror"
-AC_CACHE_CHECK([for normal hstrerror], [ac_cv_func_hstrerror], [
-	AC_TRY_COMPILE(
+AC_CACHE_CHECK([for hstrerror prototype], [ac_cv_func_hstrerror], [
+	AC_TRY_LINK(
 		[#include <netdb.h>],
 		[const char *ret; ret = hstrerror(1); return 0;],
 		[ac_cv_func_hstrerror=yes],
 		[ac_cv_func_hstrerror=no])
 ])
 if test "x${ac_cv_func_hstrerror}" = "xyes"; then
-	AH_TEMPLATE([HSTRERROR_PROTO], [need dummy prototype for hstrerror])
-	AC_DEFINE([HSTRERROR_PROTO], [yes])
+	AH_TEMPLATE([HAVE_HSTRERROR_PROTO], [have prototype for hstrerror])
+	AC_DEFINE([HAVE_HSTRERROR_PROTO], [yes])
 fi
 CFLAGS="${_CFLAGS}"
 
+# try to find va_copy
+AC_CACHE_CHECK([for va_copy], [ac_cv_macro_va_copy], [
+	AC_TRY_LINK(
+		[#include <stdarg.h>],
+		[va_list a1, a2; va_copy(a1, a2); return 0;],
+		[ac_cv_macro_va_copy=yes],
+		[ac_cv_macro_va_copy=no])
+])
+if test "x${ac_cv_macro_va_copy}" = "xyes"; then
+	AH_TEMPLATE([HAVE_VA_COPY], [have va_copy macro])
+	AC_DEFINE([HAVE_VA_COPY], [yes])
+fi
+AC_CACHE_CHECK([for __va_copy], [ac_cv_macro___va_copy], [
+	AC_TRY_LINK(
+		[#include <stdarg.h>],
+		[va_list a1, a2; va_copy(a1, a2); return 0;],
+		[ac_cv_macro___va_copy=yes],
+		[ac_cv_macro___va_copy=no])
+])
+if test "x${ac_cv_macro___va_copy}" = "xyes"; then
+	AH_TEMPLATE([HAVE___VA_COPY], [have __va_copy macro])
+	AC_DEFINE([HAVE___VA_COPY], [1])
+fi
 
-AC_OUTPUT([Makefile src/Makefile doc/Makefile misc/Makefile misc/miaurc miau.spec])
+
+AC_OUTPUT([Makefile src/Makefile doc/Makefile misc/Makefile])
+AC_OUTPUT([misc/miaurc miau.spec])
 
 if test "x$have_snprintf" != "xyes" -a \
 		"x$snprintf_workaround" = "xyes"; then
