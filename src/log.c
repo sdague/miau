@@ -32,6 +32,44 @@
 
 
 
+int warned_already = 0;
+
+
+void
+log_cannot_write(const char *file)
+{
+	char *rfile;
+	size_t size;
+
+	if (file == NULL) {
+		debug("log_cannot_write(NULL)");
+		return;
+	}
+
+	if (warned_already == 1) {
+		return;
+	}
+	
+	size = strlen(LOGDIR) + strlen(file) + 2;
+	rfile = xmalloc(size);
+	snprintf(rfile, size, "%s/%s", LOGDIR, file);
+	rfile[size - 1] = '\0';
+	report(MIAU_LOGNOWRITE, rfile);
+	xfree(rfile);
+
+	warned_already = 1;
+} /* void log_cannot_write(const char *file) */
+
+
+
+void
+log_reset_warn_timer(void)
+{
+	warned_already = 0;
+} /* void log_reset_warn_timer(void) */
+
+
+
 /*
  * Prepare message for logging. Returns pointer to printable message or NULL
  * if message is normal PRIVMSG.

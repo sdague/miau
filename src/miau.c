@@ -39,6 +39,8 @@
 #include "ignore.h"
 #include "common.h"
 #include "dcc.h"
+#include "etc.h"
+#include "log.h"
 
 #include <errno.h>
 #include <signal.h>
@@ -345,16 +347,6 @@ read_cfg(void)
 		llist_delete(node, &servers.servers);
 	LLIST_WALK_F;
 	servers.amount = 1;
-
-#ifdef NEED_LOGGING
-	/*
-	 * cfg.logsuffix _must_ be non-null as it's assumed so everywhere.
-	 * By assuming it's non-NULL, we don't need to do
-	 * 'cfg.logsuffix != NULL ? cfg.logsuffix : ""' every time.
-	 */
-	xfree(cfg.logsuffix);
-	cfg.logsuffix = NULL;
-#endif /* ifdef NEED_LOGGING */
 	
 	/* Read configuration file. */
 	ret = parse_cfg(MIAURC);
@@ -767,6 +759,50 @@ connect_timeout(int a)
 
 
 
+static void
+create_dirs(void)
+{
+#ifdef NEED_LOGGING
+	{
+		struct stat ds;
+		int t;
+		int logdir;
+
+		logdir = 0;
+#ifdef CHANLOG
+		if (chanlog_list.head != NULL || global_logtype != 0) {
+			logdir = 1;
+			printf("chanlog needs\n");
+		}
+#endif /* ifdef CHANLOG */
+#ifdef PRIVLOG
+		if (cfg.privlog != 0) {
+			printf("privlog needs\n");
+			logdir = 1;
+		}
+#endif /* ifdef PRIVLOG */
+
+		if (logdir == 1) {
+			t = stat(LOGDIR, &ds);
+			if (t == 0) {
+				/* Exists. */
+				if (! S_ISDIR(ds.st_mode)) {
+					error(MIAU_ERRLOGDIR, LOGDIR);
+					exit(ERR_CODE_HOME);
+				}
+			} else {
+				if (mkdir(LOGDIR, 0700) == -1) {
+					error(MIAU_ERRCREATELOGDIR, LOGDIR);
+					exit(ERR_CODE_HOME);
+				}
+			}
+		}
+	}
+#endif /* ifdef NEED_LOGGING */
+}
+
+
+
 /*
  * Reread configuration file.
  *
@@ -911,13 +947,13 @@ rehash(int sigparam)
 
 #ifdef INBOX
 	/* We're logging no more. */
-	if (! cfg.inbox && inbox != NULL) {
+	if (cfg.inbox == 0 && inbox != NULL) {
 		fclose(inbox);
 		inbox = NULL;
 	}
 	
 	/* We should start logging. */
-	if (cfg.inbox && inbox == NULL) {
+	if (cfg.inbox == 1 && inbox == NULL) {
 		inbox = fopen(FILE_INBOX, "a+");
 		if (inbox == NULL) {
 			report(MIAU_ERRINBOXFILE);
@@ -952,6 +988,8 @@ rehash(int sigparam)
 	xfree(oldusername);
 	xfree(oldlistenhost);
 	xfree(oldbind);
+
+	create_dirs();
 } /* static void rehash(int a) */
 
 
@@ -1358,6 +1396,12 @@ check_timers(void)
 		privlog_close_old();
 	}
 #endif /* ifdef PRIVLOG */
+#ifdef NEED_LOGGING
+	/* Reset timer for repeating warnings about logfiles. */
+	if (proceed_timer(&timers.logfile_warn, 0, LOGWARN_TIMER)) {
+		log_reset_warn_timer();
+	}
+#endif /* ifdef NEED_LOGGING */
 
 #ifdef DCCBOUNCE
 	/* Bounce DCCs. */
@@ -2337,6 +2381,10 @@ pre_init(void)
 	passive_channels.tail = NULL;
 	old_channels.head = NULL;
 	old_channels.tail = NULL;
+
+#ifdef NEED_LOGGING
+	cfg.logsuffix = xstrdup("");
+#endif /* ifdef NEED_LOGGING */
 } /* static void pre_init(void) */
 
 
@@ -2359,6 +2407,9 @@ init(void)
 
 	sv.sa_handler = rehash;
 	sigaction(SIGHUP, &sv, NULL);
+
+	/* clear timers */
+	bzero(&timers, sizeof(timers));
 
 #ifdef DUMPSTATUS
 	sv.sa_handler = dump_status;
@@ -2406,9 +2457,11 @@ init(void)
 	create_listen();
 
 #ifdef INBOX
-	inbox = fopen(FILE_INBOX, "a+");
-	if (inbox == NULL) {
-		report(MIAU_ERRINBOXFILE);
+	if (cfg.inbox == 1) {
+		inbox = fopen(FILE_INBOX, "a+");
+		if (inbox == NULL) {
+			report(MIAU_ERRINBOXFILE);
+		}
 	}
 #endif /* ifdef INBOX */
 } /* static void init(void) */
@@ -2457,9 +2510,6 @@ check_config(void)
 static void
 setup_home(char *s)
 {
-	struct stat ds;
-	int t;
-
 	if (s != NULL) {
 		int hsize;
 		hsize = strlen(s) + 2;
@@ -2489,22 +2539,6 @@ setup_home(char *s)
 	if (chdir(cfg.home) < 0) {
 		error(MIAU_ERRCHDIR, cfg.home);
 		exit(ERR_CODE_HOME);
-	}
-
-	/* Create directories. */
-	/* If we need more directories, make new function of this routine. */
-	t = stat(LOGDIR, &ds);
-	if (t == 0) {
-		/* Exists. */
-		if (! S_ISDIR(ds.st_mode)) {
-			error(MIAU_ERRLOGDIR, LOGDIR);
-			exit(ERR_CODE_HOME);
-		}
-	} else {
-		if (mkdir(LOGDIR, 0700) == -1) {
-			error(MIAU_ERRCREATELOGDIR, LOGDIR);
-			exit(ERR_CODE_HOME);
-		}
 	}
 } /* static void setup_home(char *s) */
 
@@ -2613,6 +2647,7 @@ main(int argc, char **argv)
 
 	command_setup();
 
+	create_dirs();
 	init();
 
 	if (dofork == 1) {

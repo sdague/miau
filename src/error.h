@@ -25,8 +25,17 @@
 
 
 #ifdef ENDUSERDEBUG
+#define debug(str) { enduserdebug("%s", str); }
+#define debug_va2(p0, p1) { enduserdebug((p0), (p1)); }
+#define debug_va3(p0, p1, p2) { enduserdebug((p0), (p1), (p2)); }
+#define debug_va4(p0, p1, p2, p3) { enduserdebug((p0), (p2), (p2), (p3)); }
 void enduserdebug(char *format, ...);
-#endif /* ifdef ENDUSERDEBUG */
+#else /* ifdef ENDUSERDEBUG */
+#define debug(str)
+#define debug_va2(p0, p1)
+#define debug_va3(p0, p1, p2)
+#define debug_va4(p0, p1, p2, p3)
+#endif /* ifdef else ENDUSERDEBUG */
 
 void report(char *format, ...);
 void error(char *format, ...);

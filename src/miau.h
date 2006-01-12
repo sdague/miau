@@ -33,7 +33,6 @@
 
 #define MIAURC		"miaurc"
 #define MIAUDIR		".miau/"
-#define LOGDIR		"logs"
 #define FILE_PID	"pid"
 #define FILE_LOG	"log"
 #define FILE_INBOX	"inbox"
@@ -178,6 +177,9 @@ typedef struct {
 #ifdef PRIVLOG
 	int		privlog;
 #endif /* ifdef PRIVLOG */
+#ifdef NEED_LOGGING
+	int		logfile_warn;
+#endif /* ifdef NEED_LOGGING */
 } timer_type;
 
 

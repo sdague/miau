@@ -3,12 +3,15 @@
   * Fixed snprintf size with forwardmsg in server.c
   * Fool-proofed reading inbox
   * Fixed jumping to certain server right after rehash
+  * Fixed handling of failing to open logfiles
   * Call setvbuf only if statelog is enabled
   * stdout is no longer redirected in a file we cannot write to
+  * miau no longer creates LOGDIR if logging isn't compiled in or used
   * Fixed buffer size in irc.c:irc_notice
   * Free forwardmsg in miauc.c:escape
   * Free memory if bind() fails (which causes miau to quit)
   * Fixed one-byte memory leak with logsuffix
+  * Warn about failing to open a logfile. Not too often, though.
   * Added an option to define time between forwardmsg commits
   * Fixed rpl_malloc/rpl_realloc handling
   * Changed hstrerror-handling

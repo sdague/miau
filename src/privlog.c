@@ -81,9 +81,12 @@ privlog_write(const char *nick, int in_out, int cmd, const char *message)
 {
 	const char *active;
 	char *t;
-	int newentry = 0;
+	int newentry;
 	
-	privlog_type *line = NULL;
+	privlog_type *line;
+
+	newentry = 0;
+	line = NULL;
 
 	/* First see if log is already open. */
 	LLIST_WALK_H(open_logs.head, privlog_type *);
@@ -99,18 +102,24 @@ privlog_write(const char *nick, int in_out, int cmd, const char *message)
 		line = (privlog_type *) xmalloc(sizeof(privlog_type));
 		line->nick = xstrdup(nick);
 		line->file = NULL;
-		
-		/* Newly created is likely to be needed first. I think. */
-		llist_add(llist_create(line), &open_logs);
 	}
 	
 	/* If file is closed, open it. */
 	if (line->file == NULL) {
 		line->file = open_file(line->nick);
-		if (line->file == NULL) {
-			return -1;
-		}
 	}
+
+	if (line->file == NULL) {
+		log_cannot_write(line->nick);
+		xfree(line->nick);
+		xfree(line);
+		return -1;
+	}
+	if (newentry == 1) {
+		/* Newly created is likely to be needed first. I think. */
+		llist_add(llist_create(line), &open_logs);
+	}
+
 	/* Update timestamp. */
 	time(&line->updated);
 

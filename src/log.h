@@ -24,9 +24,14 @@
 
 #ifdef NEED_LOGGING
 
+#define LOGDIR		"logs"
+#define LOGWARN_TIMER	300
+
 
 
 char *log_prepare_entry(const char *nick, const char *msg);
+void log_cannot_write(const char *file);
+void log_reset_warn_timer(void);
 
 
 

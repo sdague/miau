@@ -29,6 +29,7 @@
 #include "tools.h"
 #include "messages.h"
 #include "etc.h"
+#include "log.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -165,6 +166,7 @@ chanlog_open(channel_type *channel)
 			channel->log->file = fopen(data->filename, "a");
 
 			if (channel->log->file == NULL) {
+				log_cannot_write(data->filename);
 				return;
 			}
 
@@ -224,7 +226,9 @@ chanlog_close(channel_type *channel)
 	if (channel->log != NULL) {
 		chanlog_write_entry(channel, LOGM_LOGCLOSE,
 				get_timestamp(NULL, TIMESTAMP_LONG));
+		if (channel->log->file != NULL) {
 		fclose(channel->log->file);
+		}
 
 		FREE(channel->log);
 	}
