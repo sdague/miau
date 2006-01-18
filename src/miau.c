@@ -1907,11 +1907,13 @@ miau_commands(char *command, char *param, connection_type *client)
 
 	else if (xstrcmp(command, "DEL") == 0) {
 		corr++;
-		if (inbox) {
+		if (inbox != NULL) {
 			fclose(inbox);
 		}
 		unlink(FILE_INBOX);
-		inbox = fopen(FILE_INBOX, "w+");
+		if (cfg.inbox == 1) {
+			inbox = fopen(FILE_INBOX, "w+");
+		}
 
 		irc_notice(client, status.nickname, CLNT_KILLEDMSGS);
 	}
