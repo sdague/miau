@@ -772,12 +772,10 @@ create_dirs(void)
 #ifdef CHANLOG
 		if (chanlog_list.head != NULL || global_logtype != 0) {
 			logdir = 1;
-			printf("chanlog needs\n");
 		}
 #endif /* ifdef CHANLOG */
 #ifdef PRIVLOG
 		if (cfg.privlog != 0) {
-			printf("privlog needs\n");
 			logdir = 1;
 		}
 #endif /* ifdef PRIVLOG */
