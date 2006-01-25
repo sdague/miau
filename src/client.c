@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
  *      (C) 2002 Lee Hardy <lee@leeh.co.uk>
  *      (C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -454,8 +454,8 @@ client_read(connection_type *client)
 	else if (xstrcmp(command, "PING") == 0) {
 		irc_write(client, ":%s PONG %s :%s",
 				i_server.realname,
-				i_server.realname,
-				status.nickname);
+				param2 != NULL ? param2 : i_server.realname,
+				param1 != NULL ? param1 : status.nickname);
 		pass = 0;
 	}
 

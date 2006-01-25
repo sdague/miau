@@ -565,6 +565,7 @@ parse_list_line(char *data)
 			}
 			{
 				int t0, t1;
+				t0 = t1 = 0; /* keep some compilers happy */
 				assign_int(&t0, param[1], 0);
 				assign_int(&t1, param[3], 0);
 				add_server(param[0], t0, param[2], t1);

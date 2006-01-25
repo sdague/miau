@@ -4,6 +4,7 @@
   * Fool-proofed reading inbox
   * Fixed jumping to certain server right after rehash
   * Fixed handling of failing to open logfiles
+  * Fixed client-PING reply
   * Call setvbuf only if statelog is enabled
   * stdout is no longer redirected in a file we cannot write to
   * miau no longer creates LOGDIR if logging isn't compiled in or used
