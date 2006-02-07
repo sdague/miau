@@ -1,5 +1,7 @@
 Bugs:
 
+- qlog will not be replayed if user not on channel(s)
+
 - QUIT is logged on every channel (ok fine it's a feature)
 
 - If server changes user's nick, miau doesn't try to get it back!?
