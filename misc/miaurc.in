@@ -330,7 +330,7 @@
 
 
 # getnick = "selection": miau can try to reclaim your primary nick when it is
-#		lost.
+#		lost. 
 #
 # This option may be one of the following: "never", "detached", "attached", or
 # "always".
@@ -345,6 +345,9 @@
 #	irc-II EPIC) that automatically change your nick when they receive
 #	NICKINUSE from the server - you might end up chaning your nick until
 #	server drops your connection due excess flood.
+#
+# Note: If you issue "/nick not-primary-nick", miau will start trying to get
+#	your primary nick back.
 #
 # Default: detached
 #
