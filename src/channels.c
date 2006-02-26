@@ -418,16 +418,6 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 	chans = (char *) xcalloc(csize, 1);
 	keys = (char *) xcalloc(ksize, 1);
 	tclen = tklen = 1;
-
-#ifdef QUICKLOG
-	/*
-	 * If replaying qlog for active channels, see if channels have qlog.
-	 * We need to do this because we want to print header for qlog.
-	 */
-	if (list == LIST_ACTIVE) {
-		qlog_check();
-	}
-#endif /* QUICKLOG */
 	
 	LLIST_WALK_H(first, channel_type *);
 		if (list == LIST_PASSIVE) {
@@ -523,34 +513,8 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 			}
 #endif /* CHANLOG */
 			irc_write(&c_server, "NAMES %s", data->name);
-#ifdef QUICKLOG
-			/* Write header for qlog. */
-			if (data->hasqlog) {
-				irc_write(client, ":%s NOTICE %s :%s",
-						status.nickname,
-						data->name,
-						CLNT_QLOGSTART);
-			}
-#endif /* QUICKLOG */
 		}
 	LLIST_WALK_F;
-	
-#ifdef QUICKLOG
-	if (list == LIST_ACTIVE) {
-		/* Replay quicklog. */
-		qlog_replay(client, ! cfg.flushqlog);
-
-		/* Write footer for qlog. */
-		LLIST_WALK_H(first, channel_type *);
-			if (data->hasqlog) {
-				irc_write(client, ":%s NOTICE %s :%s",
-						status.nickname,
-						data->name,
-						CLNT_QLOGEND);
-			}
-		LLIST_WALK_F;
-	}
-#endif /* QUICKLOG */
 
 	if (try_joining == 1) {
 		report(rejoin ? MIAU_REINTRODUCE : MIAU_JOINING, chans + 1);

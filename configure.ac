@@ -1,9 +1,9 @@
-AC_INIT([miau], [0.6.0.3-20060126])
+AC_INIT([miau], [0.6.1])
 AC_CONFIG_SRCDIR([src/miau.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2])
 AH_TEMPLATE([VERSIONNAME], [long version name])
-AC_DEFINE([VERSIONNAME], ["only 18446744073709551615 bugs remaining"])
+AC_DEFINE([VERSIONNAME], ["meow"])
 
 
 # option, explanation, define

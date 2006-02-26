@@ -187,15 +187,16 @@ qlog_add_timestamp(qlogentry *entry, char *buf, size_t size)
 				return entry->text;
 			}
 			rep = *p;
-			*p = '\0';
-			p++;
+			*p = '\0'; /* ugly, but makes life easier */
 
 			strftime(stamp, TSLEN, "[%H:%M:%S]",
 					localtime(&entry->timestamp));
 
 			snprintf(buf, size, "%s%c%s %s",
-					entry->text, rep, stamp, p);
+					entry->text, rep, stamp, p + 1);
 			buf[size - 1] = '\0';
+			*p = rep;
+			
 			return buf;
 		}
 

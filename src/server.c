@@ -402,60 +402,57 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 		if (! is_perm(&ignorelist, origin)) {
 			/* Is this a special (CTCP/DCC) -message ? */
 			if (param2[1] == '\1') {
-				normal = 0;
-				
-				upcase(param2);
+
+	normal = 0;				
+	upcase(param2);
 #ifdef DCCBOUNCE
-				if (c_clients.connected > 0 &&
-						cmdindex == CMD_PRIVMSG &&
-						cfg.dccbounce &&
-						(xstrcmp(param2 + 2, "DCC\1") ==
-						 0)) {
-					char dcct[IRC_MSGLEN];
-					strncpy(dcct, param2 + 1, IRC_MSGLEN);
-					if (dcc_initiate(dcct, IRC_MSGLEN, 0)) {
-						irc_mwrite(&c_clients, ":%s PRIVMSG %s :%s", origin, param1, dcct);
-						*pass = 0;
-					}
-				}
+	if (c_clients.connected > 0 && cmdindex == CMD_PRIVMSG &&
+			cfg.dccbounce && (xstrcmp(param2 + 2, "DCC\1") == 0)) {
+		char dcct[IRC_MSGLEN];
+		strncpy(dcct, param2 + 1, IRC_MSGLEN);
+		if (dcc_initiate(dcct, IRC_MSGLEN, 0)) {
+			irc_mwrite(&c_clients, ":%s PRIVMSG %s :%s",
+					origin, param1, dcct);
+			*pass = 0;
+		}
+	}
 #endif /* ifdef DCCBOUNCE */
 #ifdef DCCBOUNCE
 #ifdef CTCTPREPLIES
-				else
+	else
 #endif /* ifdef CTCPREPLIES */
 #endif /* ifdef DCCBOUNCE */
 #ifdef CTCPREPLIES
-				if (! is_ignore(hostname, IGNORE_CTCP) &&
-						c_clients.connected == 0 &&
-						status.allowreply) {
-					report(CLNT_CTCP, param2 + 1, origin);
-					
-	if (xstrcmp(param2 + 2, "VERSION\1") == 0) {
-		irc_notice(&c_server, nick, VERSIONREPLY);
-	}
+	if (! is_ignore(hostname, IGNORE_CTCP) &&
+			c_clients.connected == 0 && status.allowreply == 1) {
+		report(CLNT_CTCP, param2 + 1, origin);
 
-	else if (xstrcmp(param2 + 2, "PING") == 0) {
-		if (strlen(param2 + 1) > 6) {
-			irc_notice(&c_server, nick, "%s", param2 + 1);
+		if (xstrcmp(param2 + 2, "VERSION\1") == 0) {
+			irc_notice(&c_server, nick, VERSIONREPLY);
 		}
-	}
 
-	else if (xstrcmp(param2 + 2, "CLIENTINFO\1") == 0) {
-		irc_notice(&c_server, nick, CLIENTINFOREPLY);
+		else if (xstrcmp(param2 + 2, "PING") == 0) {
+			if (strlen(param2 + 1) > 6) {
+				irc_notice(&c_server, nick, "%s", param2 + 1);
+			}
+		}
+
+		else if (xstrcmp(param2 + 2, "CLIENTINFO\1") == 0) {
+			irc_notice(&c_server, nick, CLIENTINFOREPLY);
+		}
+
+		ignore_add(hostname, 6, IGNORE_CTCP);
+		status.allowreply = 0;
+		timers.reply = 0;
+	} /* CTCP-replies */
+	else if (is_ignore(hostname, IGNORE_CTCP) ||
+			status.allowreply == 0) {
+		report(CLNT_CTCPNOREPLY,
+				param2 + 1, origin);
 	}
-					
-					ignore_add(hostname, 6, IGNORE_CTCP);
-					status.allowreply = 0;
-					timers.reply = 0;
-				} /* CTCP-replies */
-				else if (is_ignore(hostname, IGNORE_CTCP) ||
-						status.allowreply == 0) {
-					report(CLNT_CTCPNOREPLY,
-							param2 + 1, origin);
-				}
 #endif /* ifdef CTCPREPLIES */
 			} /* Special (CTCP/DCC) -message. */
-			
+
 #ifdef NEED_CMDPASSWD
 			/* Remote command for bouncer. */
 			else if (cfg.cmdpasswd != NULL && param2 != NULL &&
@@ -1380,6 +1377,14 @@ parse_modes(const char *channel, const char *original)
 			case 'o':	/* Channel operator. */
 			case 'v':	/* Voice privilege. */
 #ifdef AUTOMODE
+			/*
+			 * Appears that some servers think 'O' flag is for
+			 * "oper only" channel (no parameter), some think it's
+			 * a user flag for channel creator. This means if 'O'
+			 * comes with no parameter, we can pretty much safely
+			 * ignore it.
+		 	 */
+			if (! (ptr[0] == 'O' && param == NULL)) {
 				if (ptr[0] == 'O') {
 					ptr[0] = 'o';
 				}
@@ -1401,6 +1406,7 @@ parse_modes(const char *channel, const char *original)
 								ptr[0]);
 					}
 				}
+			}
 
 #endif /* ifdef AUTOMODE */
 				param = strtok(NULL, " ");

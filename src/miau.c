@@ -1635,6 +1635,10 @@ fakeconnect(connection_type *newclient)
 	 * we have things to do, mister.
 	 */
 	if (i_server.connected == 2) {
+#ifdef QUICKLOG
+		qlog_check();
+#endif /* QUICKLOG */
+
 		/* 
 		 * First of all, join passive channels.
 		 * 
@@ -1649,6 +1653,18 @@ fakeconnect(connection_type *newclient)
 		 */
 		channel_join_list(LIST_PASSIVE, 1, NULL);
 
+#ifdef QUICKLOG
+		/* Header for qlog'd channels. */
+		LLIST_WALK_H(active_channels.head, channel_type *);
+			if (data->hasqlog) {
+				irc_write(newclient, ":%s NOTICE %s :%s",
+						status.nickname,
+						data->name,
+						CLNT_QLOGSTART);
+			}
+		LLIST_WALK_F;
+#endif /* ifdef QUICKLOG */
+
 		/*
 		 * Next, tell client to join active channels.
 		 *
@@ -1657,6 +1673,20 @@ fakeconnect(connection_type *newclient)
 		 * This means this list won't get flushed either.
 		 */
 		channel_join_list(LIST_ACTIVE, 0, newclient);
+
+#ifdef QUICKLOG
+		/* Replay qlog and print footer for channels. */
+		qlog_replay(newclient, ! cfg.flushqlog);
+
+		LLIST_WALK_H(active_channels.head, channel_type *);
+			if (data->hasqlog) {
+				irc_write(newclient, ":%s NOTICE %s :%s",
+						status.nickname,
+						data->name,
+						CLNT_QLOGEND);
+			}
+		LLIST_WALK_F;
+#endif /* ifdef QUICKLOG */
 	}
 } /* static void fakeconnect(connection_type *newclient) */
 
@@ -2430,6 +2460,7 @@ init(void)
 	status.awaymsg = NULL;		/* No non-default away message. */
 	status.awaystate = 0;		/* No custom awaymsg | not away. */
 
+	status.allowreply = 1;
 	status.got_nick = 1;		/* Assume everything's fine. */
 	status.getting_nick = 0;	/* Not getting the nick right now. */
 	status.allowconnect = 1;	/* We're listening for clients. */

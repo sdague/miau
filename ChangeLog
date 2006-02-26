@@ -1,10 +1,14 @@
-0.6.1
+0.6.1 - "meow"
 
   * Fixed snprintf size with forwardmsg in server.c
   * Fool-proofed reading inbox
   * Fixed jumping to certain server right after rehash
   * Fixed handling of failing to open logfiles
   * Fixed client-PING reply
+  * Fixed quicklog with timestamps in the beginning and qlogflush set to false
+  * Fixed not replaying quicklog if not on any channel
+  * Fixed issue with channel flag 'O'
+  * Allow CTCP-reply right after start-up to keep some services happy
   * Call setvbuf only if statelog is enabled
   * stdout is no longer redirected in a file we cannot write to
   * miau no longer creates LOGDIR if logging isn't compiled in or used
