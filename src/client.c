@@ -130,6 +130,17 @@ client_drop_real(connection_type *client, char *reason, const int echo,
 
 
 static void
+cmd_part_action(channel_type *chan, char *reason)
+{
+	irc_mwrite(&c_clients, ":%s!%s@%s PART %s :%s",
+			status.nickname, i_client.username, i_client.hostname,
+			chan->name, reason);
+	channel_rem(chan, LIST_PASSIVE);
+}
+
+
+
+static void
 cmd_part(char *par0, char *par1)
 {
 	/* User wants to leave list of channels. */
@@ -147,7 +158,7 @@ cmd_part(char *par0, char *par1)
 					name,
 					IRC_NOSUCHCHAN);
 		} else {
-			channel_rem(chan, LIST_PASSIVE);
+			cmd_part_action(chan, par1 + 1);
 		}
 		name = strtok(NULL, ",");
 	}
@@ -167,7 +178,7 @@ cmd_join(char *par0, char *par1)
 	if (par0 != NULL && xstrcmp(par0, "0") == 0) {
 		/* user want to leave all channels */
 		LLIST_WALK_H(passive_channels.head, channel_type *);
-			channel_rem(data, LIST_PASSIVE);
+			cmd_part_action(data, "");
 		LLIST_WALK_F;
 
 		return;
@@ -190,6 +201,8 @@ cmd_join(char *par0, char *par1)
 				keyseek++;
 			}
 		}
+		irc_mnotice(&c_clients, status.nickname,
+				MIAU_JOIN_QUEUE, chan);
 		channel_add(chan, key, LIST_PASSIVE);
 		chan = chanseek;
 		key = keyseek;
@@ -425,10 +438,9 @@ client_read(connection_type *client)
 		else if (xstrcmp(command, "JOIN") == 0) {
 			cmd_join(param1, param2);
 		}
-		pass = 0;
 	}
 
-	else if (xstrcmp(command, "PRIVMSG") == 0) {
+	if (xstrcmp(command, "PRIVMSG") == 0) {
 		pass = 1; /* default */
 		if (param2 == NULL) {
 #ifdef ENDUSERDEBUG
@@ -481,6 +493,10 @@ client_read(connection_type *client)
 
 	else if (xstrcmp(command, "AWAY") == 0) {
 		pass = cmd_away(client->buffer, param1, param2);
+	}
+
+	else if (i_server.connected != 2) {
+		pass = 0;
 	}
 
 	else {

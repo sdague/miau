@@ -72,6 +72,7 @@ Usage: %s [-f] "OPT_CRYPT_S"[-d dir]\n\
 #define MIAU_LEAVING	"Leaving channels."
 #define MIAU_REINTRODUCE	"Reintroducing channels."
 #define MIAU_JOINING	"Autojoining channels (%s)."
+#define MIAU_JOIN_QUEUE	"Queued joining channel %s"
 #define MIAU_JUMP	"Changing server..."
 #define MIAU_RECONNECT	"Reconnecting to server..."
 #define MIAU_DIE_CL	"killed"

@@ -277,7 +277,7 @@ qlog_drop_old(void)
 
 			if (entry->text[0] == '\0' || message[0] == '\0') {
 #ifdef ENDUSERDEBUG
-				enduserdebug("invalud stuff in qlog");
+				enduserdebug("invalid stuff in qlog");
 #endif /* ifdef else ENDUSERDEBUG */
 				goto drop_free;
 			}
