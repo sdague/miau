@@ -13,6 +13,7 @@ TODO:
 - user-tracking for decent QUIT log
 
 - nicks-list should have nick-pairs for attached/detached -state
+	- awaynick
 
 - reintroduce channels in specific order (order defined in miaurc)
 	- alphabetical order

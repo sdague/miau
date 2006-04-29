@@ -8,6 +8,8 @@
   * Fixed quicklog with timestamps in the beginning and qlogflush set to false
   * Fixed not replaying quicklog if not on any channel
   * Fixed issue with channel flag 'O'
+  * Parted channels are no longer joined at attach if they have no qlog
+    and flushqlog is set to FALSE.
   * Allow CTCP-reply right after start-up to keep some services happy
   * Call setvbuf only if statelog is enabled
   * stdout is no longer redirected in a file we cannot write to

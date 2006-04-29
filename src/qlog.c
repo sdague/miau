@@ -66,6 +66,11 @@ qlog_check(void)
 		chan = (channel_type *) iterl->data;
 		chan->hasqlog = 0;
 	}
+	for (iterl = old_channels.head; iterl != NULL; iterl = iterl->next) {
+		channel_type *chan;
+		chan = (channel_type *) iterl->data;
+		chan->hasqlog = 0;
+	}
 
 	for (iter = qlog; iter != NULL; iter = iter->next) {
 		qlogentry *entry;

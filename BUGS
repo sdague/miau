@@ -2,9 +2,6 @@ Bugs:
 
 - Trouble with FreeBSD. I guess I misuse select(). Will look at it later.
 
-- "flushqlog == false" leads into trouble with trying to get rid of parted
-  channels
-
 - QUIT is logged on every channel (ok fine it's a feature)
 
 - If server changes user's nick, miau doesn't try to get it back!?
