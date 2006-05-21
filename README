@@ -29,7 +29,3 @@ About multi-client support
       client and again, fastest gets it all - this means another client, with
       auto-accept on, connected to bouncer could get the file instead of the
       original target.
-
-
-If you have compiled miau on other platforms than those above, please let me
-know.

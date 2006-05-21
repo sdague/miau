@@ -1,6 +1,6 @@
 /* $Id$
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include "commands.h"
 #include "error.h"
 #include "common.h"
+#include "messages.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -55,7 +56,7 @@ static channel_type *qlog_get_channel(const char *msg);
  * CPU-time as qlog can be checked just as well before replaying.
  */
 void
-qlog_check(void)
+qlog_check(time_t oldest)
 {
 	llist_node *iterl;
 	list_type *iter;
@@ -75,6 +76,9 @@ qlog_check(void)
 	for (iter = qlog; iter != NULL; iter = iter->next) {
 		qlogentry *entry;
 		entry = (qlogentry *) iter->data;
+		if (entry->timestamp < oldest) {
+			continue;
+		}
 		/* Don't waste time looking for channel if line's privmsg. */
 #ifdef INBOX
 		if (entry->privmsg == 0)
@@ -87,31 +91,72 @@ qlog_check(void)
 			}
 		}
 	}
-} /* void qlog_check(void) */
+} /* void qlog_check(time_t oldest) */
 
-		
+
+
+void
+qlog_replay_header(connection_type *client)
+{
+	channel_type *chan;
+	llist_node *iter;
+
+	for (iter = active_channels.head; iter != NULL; iter = iter->next) {
+		chan = (channel_type *) iter->data;
+		if (chan->hasqlog) {
+			irc_write(client, ":%s NOTICE %s :%s",
+					status.nickname,
+					chan->name,
+					CLNT_QLOGSTART);
+		}
+	}
+} /* void qlog_replay_header(connection_type *client) */
+
+
+
+void
+qlog_replay_footer(connection_type *client)
+{
+	channel_type *chan;
+	llist_node *iter;
+
+	for (iter = active_channels.head; iter != NULL; iter = iter->next) {
+		chan = (channel_type *) iter->data;
+		if (chan->hasqlog) {
+			irc_write(client, ":%s NOTICE %s :%s",
+					status.nickname,
+					chan->name,
+					CLNT_QLOGEND);
+		}
+	}
+} /* void qlog_replay_footer(connection_type *client) */
+
+
 
 /*
  * (Replay and) clean quicklog data.
  */
 void
-qlog_replay(connection_type *client, int keep)
+qlog_replay(connection_type *client, time_t oldest)
 {
 	list_type *iter;
 	list_type *next;
 #ifdef QLOGSTAMP
 	char qlogbuf[IRC_MSGLEN];
 #endif /* QLOGSTAMP */
-	
-	qlog_drop_old();
+
+	if (oldest != 0) {
+		oldest = time(NULL) - oldest;
+	}
 
 	/* Walk thru quicklog. */
 	for (iter = qlog; iter != NULL; ) { /* handle next at the end */
 		qlogentry *entry;
 		next = iter->next;
 		entry = (qlogentry *) iter->data;
-		
-		if (client != NULL) {
+
+		/* also skip too old entries */
+		if (entry->timestamp >= oldest && client != NULL) {
 #ifdef QLOGSTAMP
 			if (cfg.timestamp != TS_NONE) {
 				const char *out;
@@ -125,14 +170,9 @@ qlog_replay(connection_type *client, int keep)
 			irc_write(client, "%s", entry->text);
 #endif /* ifdef else QLOGSTAMP */
 		}
-		if (keep == 0) {
-			xfree(entry->text);
-			xfree(entry);
-			qlog = list_delete(qlog, iter);
-		}
 		iter = next;
 	}
-} /* void qlog_replay(connection_type *client, int keep) */
+} /* void qlog_replay(connection_type *client, time_t oldest) */
 
 
 
@@ -240,15 +280,11 @@ qlog_add_timestamp(qlogentry *entry, char *buf, size_t size)
  * Remove old lines from quicklog.
  */
 void
-qlog_drop_old(void)
+qlog_flush(time_t oldest, int move_to_inbox)
 {
-	time_t oldest;
-
 	if (qlog == NULL) {
 		return;
 	}
-
-	oldest = time(NULL) - (cfg.qloglength * 60);
 
 	while (qlog != NULL) { /* secondary exit condition */
 		qlogentry *entry;
@@ -260,7 +296,7 @@ qlog_drop_old(void)
 		}
 
 #ifdef INBOX
-		if (entry->privmsg == 1) {
+		if (entry->privmsg == 1 && move_to_inbox == 1) {
 			char *message;
 
 			/* Get sender (split it) and beginning of payload. */
@@ -296,7 +332,7 @@ drop_free:
 		xfree(entry);
 		qlog = list_delete(qlog, qlog);
 	}
-} /* void qlog_drop_old(void) */
+} /* void qlog_drop_old(time_t oldest, int move_to_inbox) */
 
 
 
@@ -311,7 +347,7 @@ qlog_write(const int privmsg, char *format, ...)
 	char buf[BUFFERSIZE];
 
 	/* First remove possible outdated lines. */
-	qlog_drop_old();
+	qlog_flush(time(NULL) - cfg.qloglength * 60, 1);
 
 	va_start(va, format);
 	vsnprintf(buf, IRC_MSGLEN - 2, format, va);

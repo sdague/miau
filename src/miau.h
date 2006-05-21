@@ -100,6 +100,7 @@ typedef struct {
 	int	statelog;	/* stdout to log */
 #ifdef QUICKLOG
 	int	qloglength;
+	int	autoqlog;
 #ifdef QLOGSTAMP
 	int	timestamp;	/* Timestamp type in quicklog. */
 #endif /* ifdef QLOGSTAMP */

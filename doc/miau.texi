@@ -130,6 +130,12 @@ Reread config-file. Note that this can also be performed by sending a
 server.
 @item @command{DIE [reason]}
 Terminate miau. A quit reason can be given after command.
+@item @command{FLUSHQLOG [[[days:]hours:]minutes]}
+Flush days/hours/minutes worth of quicklog.
+@item @command{QUICKLOG [[[days:]hours:]minutes]}
+Replay days/hours/minutes worth of quicklog.
+
+This command might not be compiled in.
 @item @command{UPTIME}
 Prints uptime of miau.
 

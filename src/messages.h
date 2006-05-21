@@ -100,24 +100,34 @@ Usage: %s [-f] "OPT_CRYPT_S"[-d dir]\n\
 /* uptime */
 #ifdef UPTIME
 #define MIAU_UPTIME	"miau has been online: %dd %02dh %02dm %02ds"
-#define CMD_UPTIME	" UPTIME"
+#define CMD_UPTIME	", UPTIME"
 #else	/* UPTIME */
 #define	CMD_UPTIME	""
 #endif	/* UPTIME */
 
 /* pingstat */
 #ifdef PINGSTAT
-#define CMD_PINGSTAT	" PINGSTAT"
+#define CMD_PINGSTAT	", PINGSTAT"
 #else /* PINGSTAT */
 #define CMD_PINGSTAT	""
 #endif /* PINGSTAT */
 
 /* dumpstatus */
 #ifdef DUMPSTATUS
-#define CMD_DUMP	" DUMP"
+#define CMD_DUMP	", DUMP"
 #else /* DUMPSTATUS */
 #define CMD_DUMP	""
 #endif /* DUMPSTATUS */
+
+/* quicklog */
+#ifdef QUICKLOG
+#define MIAU_FLUSHQLOGALL	"Quicklog flushed"
+#define MIAU_FLUSHQLOG	"Flushed quicklog older than " \
+			"%d day(s), %d hour(s), %d minute(s)"
+#define CMD_FLUSHQLOG	", QUICKLOG [[[days:]hours:]minutes], FLUSHQLOG [[[days:]hours:]minutes]"
+#else /* ifdef QUICKLOG */
+#define CMD_FLUSHQLOG	""
+#endif /* ifdef else QUICKLOG */
 
 /* mkpasswd */
 #ifdef MKPASSWD
@@ -215,7 +225,9 @@ Read 'COPYING' for copyright and licence details.\n"
 #define CLIENTINFOREPLY "\1CLIENTINFO VERSION PING CLIENTINFO ACTION\1"
 #endif /* CTCPREPLIES */
 
-#define CLNT_COMMANDS	"Available commands: HELP READ DEL JUMP REHASH RESET DIE PRINT" CMD_UPTIME CMD_PINGSTAT CMD_DUMP
+#define CLNT_COMMANDS	"Available commands: HELP, READ, DEL, JUMP [n], " \
+			"REHASH, RESET, DIE, PRINT" \
+			CMD_FLUSHQLOG CMD_UPTIME CMD_PINGSTAT CMD_DUMP
 #define CLNT_INBOXSTART	"Playing inbox..."
 #define CLNT_INBOXEND	"End of inbox."
 #define CLNT_NEWCLIENT	"New connection established!"

@@ -95,6 +95,7 @@ cfg_type cfg = {
 	1,	/* statelog: write stdout into file */
 #ifdef QUICKLOG
 	30,	/* qloglength: 30 minutes */
+	30,	/* autoqlog: 30 minutes */
 #ifdef QLOGSTAMP
 	0,	/* timestamp: no timestamp */
 #endif /* ifdef QLOGSTAMP */
@@ -228,8 +229,8 @@ free_resources(void)
 #endif /* ifdef CHANLOG */
 
 #ifdef QUICKLOG
-	/* Replay quicklog - no output and don't keep the logs. */
-	qlog_replay(NULL, 0);
+	/* flush all of qlog */
+	qlog_flush(time(NULL), 0);
 #endif /* ifdef QUICKLOG */
 	FREE(status.awaymsg);
 } /* static void free_resources(void) */
@@ -449,7 +450,7 @@ dump_status(int a)
 	dumpdata[0] = '\0';
 #ifdef QUICKLOG
 	/* First check qlog. */
-	qlog_check();
+	qlog_check(time(NULL) - cfg.qloglength * 60);
 #endif /* ifdef QUICKLOG */
 	dump_string("-- miau status --");
 	dump_string("config:");
@@ -882,7 +883,7 @@ rehash(int sigparam)
 	 */
 	if ((cfg.flushqlog == 1 && c_clients.connected > 0) ||
 			cfg.qloglength == 0) {
-		qlog_replay(NULL, 0);
+		qlog_flush(time(NULL), 0);
 	}
 #endif /* idef QUICKLOG */
 
@@ -1583,7 +1584,7 @@ fakeconnect(connection_type *newclient)
 #ifdef INBOX
 #ifdef QUICKLOG
 	/* Move old qlog-lines to privmsglog. */
-	qlog_drop_old();
+	qlog_flush(time(NULL) - cfg.qloglength * 60, 1);
 #endif /* ifdef QUICKLOG */
 	if (inbox != NULL && ftell(inbox) != 0) {
 		irc_write(newclient, ":%s 372 %s :- "CLNT_HAVEMSGS,
@@ -1636,7 +1637,9 @@ fakeconnect(connection_type *newclient)
 	 */
 	if (i_server.connected == 2) {
 #ifdef QUICKLOG
-		qlog_check();
+		if (cfg.autoqlog > 0) {
+			qlog_check(time(NULL) - cfg.autoqlog * 60);
+		}
 #endif /* QUICKLOG */
 
 		/* 
@@ -1654,15 +1657,9 @@ fakeconnect(connection_type *newclient)
 		channel_join_list(LIST_PASSIVE, 1, NULL);
 
 #ifdef QUICKLOG
-		/* Header for qlog'd channels. */
-		LLIST_WALK_H(active_channels.head, channel_type *);
-			if (data->hasqlog) {
-				irc_write(newclient, ":%s NOTICE %s :%s",
-						status.nickname,
-						data->name,
-						CLNT_QLOGSTART);
-			}
-		LLIST_WALK_F;
+		if (cfg.autoqlog > 0) {
+			qlog_replay_header(newclient);
+		}
 #endif /* ifdef QUICKLOG */
 
 		/*
@@ -1675,17 +1672,15 @@ fakeconnect(connection_type *newclient)
 		channel_join_list(LIST_ACTIVE, 0, newclient);
 
 #ifdef QUICKLOG
-		/* Replay qlog and print footer for channels. */
-		qlog_replay(newclient, ! cfg.flushqlog);
+		if (cfg.autoqlog > 0) {
+			/* Replay qlog and print footer for channels. */
+			qlog_replay(newclient, cfg.autoqlog * 60);
 
-		LLIST_WALK_H(active_channels.head, channel_type *);
-			if (data->hasqlog) {
-				irc_write(newclient, ":%s NOTICE %s :%s",
-						status.nickname,
-						data->name,
-						CLNT_QLOGEND);
+			qlog_replay_footer(newclient);
+			if (cfg.flushqlog == 1) {
+				qlog_flush(time(NULL), 0);
 			}
-		LLIST_WALK_F;
+		}
 #endif /* ifdef QUICKLOG */
 	}
 } /* static void fakeconnect(connection_type *newclient) */
@@ -1874,6 +1869,40 @@ read_newclient(void)
 
 
 
+static time_t
+get_time(char *param)
+{
+	char *ptr;
+	int days, hours, minutes;
+
+	if (param == NULL) {
+		return 0;
+	}
+
+	days = hours = minutes = 0;
+	ptr = strrchr(param, (int) ':');
+	if (ptr == NULL) {
+		minutes = atoi(param);
+	} else {
+		minutes = atoi(ptr + 1);
+		*ptr = '\0';
+
+		ptr = strrchr(param, (int) ':');
+		if (ptr == NULL) {
+			hours = atoi(param);
+		} else {
+			hours = atoi(ptr + 1);
+			*ptr = '\0';
+
+			days = atoi(param);
+		}
+	}
+
+	return days * 1440 + hours * 60 + minutes;
+} /* static time_t get_time(char *param) */
+
+
+
 /*
  * Handle commands provided to miau from attached IRC-client.
  */
@@ -1954,6 +1983,41 @@ miau_commands(char *command, char *param, connection_type *client)
 		irc_mnotice(&c_clients, status.nickname, MIAU_RESET);
 		server_reset();
 	}
+
+#ifdef QUICKLOG
+	else if (xstrcmp(command, "FLUSHQLOG") == 0) {
+		time_t keep;
+
+		corr++;
+
+		keep = get_time(param);
+
+		qlog_flush(time(NULL) - keep * 60, 0);
+		if (keep == 0) {
+			irc_notice(client, status.nickname, MIAU_FLUSHQLOGALL);
+		} else {
+			int days, hours, minutes;
+			minutes = keep % 60;
+			hours = (keep / 60) % 24;
+			days = keep / 1440;
+			
+			irc_notice(client, status.nickname, MIAU_FLUSHQLOG,
+					days, hours, minutes);
+		}
+	}
+
+	else if (xstrcmp(command, "QUICKLOG") == 0) {
+		time_t oldest;
+
+		corr++;
+		oldest = get_time(param);
+
+		qlog_check(time(NULL) - oldest * 60);
+		qlog_replay_header(client);
+		qlog_replay(client, oldest * 60);
+		qlog_replay_footer(client);
+	}
+#endif /* ifdef QUICKLOG */
 
 #ifdef PINGSTAT
 	else if (xstrcmp(command, "PINGSTAT") == 0) {

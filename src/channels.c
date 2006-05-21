@@ -240,7 +240,7 @@ channel_rem(channel_type *chptr, const int list)
 		source = &active_channels;
 #ifdef QUICKLOG
 		/* Need to know which active channels have qlog. */
-		qlog_check();
+		qlog_check(time(NULL) - cfg.qloglength * 60);
 #endif /* QUICKLOG */
 	} else {
 		source = (list == LIST_PASSIVE) ?

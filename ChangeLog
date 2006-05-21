@@ -1,3 +1,11 @@
+0.6.2 - "Meow"
+
+  * Added command to replay specified amount of quicklog
+  * Added command FLUSHQLOG to flush specified time from quicklog
+  * Added configuration option to (not to) replay quicklog on attach
+  * Removed obsolete bits from README
+
+
 0.6.1 - "All the trouble and twice the bugs"
 
   * Fixed snprintf size with forwardmsg in server.c
