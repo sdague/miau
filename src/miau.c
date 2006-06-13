@@ -266,7 +266,9 @@ escape(void)
 
 	/* Close log-file and remove PID-file. */
 #ifdef INBOX
-	if (inbox != NULL) { fclose(inbox); }
+	if (inbox != NULL) {
+		fclose(inbox);
+	}
 #endif /* ifdef INBOX */
 	unlink(FILE_PID);
 
@@ -1970,11 +1972,14 @@ miau_commands(char *command, char *param, connection_type *client)
 			fclose(inbox);
 		}
 		unlink(FILE_INBOX);
+		irc_notice(client, status.nickname, CLNT_KILLEDMSGS);
+
 		if (cfg.inbox == 1) {
 			inbox = fopen(FILE_INBOX, "w+");
+			if (inbox == NULL) {
+				report(MIAU_ERRINBOXFILE);
+			}
 		}
-
-		irc_notice(client, status.nickname, CLNT_KILLEDMSGS);
 	}
 #endif /* ifdef INBOX */
 

@@ -510,7 +510,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
  * Note that we do inbox here only is privmsglog is enabled and
  * quicklogging is disabled.
  */
-				if (inbox) {
+				if (inbox != NULL) {
 					/* termination + validity guaranteed */
 					fprintf(inbox, "%s(%s) %s\n",
 							get_short_localtime(),

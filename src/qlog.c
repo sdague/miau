@@ -319,11 +319,13 @@ qlog_flush(time_t oldest, int move_to_inbox)
 			}
 
 			/* termination and validity guaranteed */
-			fprintf(inbox, "%s <%s> %s\n",
-					get_timestamp(&entry->timestamp,
-						TIMESTAMP_SHORT),
-					entry->text + 1, message + 1);
-			fflush(inbox);
+			if (inbox != NULL) {
+				fprintf(inbox, "%s <%s> %s\n",
+						get_timestamp(&entry->timestamp,
+							TIMESTAMP_SHORT),
+						entry->text + 1, message + 1);
+				fflush(inbox);
+			}
 		}
 #endif /* INBOX */
 
