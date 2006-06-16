@@ -1659,9 +1659,6 @@ fakeconnect(connection_type *newclient)
 		channel_join_list(LIST_PASSIVE, 1, NULL);
 
 #ifdef QUICKLOG
-		if (cfg.autoqlog > 0) {
-			qlog_replay_header(newclient);
-		}
 #endif /* ifdef QUICKLOG */
 
 		/*
@@ -1675,10 +1672,13 @@ fakeconnect(connection_type *newclient)
 
 #ifdef QUICKLOG
 		if (cfg.autoqlog > 0) {
-			/* Replay qlog and print footer for channels. */
+			/* print headers, replay log, print footer */
+			qlog_replay_header(newclient);
+
 			qlog_replay(newclient, cfg.autoqlog * 60);
 
 			qlog_replay_footer(newclient);
+
 			if (cfg.flushqlog == 1) {
 				qlog_flush(time(NULL), 0);
 			}

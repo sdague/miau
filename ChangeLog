@@ -1,6 +1,7 @@
 0.6.2 - "Meow"
 
   * Fixed crash with qlog-to-inbox feature if inbox failed to open
+  * Channels are now reintroduces to the client before quicklog is replayed.
   * Added command to replay specified amount of quicklog
   * Added command FLUSHQLOG to flush specified time from quicklog
   * Added configuration option to (not to) replay quicklog on attach
