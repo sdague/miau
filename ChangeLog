@@ -1,6 +1,9 @@
 0.6.2 - "Meow"
 
   * Fixed crash with qlog-to-inbox feature if inbox failed to open
+  * miau no longer thinks it doesn't have The Nick after being disconnected
+    with correct nick, disconnected, given wrong nick at connect, then
+    reconnected with preferred nick.
   * Channels are now reintroduces to the client before quicklog is replayed.
   * Added command to replay specified amount of quicklog
   * Added command FLUSHQLOG to flush specified time from quicklog

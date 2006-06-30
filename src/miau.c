@@ -2250,6 +2250,7 @@ run(void)
 			xfree(status.nickname);
 			status.nickname = xstrdup((char *)
 					nicknames.nicks.head->data);
+			status.got_nick = 1;
 			nicknames.current = nicknames.nicks.head;
 			nicknames.next = NICK_NEXT;
 			/* Don't try connecting for too long... */
