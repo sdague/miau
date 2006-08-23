@@ -403,6 +403,7 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 	/* Join old_channels if client was defined. */
 	if (client != NULL) {
 		LLIST_WALK_H(old_channels.head, channel_type *);
+#ifdef QUICKLOG
 			if (data->hasqlog) {
 				irc_write(client, ":%s!%s JOIN :%s",
 						status.nickname,
@@ -411,6 +412,9 @@ channel_join_list(const int list, const int rejoin, connection_type *client)
 			} else {
 				channel_rem(data, LIST_OLD);
 			}
+#else /* ifdef QUICKLOG */
+			channel_rem(data, LIST_OLD);
+#endif /* ifdef else QUICKLOG */
 		LLIST_WALK_F;
 	}
 

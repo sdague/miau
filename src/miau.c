@@ -1871,6 +1871,7 @@ read_newclient(void)
 
 
 
+#ifdef QUICKLOG
 static time_t
 get_time(char *param)
 {
@@ -1902,6 +1903,7 @@ get_time(char *param)
 
 	return days * 1440 + hours * 60 + minutes;
 } /* static time_t get_time(char *param) */
+#endif /* ifdef QUICKLOG */
 
 
 

@@ -1,3 +1,8 @@
+0.6.3
+
+  * Now compiles with quicklog disabled
+
+
 0.6.2 - "Meow"
 
   * Fixed crash with qlog-to-inbox feature if inbox failed to open
