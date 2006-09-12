@@ -47,7 +47,7 @@ typedef struct {
 } qlogentry;
 
 
-void qlog_check(time_t oldest);
+void qlog_check(int age);
 void qlog_replay_header(connection_type *client);
 void qlog_replay_footer(connection_type *client);
 void qlog_replay(connection_type *client, time_t oldest);

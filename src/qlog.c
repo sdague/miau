@@ -56,10 +56,17 @@ static channel_type *qlog_get_channel(const char *msg);
  * CPU-time as qlog can be checked just as well before replaying.
  */
 void
-qlog_check(time_t oldest)
+qlog_check(int age)
 {
 	llist_node *iterl;
 	list_type *iter;
+	time_t oldest;
+
+	if (age == 0) {
+		oldest = 0;
+	} else {
+		oldest = time(NULL) - age;
+	}
 
 	/* First set each channel not to have qlog. */
 	for (iterl = active_channels.head; iterl != NULL; iterl = iterl->next) {
@@ -91,7 +98,7 @@ qlog_check(time_t oldest)
 			}
 		}
 	}
-} /* void qlog_check(time_t oldest) */
+} /* void qlog_check(int age) */
 
 
 
@@ -329,7 +336,9 @@ qlog_flush(time_t oldest, int move_to_inbox)
 		}
 #endif /* INBOX */
 
+#ifdef INBOX
 drop_free:
+#endif /* ifdef INBOX */
 		xfree(entry->text);
 		xfree(entry);
 		qlog = list_delete(qlog, qlog);

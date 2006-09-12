@@ -452,7 +452,7 @@ dump_status(int a)
 	dumpdata[0] = '\0';
 #ifdef QUICKLOG
 	/* First check qlog. */
-	qlog_check(time(NULL) - cfg.qloglength * 60);
+	qlog_check(cfg.qloglength * 60);
 #endif /* ifdef QUICKLOG */
 	dump_string("-- miau status --");
 	dump_string("config:");
@@ -1640,7 +1640,7 @@ fakeconnect(connection_type *newclient)
 	if (i_server.connected == 2) {
 #ifdef QUICKLOG
 		if (cfg.autoqlog > 0) {
-			qlog_check(time(NULL) - cfg.autoqlog * 60);
+			qlog_check(cfg.autoqlog * 60);
 		}
 #endif /* QUICKLOG */
 
@@ -2019,7 +2019,7 @@ miau_commands(char *command, char *param, connection_type *client)
 		corr++;
 		oldest = get_time(param);
 
-		qlog_check(time(NULL) - oldest * 60);
+		qlog_check(oldest * 60);
 		qlog_replay_header(client);
 		qlog_replay(client, oldest * 60);
 		qlog_replay_footer(client);
