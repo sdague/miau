@@ -266,7 +266,7 @@ int
 sock_bind(int sock, char *bindhost, int port)
 {
 	/* We'd better cast &addr to void * to keep Digital-UNIX happy. */
-	bzero((void *) &addr, sizeof(struct sockaddr_in6));
+	memset((void *) &addr, 0, sizeof(struct sockaddr_in6));
 	
 	addr.sin6_addr = in6addr_any;
 	addr.sin6_family = AF_INET6;
@@ -298,7 +298,7 @@ int
 sock_bindlookedup(int sock, int port)
 {
 	/* We'd better cast &addr to void * to keep Digital-UNIX happy. */
-	bzero((void *) &addr, sizeof(struct sockaddr_in6));
+	memset((void *) &addr, 0, sizeof(struct sockaddr_in6));
 
 	addr.sin6_addr = in6addr_any;
 	addr.sin6_family = AF_INET6;
@@ -326,7 +326,7 @@ int
 sock_bind(int sock, char *bindhost, int port)
 {
 	/* We'd better cast &addr to void * to keep Digital-UNIX happy. */
-	bzero((void *) &addr, sizeof(struct sockaddr_in));
+	memset((void *) &addr, 0, sizeof(struct sockaddr_in));
 
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_family = AF_INET;
@@ -358,7 +358,7 @@ int
 sock_bindlookedup(int sock, int port)
 {
 	/* We'd better cast &addr to void * to keep Digital-UNIX happy. */
-	bzero((void *) &addr, sizeof(struct sockaddr_in));
+	memset((void *) &addr, 0, sizeof(struct sockaddr_in));
 
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_family = AF_INET;

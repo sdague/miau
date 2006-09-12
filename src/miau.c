@@ -2511,7 +2511,7 @@ init(void)
 	sigaction(SIGHUP, &sv, NULL);
 
 	/* clear timers */
-	bzero(&timers, sizeof(timers));
+	memset(&timers, 0, sizeof(timers));
 
 #ifdef DUMPSTATUS
 	sv.sa_handler = dump_status;

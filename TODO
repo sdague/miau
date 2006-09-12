@@ -1,7 +1,5 @@
 TODO:
 
-- get rid of bzero
-
 - support for CAPAB: strip out prefixes for clients that didn't ask for it
 
 - write enduserdebug as a macro (like in log_cannot_write)

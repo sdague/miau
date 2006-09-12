@@ -148,7 +148,7 @@ dcc_addbounce(void)
 	int	dccindex;
 	dccs.data = (dccbounce **) table_add_item((void **) dccs.data,
 			sizeof(dccbounce), &dccs.amount, &dccindex);
-	bzero((void *) dccs.data[dccindex], sizeof(dccbounce));
+	memset((void *) dccs.data[dccindex], 0, sizeof(dccbounce));
 	dccs.data[dccindex]->created = time(NULL);
 #ifdef DEBUG
 	printf("added bounce %d\n", dccindex);
@@ -357,7 +357,7 @@ dcc_initiate(char *param, size_t dsize, int fromclient)
 	char		*dparam, *chop, *check;
 	int		i;
 
-	bzero((void *) &dcc, sizeof(dcccommand));
+	memset((void *) &dcc, 0, sizeof(dcccommand));
 
 	dparam = xstrdup(param);
 	chop = dparam;

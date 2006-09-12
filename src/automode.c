@@ -74,9 +74,9 @@ automode_do(void)
 			int count;
 			size_t nlen, tlen;
 
-			nicks[0] = '\0';	/* clear nicks */
+			nicks[0] = '\0'; /* clear nicks */
 			tlen = 1;
-			bzero(modes, sizeof(modes));	/* clear modes */
+			memset(modes, 0, sizeof(modes)); /* clear modes */
 			count = 0;
 		
 			/* Commit three modes at a time. */
@@ -98,8 +98,9 @@ automode_do(void)
 							channel->name,
 							modes,
 							nicks);
-					nicks[0] = '\0'; /* Clear nicks. */
-					bzero(modes, 4); /* Clear modes. */
+					/* clear nicks and modes */
+					nicks[0] = '\0';
+					memset(modes, 0, 4);
 					count = 0;
 					tlen = 1;
 				}

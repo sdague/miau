@@ -2,6 +2,7 @@
 
   * Now compiles with quicklog disabled
   * Issuing "QUICKLOG" command without parameter now prints quicklog headers
+  * Finally got rid of bzeros
   * Fixed typo in misc/miaurc.in
 
 
