@@ -413,7 +413,7 @@
 #flushqlog = "true"
 
 
-# autoqlog = "minutes": Automatically replay number of minutes of quiclog on
+# autoqlog = "minutes": Automatically replay number of minutes of quicklog on
 #		attach.
 #
 # This option might not be compiled in.

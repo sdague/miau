@@ -2,6 +2,7 @@
 
   * Now compiles with quicklog disabled
   * Issuing "QUICKLOG" command without parameter now prints quicklog headers
+  * Fixed typo in misc/miaurc.in
 
 
 0.6.2 - "Meow"
