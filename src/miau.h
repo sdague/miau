@@ -161,6 +161,7 @@ typedef struct {
 	char	*channels;
 	char	*home;
 	char	*usermode;	/* User modes. Set on connect. */
+	int	no_identify_capab; /* suppress request of "CAPAB IDENTIFY-*" */
 } cfg_type;
 
 typedef struct {

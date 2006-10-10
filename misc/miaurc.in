@@ -379,6 +379,8 @@
 # qloglength = "minutes": Age of oldest line in quicklog in minutes. Set to zero
 #		to disable quicklog.
 #
+# Also see "noidentifycapab".
+#
 # This option might not be compiled in.
 #
 # Default: 30
@@ -677,6 +679,19 @@
 #
 # Example:
 #automodedelay = "60"
+
+
+# noidentifycapab = "state": Suppress requests for IDENTIFY-* capability.
+#
+# Miau can suppress all capability (CAPAB) requests for IDENTIFY-* (including
+# IDENTIFY-MSG and IDENTIFY-CTCP) from being sent to the server. If you're
+# using quicklog and capable server, you may want to enable this to clean up
+# the log replay.
+#
+# Default: false
+#
+# Example:
+#noidentifycapab = "true"
 
 
 # cmdpasswd = "password": Password for remote commands.

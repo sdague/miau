@@ -440,8 +440,13 @@ client_read(connection_type *client)
 		}
 	}
 
+	pass = 1; /* pass by default */
+
+	if (xstrcmp(command, "PRIVMSG") != 0) {
+		printf("%s %s ...\n", command, param1 != NULL ? param1 : "-");
+	}
+
 	if (xstrcmp(command, "PRIVMSG") == 0) {
-		pass = 1; /* default */
 		if (param2 == NULL) {
 #ifdef ENDUSERDEBUG
 			enduserdebug("client_read(): PRIVMSG, param2 = NULL");
@@ -495,12 +500,22 @@ client_read(connection_type *client)
 		pass = cmd_away(client->buffer, param1, param2);
 	}
 
-	else if (i_server.connected != 2) {
-		pass = 0;
+	else if (cfg.no_identify_capab == 1 && xstrcmp(command, "CAPAB") == 0) {
+		if (xstrncasecmp(param1, "IDENTIFY-", 9) == 0 &&
+				strlen(param1) >= 9) {
+			/*
+			 * freenode responds with an empty 290 if capability is
+			 * not supported. I suppose I can do the same.
+			 */
+			irc_write(client, ":%s 290 %s :",
+					i_server.realname,
+					status.nickname);
+			pass = 0;
+		}
 	}
 
-	else {
-		pass = 1;
+	else if (i_server.connected != 2) {
+		pass = 0;
 	}
 
 	if (pass == 1) {

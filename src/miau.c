@@ -156,6 +156,8 @@ cfg_type cfg = {
 	NULL,	/* channels */
 	NULL,	/* home */
 	NULL,	/* usermode */
+
+	0	/* no_idmsg_capab */
 };
 nicknames_type		nicknames;
 

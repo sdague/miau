@@ -547,6 +547,12 @@ mode changes even if someone else did that already.)
 
 This option might not be compiled in.
 
+@item @command{noidentifycapab = "state"}
+Miau can suppress all capability (CAPAB) requests for IDENTIFY-* (including
+IDENTIFY-MSG and IDENTIFY-CTCP) from being sent to the server. If you're using
+quicklog and capable server, you may want to enable this to clean up the log
+replay.
+
 @item @command{cmdpasswd = "password"}
 Password for remote commands. If this is 13 characters long, miau assumes it's
 crypted. Comment this out or leave it empty to disable remote commands. When

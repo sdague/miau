@@ -443,6 +443,8 @@ parse_param(char *data)
 		assign_int(&cfg.jointries, val, 0);
 	} else if (xstrcmp(data, "statelog") == 0) {	/* statelog */
 		assign_boolean(&cfg.statelog, val);
+	} else if (xstrcmp(data, "noidentifycapab") == 0) {
+		assign_boolean(&cfg.no_identify_capab, val);
 	} else {
 		parse_error();
 	}
