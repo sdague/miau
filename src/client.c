@@ -442,10 +442,6 @@ client_read(connection_type *client)
 
 	pass = 1; /* pass by default */
 
-	if (xstrcmp(command, "PRIVMSG") != 0) {
-		printf("%s %s ...\n", command, param1 != NULL ? param1 : "-");
-	}
-
 	if (xstrcmp(command, "PRIVMSG") == 0) {
 		if (param2 == NULL) {
 #ifdef ENDUSERDEBUG
