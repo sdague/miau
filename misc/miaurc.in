@@ -418,9 +418,13 @@
 # autoqlog = "minutes": Automatically replay number of minutes of quicklog on
 #		attach.
 #
+# Setting autoqlog to 0 will disable automagic quicklog replay. If autoqlog is
+# set to -1, full quicklog (length defined with qloglength) will be replayed on
+# attach.
+#
 # This option might not be compiled in.
 #
-# Default: 30
+# Default: -1
 #
 # Example:
 #autoqlog = "30"

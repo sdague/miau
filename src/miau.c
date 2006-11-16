@@ -95,7 +95,7 @@ cfg_type cfg = {
 	1,	/* statelog: write stdout into file */
 #ifdef QUICKLOG
 	30,	/* qloglength: 30 minutes */
-	30,	/* autoqlog: 30 minutes */
+	-1,	/* autoqlog: full quicklog */
 #ifdef QLOGSTAMP
 	0,	/* timestamp: no timestamp */
 #endif /* ifdef QLOGSTAMP */
@@ -1641,8 +1641,15 @@ fakeconnect(connection_type *newclient)
 	 */
 	if (i_server.connected == 2) {
 #ifdef QUICKLOG
-		if (cfg.autoqlog > 0) {
-			qlog_check(cfg.autoqlog * 60);
+		int qlog;
+		if (cfg.autoqlog == -1) {
+			qlog = cfg.qloglength;
+		} else {
+			qlog = cfg.autoqlog;
+		}
+		
+		if (qlog > 0) {
+			qlog_check(qlog * 60);
 		}
 #endif /* QUICKLOG */
 
@@ -1673,11 +1680,11 @@ fakeconnect(connection_type *newclient)
 		channel_join_list(LIST_ACTIVE, 0, newclient);
 
 #ifdef QUICKLOG
-		if (cfg.autoqlog > 0) {
+		if (qlog > 0) {
 			/* print headers, replay log, print footer */
 			qlog_replay_header(newclient);
 
-			qlog_replay(newclient, cfg.autoqlog * 60);
+			qlog_replay(newclient, qlog * 60);
 
 			qlog_replay_footer(newclient);
 

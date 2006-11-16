@@ -333,7 +333,7 @@ parse_param(char *data)
 	} else if (xstrcmp(data, "flushqlog") == 0) {	/* flushqlog */
 		assign_boolean(&cfg.flushqlog, val);
 	} else if (xstrcmp(data, "autoqlog") == 0) {	/* autoqlog */
-		assign_int(&cfg.autoqlog, val, 0);
+		assign_int(&cfg.autoqlog, val, -1);
 #endif /* ifdef QUICKLOG */
 #ifdef NEED_LOGGING
 	} else if (xstrcmp(data, "logsuffix") == 0 ||	/* logsuffix */
