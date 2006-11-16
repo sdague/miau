@@ -390,9 +390,12 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 		
 #ifdef PRIVLOG
 		/* Should we log? */
-		if ((c_clients.connected > 0 && (cfg.privlog & 0x02))
-				|| (c_clients.connected == 0
-					&& (cfg.privlog & 0x01))) {
+		if (((c_clients.connected == 0 && (cfg.privlog & 0x01))
+					|| (c_clients.connected > 0
+						&& (cfg.privlog & 0x02))
+					|| (c_clients.connected == 0
+						&& (cfg.privlog & 0x01)))
+				&& ! is_perm(&ignorelist, origin)) {
 			privlog_write(nick, PRIVLOG_IN, cmdindex, param2 + 1);
 		}	
 #endif /* ifdef PRIVLOG */

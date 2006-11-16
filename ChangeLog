@@ -1,10 +1,11 @@
 0.6.3 - "Minor changes"
 
-  * Now compiles with quicklog disabled
   * Issuing "QUICKLOG" command without parameter now prints quicklog headers
   * Option "noidentifycapab" to suppress IDENTIFY-* requests
   * Option autoqlog now defaults to -1. When autoqlog is set to -1, full
     quicklog will be replayed (on attach).
+  * Fixed user-provided privlog ignore-list
+  * Now compiles with quicklog disabled
   * Finally got rid of bzeros
   * Fixed typo in misc/miaurc.in
 
