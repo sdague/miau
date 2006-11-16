@@ -36,35 +36,38 @@ llist_list	open_logs;
 
 
 
-static FILE *open_file(char *nick);
+static int open_log(privlog_type *log);
 static void finalize_log(privlog_type *log);
 
 
 
-static FILE *
-open_file(char *nick)
+static int
+open_log(privlog_type *log)
 {
 	char *lownick;
-	char *filename;
 	size_t fsize;
-	FILE *file;
 
 	/* Get nick in lowercase. */
 	/* We could use filename as temporary buffer but that isn't safe. */
-	lownick = xstrdup(nick);
+	lownick = xstrdup(log->nick);
 	lowcase(lownick);
+
+	xfree(log->filename); /* make sure */
 
 	/* termination and validity guaranteed */
 	fsize = strlen(LOGDIR) + strlen(lownick) + strlen(cfg.logsuffix) + 3;
-	filename = (char *) xmalloc(fsize);
-	snprintf(filename, fsize, LOGDIR"/%s%s", lownick, cfg.logsuffix);
-	filename[fsize - 1] = '\0';
-	file = fopen(filename, "a+");
-	xfree(filename);
+	log->filename = (char *) xmalloc(fsize);
+	snprintf(log->filename, fsize, LOGDIR"/%s%s", lownick, cfg.logsuffix);
+	log->filename[fsize - 1] = '\0';
+	log->file = fopen(log->filename, "a+");
 	xfree(lownick);
 
-	return file;
-} /* static FILE *open_file(char *nick) */
+	if (log->file == NULL) {
+		return -1;
+	} else {
+		return 0;
+	}
+} /* static int open_file(privlog_type *log) */
 
 
 
@@ -102,15 +105,16 @@ privlog_write(const char *nick, int in_out, int cmd, const char *message)
 		line = (privlog_type *) xmalloc(sizeof(privlog_type));
 		line->nick = xstrdup(nick);
 		line->file = NULL;
+		line->filename = NULL;
 	}
 	
 	/* If file is closed, open it. */
 	if (line->file == NULL) {
-		line->file = open_file(line->nick);
+		open_log(line);
 	}
 
 	if (line->file == NULL) {
-		log_cannot_write(line->nick);
+		log_cannot_write(line->filename);
 		xfree(line->nick);
 		xfree(line);
 		return -1;
@@ -182,7 +186,7 @@ finalize_log(privlog_type *log)
 	 */
 	/* Reopen closed file for writing footer. */
 	if (log->file == NULL) {
-		log->file = open_file(log->nick);
+		open_log(log);
 	}
 	if (log->file != NULL) {
 		/* termination guaranteed in get_timestamp() */
@@ -191,6 +195,7 @@ finalize_log(privlog_type *log)
 		fclose(log->file);
 	}
 	xfree(log->nick);
+	xfree(log->filename);
 	xfree(log);
 } /* static void finalize_log(privlog_type *log) */
 

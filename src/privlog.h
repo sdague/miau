@@ -34,6 +34,7 @@
 typedef struct {
 	char	*nick;		/* Log for... */
 	FILE	*file;		/* Pointer to logfile. */
+	char	*filename;	/* Logfile */
 	time_t	updated;	/* Last entry written in... */
 } privlog_type;
 

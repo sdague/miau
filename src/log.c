@@ -38,9 +38,6 @@ int warned_already = 0;
 void
 log_cannot_write(const char *file)
 {
-	char *rfile;
-	size_t size;
-
 	if (file == NULL) {
 		debug("log_cannot_write(NULL)");
 		return;
@@ -50,12 +47,7 @@ log_cannot_write(const char *file)
 		return;
 	}
 	
-	size = strlen(LOGDIR) + strlen(file) + 2;
-	rfile = xmalloc(size);
-	snprintf(rfile, size, "%s/%s", LOGDIR, file);
-	rfile[size - 1] = '\0';
-	report(MIAU_LOGNOWRITE, rfile);
-	xfree(rfile);
+	report(MIAU_LOGNOWRITE, file);
 
 	warned_already = 1;
 } /* void log_cannot_write(const char *file) */
