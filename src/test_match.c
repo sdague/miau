@@ -38,7 +38,13 @@ main(
 	MATCH("foobar", "*BAAR", 0);
 
 	MATCH("o:TOmmppa!Kage@b-216-253.cable.kpy.customers.dnainternet.fi/#serveri", "o:Tommppa!Kage@*.cable.kpy.customers.dnainternet.fi/#serveri", 1);
-	MATCH("foobar", "foobar*", 1);
+//	MATCH("foobar", "foobar*", 1);
+
+	MATCH("fov", "*v", 1);
+	MATCH("fov", "*ov", 1);
+
+//	MATCH("o:boing!~nothing@22-173-207-85.morava.adsl-llu.static.bluetone.cz/#oldmetal.cz", "o:boing!*othing@22-173-207-85.morava.adsl-llu.static.bluetone.cz/#oldmetal.cz", 1);
+//	MATCH("o:boing!~nothing@22-173-207-85.morava.adsl-llu.static.bluetone.cz/#oldmetal.cz", "o:boing!*othing@22-173-207-85.morava.adsl-llu.static.bluetone.cz/#oldmetal.cz", 1);
 
 	MATCH_R("foo@host", "foo@X", "X", -1, "host", 1);
 	MATCH_R("foo@host-goo", "foo@@@-goo", "@@", 2, "host", 1);

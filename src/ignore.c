@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2007 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -46,7 +46,7 @@ ignores_type ignores;
 
 
 void
-ignore_add(char *hostname, int ttl, int type)
+ignore_add(const char *hostname, int ttl, int type)
 {
 	int i, indx;
 
@@ -67,12 +67,12 @@ ignore_add(char *hostname, int ttl, int type)
 	ignores.data[indx]->hostname = xstrdup(hostname);
 	ignores.data[indx]->ttl = ttl;
 	ignores.data[indx]->type = type;
-} /* void ignore_add(char *hostname, int ttl, int type) */
+} /* void ignore_add(const char *hostname, int ttl, int type) */
 
 
 
 void
-ignore_del(char *hostname)
+ignore_del(const char *hostname)
 {
 	int i;
 	for (i = 0; i < ignores.amount; i++) {
@@ -85,7 +85,7 @@ ignore_del(char *hostname)
 						i, &ignores.amount);
 		}
 	}
-} /* void ignore_del(char *hostname) */
+} /* void ignore_del(const char *hostname) */
 
 
 
@@ -120,7 +120,7 @@ ignores_process(void)
 
 
 int
-is_ignore(char *hostname, int type)
+is_ignore(const char *hostname, int type)
 {
 	int i;
 	for (i = 0; i < ignores.amount; i++) {
@@ -132,7 +132,7 @@ is_ignore(char *hostname, int type)
 		}
 	}
 	return 0;
-} /* int is_ignore(char *hostname, int type) */
+} /* int is_ignore(const char *hostname, int type) */
 
 
 

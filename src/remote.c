@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
  * Process remote sent (thru IRC-network) commands.
  */
 int
-remote_cmd(char *command, char *params, char *nick)
+remote_cmd(const char *command, const char *params, const char *nick)
 {
 	/* Each command consists of up to four parameters. */
 	char	**param = (char **) xmalloc((sizeof(char *)) * MAXCMDPARAMS);
@@ -85,7 +85,8 @@ remote_cmd(char *command, char *params, char *nick)
 	xfree(splitted);
 
 	return pass;
-} /* int remote_cmd(char *command, char *params, char *nick) */
+} /* int remote_cmd(const char *command, const char *params,
+		const char *nick) */
 
 
 

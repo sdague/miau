@@ -8,6 +8,7 @@
   * Now compiles with quicklog disabled
   * Finally got rid of bzeros
   * Fixed typo in misc/miaurc.in
+  * Major clean-up of src/server.c
 
 
 0.6.2 - "Meow"

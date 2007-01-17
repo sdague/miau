@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
  *      (C) 2002 Lee Hardy <lee@leeh.co.uk>
  *      (C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -355,62 +355,15 @@ server_commands(char *command, char *param, int *pass)
 
 
 
-int
-parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
-		const int cmdindex, int *pass)
+static void
+parse_msg_me_ctcp(const char *origin, const char *nick, const char *hostname,
+		const char *param1, const char *param2, int cmdindex, int *pass)
 {
-#ifdef CHANLOG
-	channel_type	*chptr;
-#endif /* ifdef CHANLOG */
-	char		*origin;
-	int		osize;
-	int		isprivmsg = 0;
-	int		normal = 1;	/* ...just a normal message... */
-
-	if (nick == NULL || hostname == NULL || param2 == NULL) {
-#ifdef ENDUSERDEBUG
-		enduserdebug("server_commands(): "
-				"param2 = %s, nick = %s, hostname = %d",
-				param2 == NULL ? "NULL" : param2,
-				nick == NULL ? "NULL" : nick,
-				hostname == NULL ? "NULL" : hostname);
-#endif /* ifdef ENDUSERDEBUG */
-		return 0;
-	}
-
-	/* paranoid */
-	osize = strlen(nick) + strlen(hostname) + 2;
-	origin = xmalloc(osize);
-	snprintf(origin, osize, "%s!%s", nick, hostname);
-	origin[osize - 1] = '\0';
-
-	/* who is it for? */
-	if (xstrcasecmp(param1, status.nickname) == 0) {
-		/* It's for me. Whee! :-) */
-		
-#ifdef PRIVLOG
-		/* Should we log? */
-		if (((c_clients.connected == 0 && (cfg.privlog & 0x01))
-					|| (c_clients.connected > 0
-						&& (cfg.privlog & 0x02))
-					|| (c_clients.connected == 0
-						&& (cfg.privlog & 0x01)))
-				&& ! is_perm(&ignorelist, origin)) {
-			privlog_write(nick, PRIVLOG_IN, cmdindex, param2 + 1);
-		}	
-#endif /* ifdef PRIVLOG */
-				
-		
-		/* ignorelist tells who are ignore - not who are allowed. */
-		if (! is_perm(&ignorelist, origin)) {
-			/* Is this a special (CTCP/DCC) -message ? */
-			if (param2[1] == '\1') {
-
-	normal = 0;				
-	upcase(param2);
 #ifdef DCCBOUNCE
-	if (c_clients.connected > 0 && cmdindex == CMD_PRIVMSG &&
-			cfg.dccbounce && (xstrcmp(param2 + 2, "DCC\1") == 0)) {
+	if (c_clients.connected > 0
+			&& cmdindex == CMD_PRIVMSG
+			&& cfg.dccbounce
+			&& (xstrcasecmp(param2 + 2, "DCC\1") == 0)) {
 		char dcct[IRC_MSGLEN];
 		strncpy(dcct, param2 + 1, IRC_MSGLEN);
 		if (dcc_initiate(dcct, IRC_MSGLEN, 0)) {
@@ -426,20 +379,21 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 #endif /* ifdef CTCPREPLIES */
 #endif /* ifdef DCCBOUNCE */
 #ifdef CTCPREPLIES
-	if (! is_ignore(hostname, IGNORE_CTCP) &&
-			c_clients.connected == 0 && status.allowreply == 1) {
+	if (! is_ignore(hostname, IGNORE_CTCP)
+			&& c_clients.connected == 0
+			&& status.allowreply == 1) {
 		report(CLNT_CTCP, param2 + 1, origin);
-
+		
 		if (xstrcmp(param2 + 2, "VERSION\1") == 0) {
 			irc_notice(&c_server, nick, VERSIONREPLY);
 		}
-
+		
 		else if (xstrcmp(param2 + 2, "PING") == 0) {
 			if (strlen(param2 + 1) > 6) {
 				irc_notice(&c_server, nick, "%s", param2 + 1);
 			}
 		}
-
+		
 		else if (xstrcmp(param2 + 2, "CLIENTINFO\1") == 0) {
 			irc_notice(&c_server, nick, CLIENTINFOREPLY);
 		}
@@ -448,158 +402,224 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 		status.allowreply = 0;
 		timers.reply = 0;
 	} /* CTCP-replies */
-	else if (is_ignore(hostname, IGNORE_CTCP) ||
-			status.allowreply == 0) {
-		report(CLNT_CTCPNOREPLY,
-				param2 + 1, origin);
+	else if (is_ignore(hostname, IGNORE_CTCP)
+			|| status.allowreply == 0) {
+		report(CLNT_CTCPNOREPLY, param2 + 1, origin);
 	}
 #endif /* ifdef CTCPREPLIES */
-			} /* Special (CTCP/DCC) -message. */
+} /* static void parse_msg_me_ctcp(const char *origin, const char *nick,
+		const char *hostname, const char *param1, const char *param2,
+		int cmdindex, int *pass) */
 
+
+
+static int
+parse_msg_me(const char *origin, const char *nick, const char *hostname,
+		const char *param1, const char *param2, int cmdindex, int *pass)
+{
+	if (is_perm(&ignorelist, origin)) {
+		return 0;
+	}
+
+#ifdef PRIVLOG
+	/* Should we log? */
+	if ((c_clients.connected == 0 && (cfg.privlog & 0x01))
+			|| (c_clients.connected > 0 && (cfg.privlog & 0x02))) {
+		privlog_write(nick, PRIVLOG_IN, cmdindex, param2 + 1);
+	}	
+#endif /* ifdef PRIVLOG */
+
+	/* Is this a special (CTCP/DCC) -message ? */
+	if (param2[1] == '\1') {
+		parse_msg_me_ctcp(origin, nick, hostname, param1, param2,
+				cmdindex, pass);
+		return 0;
+	}
 #ifdef NEED_CMDPASSWD
-			/* Remote command for bouncer. */
-			else if (cfg.cmdpasswd != NULL && param2 != NULL &&
-					param2[0] != '\0' && param2[1] == ':') {
-				int	passok = 0;
-				int	passlen;
-				
-			passlen = pos(param2 + 2, ' ');
-			if (passlen != -1) {
-				param2[2 + passlen] = '\0';
+	/* Remote command for bouncer. */
+	else if (cfg.cmdpasswd != NULL && param2 != NULL
+			&& param2[0] != '\0' && param2[1] == ':') {
+		int passok = 0;
+		int passlen;
+		char *lparam;
+		lparam = xstrdup(param2 + 2);
+		
+		passlen = pos(lparam, ' ');
+		if (passlen != -1) {
+			lparam[passlen] = '\0';
 
-				if (strlen(cfg.cmdpasswd) == 13) {
-					/* Assume it's crypted */
-					/* Bad nesting. */
-					if (xstrcmp(crypt(param2 + 2,
-							cfg.cmdpasswd),
-							cfg.cmdpasswd) == 0) {
-						passok = 1;
-					}
-				} else if (xstrcmp(param2 + 2,
+			if (strlen(cfg.cmdpasswd) == 13) {
+				/* Assume it's crypted */
+				if (xstrcmp(crypt(lparam, cfg.cmdpasswd),
 							cfg.cmdpasswd) == 0) {
 					passok = 1;
 				}
-				param2[2 + passlen] = ' ';
+			} else if (xstrcmp(lparam, cfg.cmdpasswd) == 0) {
+				passok = 1;
 			}
+			lparam[passlen] = ' ';
+		}
 
-				if (passok) {
-					char	*t;
-					char	*command;
-					char	*params = NULL;
+		if (passok) {
+			char *t;
+			char *command;
+			char *params = NULL;
 
-					t = strtok(param2 + 1, " ");
-					command = strtok(NULL, " ");
-					if (command != NULL) {
-						params = strchr(command, '\0') +
-							1;
-					}
-					if (params != NULL) {
-						upcase(command);
-						*pass = remote_cmd(command,
-								params,
-								nick);
-						normal = 0;
-					}
-				}
+			t = strtok(lparam, " ");
+			command = strtok(NULL, " ");
+			if (command != NULL) {
+				params = strchr(command, '\0') + 1;
 			}
+			if (params != NULL) {
+				upcase(command);
+				*pass = remote_cmd(command, params, nick);
+				xfree(lparam);
+				return 0;
+			}
+		}
+		xfree(lparam);
+	}
 #endif /* ifdef NEED_CMDPASSWD */
 
-			/* Normal PRIVMSG/NOTICE to client. */
-			if (normal == 1) {
-				isprivmsg = 1;
+	/* Normal PRIVMSG/NOTICE to client. */
 #ifdef INBOX
 #ifndef QUICKLOG
-/*
- * Note that we do inbox here only is privmsglog is enabled and
- * quicklogging is disabled.
- */
-				if (inbox != NULL) {
-					/* termination + validity guaranteed */
-					fprintf(inbox, "%s(%s) %s\n",
-							get_short_localtime(),
-							origin, param2 + 1);
-					fflush(inbox);
-				}
+	/*
+	 * Note that we do inbox here only is privmsglog is enabled and
+	 * quicklogging is disabled.
+	 */
+	if (inbox != NULL) {
+		/* termination + validity guaranteed */
+		fprintf(inbox, "%s(%s) %s\n",
+				get_short_localtime(), origin, param2 + 1);
+		fflush(inbox);
+	}
 #endif /* ifdef QUICKLOG */
 #endif /* ifdef INBOX */
-				
-				if (cfg.forwardmsg) {
-					int pos;
 
-					timers.forward = 0;
-					if (forwardmsg == NULL) {
-						/* initial size */
-						/* need space for terminator */
-						forwardmsgsize = 1;
-					}
-					pos = forwardmsgsize - 1;
-					forwardmsgsize +=
-						strlen(origin) +
-						strlen(param2 + 1) +
-						4; /* strlen("() \n") */
-					forwardmsg =
-						(char *) xrealloc(forwardmsg,
-								forwardmsgsize);
-					/* paranoid! */
-					snprintf(forwardmsg + pos,
-							forwardmsgsize - pos,
-							"(%s) %s\n",
-							origin, param2 + 1);
-					forwardmsg[forwardmsgsize - 1] = '\0';
-				}
+	if (cfg.forwardmsg) {
+		int pos;
+
+		timers.forward = 0;
+		if (forwardmsg == NULL) {
+			/* initial size */
+			/* need space for terminator */
+			forwardmsgsize = 1;
+		}
+		pos = forwardmsgsize - 1;
+		forwardmsgsize += strlen(origin) + strlen(param2 + 1) + 4;
+		/* strlen("() \n") == 4 */
+		forwardmsg = (char *) xrealloc(forwardmsg, forwardmsgsize);
+		/* paranoid! */
+		snprintf(forwardmsg + pos, forwardmsgsize - pos,
+				"(%s) %s\n",
+				origin, param2 + 1);
+		forwardmsg[forwardmsgsize - 1] = '\0';
+	}
+
+	return 1;
+} /* static int parse_msg_me(const char *origin, const char *nick,
+		const char *hostname, const char *param1, const char *param2,
+		int cmdindex, int *pass) */
+
+
+
+static int
+parse_msg_chan(const char *origin, const char *nick, const char *hostname,
+		const char *param1, const char *param2, int cmdindex, int *pass)
+{
+#ifdef CHANLOG
+	channel_type	*chptr;
+#endif /* ifdef CHANLOG */
+	const char *chan;
+
+	/* channel wallops - notice @#channel etc :-) */
+	if ((param1[0] == '@' || param1[0] == '%' || param1[0] == '+')
+			&& channel_is_name(param1 + 1) != 0) {
+		chan = param1 + 1;
+	} else {
+		chan = param1;
+	}
+
+#ifdef CHANLOG
+	/*
+	 * evil kludge: it's way too easy to confuse normal message to
+	 * channel "++foo" with a channel wallop (mode + to channel
+	 * "+foo"), so we have to try both. At least we know to try
+	 * the more obvious first.
+	 */
+	chptr = channel_find(chan, LIST_ACTIVE);
+	if (chptr == NULL) {
+		chptr = channel_find(param1, LIST_ACTIVE);
+	}
+	if (chptr != NULL && chanlog_has_log(chptr, LOG_MESSAGE)) {
+		char *t;
+
+		t = log_prepare_entry(nick, param2 + 1);
+		if (t == NULL) {
+			if (cmdindex == CMD_PRIVMSG + MINCOMMANDVALUE) {
+				chanlog_write_entry(chptr, LOGM_MESSAGE,
+						get_short_localtime(),
+						nick, param2 + 1);
+			} else { /* must be notice then */
+				chanlog_write_entry(chptr, LOGM_NOTICE,
+						get_short_localtime(),
+						nick, param2 + 1);
 			}
+		} else {
+			chanlog_write_entry(chptr, "%s", t);
 		}
 	}
 
-	/* Bah, it wasn't personally to me. */
-	else {
-		const char *chan;
-
-		/* channel wallops - notice @#channel etc :-) */
-		if ((param1[0] == '@' || param1[0] == '%' || param1[0] == '+')
-				&& channel_is_name(param1 + 1) != 0) {
-			chan = param1 + 1;
-		} else {
-			chan = param1;
-		}
-
-#ifdef CHANLOG
-		/*
-		 * evil kludge: it's way too easy to confuse normal message to
-		 * channel "++foo" with a channel wallop (mode + to channel
-		 * "+foo"), so we have to try both. At least we know to try
-		 * the more obvious first.
-		 */
-		chptr = channel_find(chan, LIST_ACTIVE);
-		if (chptr == NULL) {
-			chptr = channel_find(param1, LIST_ACTIVE);
-		}
-		if (chptr != NULL && chanlog_has_log(chptr, LOG_MESSAGE)) {
-			char *t;
-
-			t = log_prepare_entry(nick, param2 + 1);
-			if (t == NULL) {
-				if (cmdindex == CMD_PRIVMSG + MINCOMMANDVALUE) {
-					chanlog_write_entry(chptr, LOGM_MESSAGE,
-							get_short_localtime(),
-							nick, param2 + 1);
-				} else { /* must be notice then */
-					chanlog_write_entry(chptr, LOGM_NOTICE,
-							get_short_localtime(),
-							nick, param2 + 1);
-				}
-			} else {
-				chanlog_write_entry(chptr, "%s", t);
-			}
-		}
+	return 0;
 #endif /* ifdef CHANLOG */
+} /*  static int parse_msg_chan(const char *origin, const char *nick,
+		const char *hostname, const char *param1, const char *param2,
+		int cmdindex, int *pass) */
+
+
+
+static int
+parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
+		const int cmdindex, int *pass)
+{
+	char *origin;
+	int osize;
+	int isprivmsg = 0;
+
+	if (nick == NULL || hostname == NULL || param2 == NULL) {
+#ifdef ENDUSERDEBUG
+		enduserdebug("parse_privmsg(): "
+				"param1 = %s, param2 = %s, "
+				"nick = %s, hostname = %d",
+				param1 == NULL ? "NULL" : param1,
+				param2 == NULL ? "NULL" : param2,
+				nick == NULL ? "NULL" : nick,
+				hostname == NULL ? "NULL" : hostname);
+#endif /* ifdef ENDUSERDEBUG */
+		return 0;
+	}
+
+	/* paranoid */
+	osize = strlen(nick) + strlen(hostname) + 2;
+	origin = xmalloc(osize);
+	snprintf(origin, osize, "%s!%s", nick, hostname);
+	origin[osize - 1] = '\0';
+
+	/* who is it for? */
+	if (xstrcasecmp(param1, status.nickname) == 0) {
+		parse_msg_me(origin, nick, hostname, param1, param2,
+				cmdindex, pass);
+	} else {
+		parse_msg_chan(origin, nick, hostname, param1, param2,
+				cmdindex, pass);
 	}
 
 	xfree(origin);
 
 	return isprivmsg;
-} /* int parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
-		const int cmdindex, int *pass) */
+} /* static int parse_privmsg(char *param1, char *param2, char *nick,
+	char *hostname, const int cmdindex, int *pass) */
 
 
 

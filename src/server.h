@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,8 +59,6 @@ void server_reset(void);
 void server_change(int next, int disablee);
 int server_read(void);
 void server_commands(char *command, char *param, int *pass);
-int parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
-		const int cmdindex, int *pass);
 int server_read(void);
 void server_check_list(void);
 void server_reply(const int command, char *original, char *origin,

@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2000 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -29,10 +29,10 @@
 #define IGNORE_MESSAGE 0
 #define IGNORE_CTCP 1
 
-void ignore_add(char *hostname, int ttl, int type);
-void ignore_del(char *hostname);
+void ignore_add(const char *hostname, int ttl, int type);
+void ignore_del(const char *hostname);
 void ignores_process(void);
-int is_ignore(char *hostname, int type);
+int is_ignore(const char *hostname, int type);
 
 
 

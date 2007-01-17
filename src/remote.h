@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 
 #ifdef NEED_CMDPASSWD
-int remote_cmd(char *command, char *params, char *nick);
+int remote_cmd(const char *command, const char *params, const char *nick);
 #endif /* ifdef NEED_CMDPASSWD */
 
 

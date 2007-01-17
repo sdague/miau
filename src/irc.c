@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2007 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -654,7 +654,8 @@ irc_clear_queue(void)
 
 
 static int
-irc_notice_va(connection_type *conn, char *nick, char *format, va_list va)
+irc_notice_va(connection_type *conn, const char *nick, const char *format,
+		va_list va)
 {
 	char buf[IRC_MSGLEN];
 	int r;
@@ -664,8 +665,8 @@ irc_notice_va(connection_type *conn, char *nick, char *format, va_list va)
 	r = irc_write(conn, "NOTICE %s :%s", nick, buf);
 
 	return r;
-} /* static int irc_notice_va(connection_type *conn, char *nick,
-		char *format, va_list va) */
+} /* static int irc_notice_va(connection_type *conn, const char *nick,
+		const char *format, va_list va) */
 
 
 
@@ -673,7 +674,7 @@ irc_notice_va(connection_type *conn, char *nick, char *format, va_list va)
  * Send data to all connected clients.
  */
 int
-irc_mnotice(clientlist_type *clients, char *nick, char *format, ...)
+irc_mnotice(clientlist_type *clients, const char *nick, const char *format, ...)
 {
 	llist_node *client;
 	va_list va;
@@ -696,20 +697,22 @@ irc_mnotice(clientlist_type *clients, char *nick, char *format, ...)
 	va_end(va);
 
 	return ret;
-} /* int irc_mnotice(clientlist_type *clients, char *nick, char *format, ...) */
+} /* int irc_mnotice(clientlist_type *clients, const char *nick,
+		const char *format, ...) */
 
 
 
 void
-irc_notice(connection_type *connection, char *nick, char *format, ...)
+irc_notice(connection_type *connection, const char *nick,
+		const char *format, ...)
 {
 	va_list va;
 	
 	va_start(va, format);
 	irc_notice_va(connection, nick, format, va);
 	va_end(va);
-} /* void irc_notice(connection_type *connection, char *nick,
-		char *format, ...) */
+} /* void irc_notice(connection_type *connection, const char *nick,
+		const char *format, ...) */
 
 
 

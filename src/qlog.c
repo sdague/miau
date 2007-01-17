@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -381,29 +381,33 @@ static channel_type *
 qlog_get_channel(const char *msg)
 {
 	channel_type *chan;
-	char *b;
+	char *b, *t;
+	int l;
 
-	chan = NULL;
 	b = strchr(msg, (int) ' ');
-	if (b != NULL) {
-		b = strchr(b + 1, (int) ' ');
-		if (b != NULL) {
-			int l;
-			l = pos(b + 1, ' ');
-			if (l != -1) {
-				char *t;
-				t = (char *) xmalloc(l + 1);
-				memcpy(t, b + 1, l);
-				t[l] = '\0';
-				/* Check active/old_channels. */
-				chan = channel_find(t, LIST_ACTIVE);
-				if (chan == NULL) {
-					chan = channel_find(t, LIST_OLD);
-				}
-				xfree(t);
-			}
-		}
+	if (b == NULL) {
+		return NULL;
 	}
+
+	b = strchr(b + 1, (int) ' ');
+	if (b == NULL) {
+		return NULL;
+	}
+
+	l = pos(b + 1, ' ');
+	if (l == -1) {
+		return NULL;
+	}
+	
+	t = (char *) xmalloc(l + 1);
+	memcpy(t, b + 1, l);
+	t[l] = '\0';
+	/* Check active/old_channels. */
+	chan = channel_find(t, LIST_ACTIVE);
+	if (chan == NULL) {
+		chan = channel_find(t, LIST_OLD);
+	}
+	xfree(t);
 
 	return chan;
 } /* static channel_type *qlog_get_channel(const char *msg) */

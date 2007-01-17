@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2002-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2007 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -75,7 +75,7 @@ empty_perm(permlist_type *list)
  * Is given mask permitted to ?
  */
 int
-is_perm(permlist_type *list, char *name)
+is_perm(permlist_type *list, const char *name)
 {
 	llist_node	*node;
 	int		allowed = 0;
@@ -96,7 +96,7 @@ is_perm(permlist_type *list, char *name)
 	}
 
 	return allowed;
-} /* int is_perm(permlist_type *list, char *name) */
+} /* int is_perm(permlist_type *list, const char *name) */
 
 
 
