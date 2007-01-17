@@ -570,9 +570,9 @@ parse_msg_chan(const char *origin, const char *nick, const char *hostname,
 			chanlog_write_entry(chptr, "%s", t);
 		}
 	}
+#endif /* ifdef CHANLOG */
 
 	return 0;
-#endif /* ifdef CHANLOG */
 } /*  static int parse_msg_chan(const char *origin, const char *nick,
 		const char *hostname, const char *param1, const char *param2,
 		int cmdindex, int *pass) */
