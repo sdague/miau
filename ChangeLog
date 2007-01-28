@@ -1,3 +1,8 @@
+0.6.4
+
+  * Fixed issue with invalid(?) message to set channel key
+
+
 0.6.3 - "Minor changes"
 
   * Issuing "QUICKLOG" command without parameter now prints quicklog headers

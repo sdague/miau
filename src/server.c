@@ -1438,7 +1438,16 @@ parse_modes(const char *channel, const char *original)
 			case 'k':	/* Channel key. */
 				if (modetype == '+') {	/* Setting. */
 					xfree(chptr->key);
-					chptr->key = xstrdup(param);
+		if (param == NULL) { /* oh the horror of indenting */
+			xfree(chptr->key);
+			irc_mnotice(&c_clients, status.nickname,
+					"bad channel key (str: %s), "
+					"expect trouble",
+					original);
+			chptr->key = xstrdup("-");
+		} else {
+			chptr->key = xstrdup(param);
+		}
 				} /* No need to clear unset key. */
 				/* Removig key needs parameter. */
 				param = strtok(NULL, " ");
