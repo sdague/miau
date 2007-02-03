@@ -1,6 +1,7 @@
 0.6.4
 
   * Fixed crash with channel modes with parameter(s) missing
+  * Fixed "nothing goes to inbox after updating to 0.6.3"
 
 
 0.6.3 - "Minor changes"

@@ -610,6 +610,7 @@ parse_privmsg(char *param1, char *param2, char *nick, char *hostname,
 	if (xstrcasecmp(param1, status.nickname) == 0) {
 		parse_msg_me(origin, nick, hostname, param1, param2,
 				cmdindex, pass);
+		isprivmsg = 1;
 	} else {
 		parse_msg_chan(origin, nick, hostname, param1, param2,
 				cmdindex, pass);
