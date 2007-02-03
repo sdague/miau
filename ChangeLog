@@ -1,6 +1,6 @@
 0.6.4
 
-  * Fixed issue with invalid(?) message to set channel key
+  * Fixed crash with channel modes with parameter(s) missing
 
 
 0.6.3 - "Minor changes"

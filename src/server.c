@@ -1400,14 +1400,17 @@ parse_modes(const char *channel, const char *original)
 			case 'o':	/* Channel operator. */
 			case 'v':	/* Voice privilege. */
 #ifdef AUTOMODE
-			/*
-			 * Appears that some servers think 'O' flag is for
-			 * "oper only" channel (no parameter), some think it's
-			 * a user flag for channel creator. This means if 'O'
-			 * comes with no parameter, we can pretty much safely
-			 * ignore it.
-		 	 */
-			if (! (ptr[0] == 'O' && param == NULL)) {
+				/*
+				 * Appears that some servers think 'O' flag is
+				 * for "oper only" channel (no parameter), some
+				 * think it's a user flag for channel creator.
+				 * This means if 'O' comes with no parameter,
+				 * we can pretty much safely ignore it.
+				 */
+				
+				if (ptr[0] == 'O' || param == NULL) {
+					break;
+				}
 				if (ptr[0] == 'O') {
 					ptr[0] = 'o';
 				}
@@ -1429,27 +1432,23 @@ parse_modes(const char *channel, const char *original)
 								ptr[0]);
 					}
 				}
-			}
 
 #endif /* ifdef AUTOMODE */
 				param = strtok(NULL, " ");
 				break;
 
 			case 'k':	/* Channel key. */
-				if (modetype == '+') {	/* Setting. */
-					xfree(chptr->key);
-		if (param == NULL) { /* oh the horror of indenting */
-			xfree(chptr->key);
-			irc_mnotice(&c_clients, status.nickname,
-					"bad channel key (str: %s), "
-					"expect trouble",
-					original);
-			chptr->key = xstrdup("-");
-		} else {
-			chptr->key = xstrdup(param);
-		}
-				} /* No need to clear unset key. */
-				/* Removig key needs parameter. */
+				/*
+				 * If there's a channel with key "123" and user
+				 * limit "321" at GalaxyNet, mode query returns
+				 * "+lk 123". I suppose we just have to live
+				 * without that missing parameter.
+				 */
+				if (modetype == '+' && param != NULL) {
+					chptr->key = xstrdup(param);
+				}
+				/* No need to clear unset key. */
+				/* Even removing key needs parameter. */
 				param = strtok(NULL, " ");
 				break;
 				
