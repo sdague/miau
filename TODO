@@ -1,5 +1,9 @@
 TODO:
 
+- privmsg_fmt
+
+- wildcard
+
 - forwardmsg = "never|detached|attached|always"
 
 - option to reduce qlog size when low on memory

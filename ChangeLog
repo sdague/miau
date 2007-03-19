@@ -1,7 +1,8 @@
-0.6.4
+0.6.4 - "Service Pack"
 
   * Fixed crash with channel modes with parameter(s) missing
   * Fixed "nothing goes to inbox after updating to 0.6.3"
+  * Reset server timer when we receive data -- not just when PONG is received
 
 
 0.6.3 - "Minor changes"

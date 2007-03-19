@@ -736,6 +736,7 @@ irc_read(connection_type *connection)
 		if (ret == 0) return -1;
 		if (ret == -1 && errno == EAGAIN) return 0;
 		connection->offset++;
+		connection->timer = 0; /* Got data, reset timer. */
 	} while (connection->buffer[connection->offset - 1] != '\n' &&
 			connection->offset < BUFFERSIZE - 4);
 	connection->buffer[connection->offset - 1] = '\0';
@@ -750,7 +751,6 @@ irc_read(connection_type *connection)
 	fflush(stdout);
 #endif
 	connection->offset = 0;
-	connection->timer = 0;		/* Got data, reset timer. */
 	return 1;
 } /* int irc_read(connection_type *connection) */
 
