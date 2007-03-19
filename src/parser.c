@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +67,19 @@ assign_param(char **target, char *source)
 		*target = xstrdup(source);
 	}
 } /* void assign_param(char **target, char *source) */
+
+
+
+static void
+assign_param_no_trim(char **target, char *source)
+{
+	xfree(*target);
+	if (source[0] == '\0') {
+		*target = NULL;
+	} else {
+		*target = xstrdup(source);
+	}
+} /* static void assign_param_no_trim(char **target, char *source) */
 
 
 
@@ -445,6 +458,8 @@ parse_param(char *data)
 		assign_boolean(&cfg.statelog, val);
 	} else if (xstrcmp(data, "noidentifycapab") == 0) {
 		assign_boolean(&cfg.no_identify_capab, val);
+	} else if (xstrcmp(data, "privmsg_format") == 0) {
+		assign_param_no_trim(&cfg.privmsg_fmt, val);
 	} else {
 		parse_error();
 	}

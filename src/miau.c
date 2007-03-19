@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2002-2006 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2002-2007 Tommi Saviranta <wnd@iki.fi>
  *	(C) 2002 Lee Hardy <lee@leeh.co.uk>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -157,7 +157,8 @@ cfg_type cfg = {
 	NULL,	/* home */
 	NULL,	/* usermode */
 
-	0	/* no_idmsg_capab */
+	0,	/* no_idmsg_capab */
+	NULL	/* privmsg_fmt */
 };
 nicknames_type		nicknames;
 
@@ -215,6 +216,7 @@ free_resources(void)
 	FREE(cfg.realname);
 	FREE(cfg.password);
 
+	FREE(cfg.privmsg_fmt);
 	FREE(cfg.bind);
 	FREE(cfg.usermode);
 	FREE(cfg.awaymsg);
@@ -432,7 +434,8 @@ static void
 dump_status_char(const char *id, const char *val)
 {
 	char buf[IRC_MSGLEN];
-	snprintf(buf, IRC_MSGLEN, "    %s='%s'", id, val);
+	snprintf(buf, IRC_MSGLEN, "    %s='%s'", id, val != NULL ?
+			val : "(nothing)");
 	buf[IRC_MSGLEN - 1] = '\0';
 	if (foocount + strlen(buf) > 80) {
 		dump_dump();
@@ -503,6 +506,7 @@ dump_status(int a)
 #ifdef NEED_LOGGING
 	dump_status_char("logsuffix", cfg.logsuffix);
 #endif /* ifdef NEED_LOGGING */
+	dump_status_char("privmsg_fmt", cfg.privmsg_fmt);
 	dump_dump();
 
 	dump_string("connhosts:");

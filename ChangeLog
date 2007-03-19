@@ -3,6 +3,10 @@
   * Fixed crash with channel modes with parameter(s) missing
   * Fixed "nothing goes to inbox after updating to 0.6.3"
   * Reset server timer when we receive data -- not just when PONG is received
+  * Added option "privmsg_fmt". When multiple clients are attached, probably
+    only the initiator of private chat will see the message flow correctly.
+    When this option is set, given prefix is inserted into private messages
+    echoed to other attached users. (E.g. "<he> <- <other_me> hello".)
 
 
 0.6.3 - "Minor changes"

@@ -162,6 +162,7 @@ typedef struct {
 	char	*home;
 	char	*usermode;	/* User modes. Set on connect. */
 	int	no_identify_capab; /* suppress request of "CAPAB IDENTIFY-*" */
+	char	*privmsg_fmt;
 } cfg_type;
 
 typedef struct {

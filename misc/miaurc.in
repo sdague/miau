@@ -1,6 +1,6 @@
 #
 # miau @VERSION@ configuration file example
-#	(C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
+#	(C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
 #
 
 # About structure of this configuration file:
@@ -743,3 +743,42 @@
 #
 # Example:
 #dccbindhost = "10.0.0.1"
+
+
+# privmsg_fmt = "format": Insert given prefix to certain private messages.
+#
+# When set, given prefix is inserted into private messages echoed to other
+# attached users. This can be particulary useful when you often have multiple
+# clients attached, chat privately with people, and want all attached clients
+# to see the message flow. In other words, if you and her are having a
+# conversation, you1 will probably see this properly in one query:
+#
+# Query with her:
+#   <her> hello
+#   <you> hi!
+#
+# At the same time, you2 will probably see this a little differently:
+#
+# Query with her:
+#   <her> hello
+# Query with you:
+#   <you> hi!
+#
+# When privmsg_fmt is set to "<- <%s> ", you1 will see this just like before,
+# but you2 can see some improvement:
+#
+# Query with her:
+#   <her> hello
+#   <her> <- <you> hi!
+#
+# Note that if you use privmsg_fmt you MUST have "%s" somewhere in the
+# prefix. This marker will be replaced with your nick.
+#
+# Note that if private message is too long to fit in IRC-protocol defined
+# message length (510 characters including protocol), your message to other
+# clients will be truncated. This is NOT a bug so don't report it.
+#
+# Default: no prefix
+#
+# Example:
+#privmsg_fmt = "<- <%s> "

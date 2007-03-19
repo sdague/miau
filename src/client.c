@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2003-2006 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
  *      (C) 2002 Lee Hardy <lee@leeh.co.uk>
  *      (C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
@@ -355,18 +355,43 @@ pass_cmd(connection_type *client, char *cmd, char *par0, char *par1,
 			(xstrcmp(cmd, "NOTICE") == 0)) ? 1 : 0;
 		/* Echo the meesage to other clients. */
 		if (msg == 1) {
+			char tmp[IRC_MSGLEN + 1];
+			const char *cl_out = buf;
 			llist_node *iter;
+
+			if (cfg.privmsg_fmt != NULL) {
+				int i;
+				/* if the message is too long to fit the buffer
+				 * then it's a shame. sorry. */
+				i = snprintf(tmp, IRC_MSGLEN,
+						cfg.privmsg_fmt,
+						status.nickname);
+				tmp[i] = tmp[IRC_MSGLEN] = '\0';
+				strncat(tmp, par1 + 1, 510 - i);
+				cl_out = tmp;
+			}
+
 			for (iter = c_clients.clients->head; iter != NULL;
 					iter = iter->next) {
+				connection_type *conn =
+					(connection_type *) iter->data;
 				if (iter->data == client) {
 					continue;
 				}
 
-				irc_write((connection_type *) iter->data,
-						":%s!%s %s",
-						status.nickname,
-						status.idhostname,
-						buf);
+				if (cfg.privmsg_fmt == NULL) {
+					irc_write(conn, ":%s!%s %s",
+							status.nickname,
+							status.idhostname,
+							buf);
+				} else {
+					irc_write(conn, ":%s!%s %s %s %s",
+							par0,
+							"dummy",
+							cmd,
+							par0,
+							cl_out);
+				}
 			}
 		}
 

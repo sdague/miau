@@ -1,7 +1,5 @@
 TODO:
 
-- privmsg_fmt
-
 - wildcard
 
 - forwardmsg = "never|detached|attached|always"

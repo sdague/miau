@@ -583,6 +583,47 @@ clients here.
 
 This option might not be compiled in.
 
+@item @command{privmsg_fmt = "format"}
+When set, given prefix is inserted into private messages echoed to other
+attached users. This can be particulary useful when you often have multiple
+clients attached, chat privately with people, and want all attached clients to
+see the message flow. In other words, if you and her are having a conversation,
+you1 will probably see this properly in one query:
+
+Query with her:
+@example
+<her> hello
+<you> hi!
+@end example
+
+At the same time, you2 will probably see this a little differently:
+
+Query with her:
+@example
+<her> hello
+@end example
+
+Query with you:
+@example
+<you> hi!
+@end example
+
+When privmsg_fmt is set to "@command{<- <%s> }", you1 will see this just like
+before, but you2 can see some improvement:
+
+Query with her:
+@example
+<her> hello
+<her> <- <you> hi!
+@end example
+
+Note that if you use privmsg_fmt you MUST have "@command{%s}" somewhere in
+the prefix.  This marker will be replaced with your nick.
+
+Note that if private message is too long to fit in IRC-protocol defined message
+length (510 characters including protocol), your message to other clients will
+be truncated. This is NOT a bug so don't report it.
+
 @end table
 
 @bye
