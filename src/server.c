@@ -1169,6 +1169,10 @@ server_reply(const int command, char *original, char *origin, char *param1,
 		/* ...and someone parting our party. */
 		case CMD_PART + MINCOMMANDVALUE:
 			/* Get pointer to this channel. */
+			if (param1[0] == ':') {
+				/* channel name as prefix? eww... */
+				param1++;
+			}
 			chptr = channel_find(param1, LIST_ACTIVE);
 			/* 
 			 * If we have sent PART (or JOIN 0) lets assume we

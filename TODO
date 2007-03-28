@@ -4,7 +4,7 @@ TODO:
 
 - forwardmsg = "never|detached|attached|always"
 
-- option to reduce qlog size when low on memory
+- option to reduce qlog size when low on memory (it's not going to work out)
 
 - write enduserdebug as a macro (like in log_cannot_write)
 
