@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2004-2006 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2004-2007 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ privlog_write(const char *nick, int in_out, int cmd, const char *message)
 
 	/* First see if log is already open. */
 	LLIST_WALK_H(open_logs.head, privlog_type *);
-		if (xstrcmp(data->nick, nick) == 0) {
+		if (xstrcasecmp(data->nick, nick) == 0) {
 			line = data;
 			LLIST_WALK_BREAK;
 		}

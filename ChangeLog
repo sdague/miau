@@ -1,16 +1,17 @@
 0.6.4 - "Service Pack"
 
-  * Fixed crash with channel modes with parameter(s) missing
+  * Fixed crash with channel modes with parameter(s) missing [#1644967]
   * Fixed "nothing goes to inbox after updating to 0.6.3"
-  * miau now understands Undernet-style PART messages
+  * miau now understands Undernet-style PART messages [#1676231]
   * Option to disconnect clients upon connecting to server. Should help with
     server reconnect issues with mIRC and certain IRC networks such as
-    Afternet.
+    Afternet. [#1673149]
   * Reset server timer when we receive data -- not just when PONG is received
   * Added option "privmsg_fmt". When multiple clients are attached, probably
     only the initiator of private chat will see the message flow correctly.
     When this option is set, given prefix is inserted into private messages
     echoed to other attached users. (E.g. "<he> <- <other_me> hello".)
+  * Open only privlog/fd for "user" and "User"
 
 
 0.6.3 - "Minor changes"
