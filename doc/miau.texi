@@ -624,6 +624,21 @@ Note that if private message is too long to fit in IRC-protocol defined message
 length (510 characters including protocol), your message to other clients will
 be truncated. This is NOT a bug so don't report it.
 
+@item @command{newserv_disconn = "selection"}
+miau can work around an issue with certain IRC networks such as Afternet when
+using mIRC (and possible some other clients). If your client doesn't show you
+rejoining channels after reconnecting to server, try enabling this options.
+
+This option may be one of the following:
+@table @asis
+@item @command{never}
+Never disconnect client(s) after connecting to server.
+@item @command{newserver}
+Disconnect client(s) if server welcome message has changed.
+@item @command{always}
+Disconnect client(s) after connecting to server.
+@end table
+
 @end table
 
 @bye

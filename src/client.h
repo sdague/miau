@@ -50,9 +50,11 @@ typedef struct {
 #endif
 
 
-#define ERROR	1
-#define REPORT	2
-#define DYING	9
+enum {
+	DISCONNECT_ERROR = 1,
+	DISCONNECT_REPORT = 2,
+	DISCONNECT_DYING = 9
+};
 void client_drop(connection_type *client, char *reason, const int error,
 		const int echo, const char *);
 int client_read(connection_type *client);

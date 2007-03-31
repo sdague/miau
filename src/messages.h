@@ -190,6 +190,7 @@ Read 'COPYING' for copyright and licence details.\n"
 #define CLNT_DIE	"Killed by user: "
 #define CLNT_STONED	"Disconnected stoned client."
 #define CLNT_CLIENTS	"%d client(s) connected."
+#define CLNT_SERVINFO	"Disconnected client to update server info"
 
 #define CLNT_HAVEMSGS	"\2You have messages waiting.\2 (/miau read)"
 #define CLNT_INBOXEMPTY	"Your inbox is empty."

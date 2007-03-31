@@ -460,6 +460,10 @@ parse_param(char *data)
 		assign_boolean(&cfg.no_identify_capab, val);
 	} else if (xstrcmp(data, "privmsg_format") == 0) {
 		assign_param_no_trim(&cfg.privmsg_fmt, val);
+	} else if (xstrcmp(data, "newserv_disconn") == 0) {
+		/* keep in sync with enum in miau.h! */
+		assign_option(&cfg.newserv_disconn, val,
+				"never\0newserver\0always\0\0");
 	} else {
 		parse_error();
 	}

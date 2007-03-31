@@ -782,3 +782,22 @@
 #
 # Example:
 #privmsg_fmt = "<- <%s> "
+
+
+# newserv_disconn = "selection": Disconnect client if connection to new
+#		server is established.
+#
+# miau can work around an issue with certain IRC networks such as Afternet when
+# using mIRC (and possible some other clients). If your client doesn't show you
+# rejoining channels after reconnecting to server, try enabling this options.
+#
+# This option may be one of the following: "never", "newserver", or "always".
+#
+# never		Never disconnect client(s) after connecting to server.
+# newserver	Disconnect client(s) if server welcome message has changed.
+# always	Disconnect client(s) after connecting to server.
+#
+# Default: never
+#
+# Example:
+#newserv_disconn = "newserver"

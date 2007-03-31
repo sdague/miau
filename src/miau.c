@@ -158,7 +158,8 @@ cfg_type cfg = {
 	NULL,	/* usermode */
 
 	0,	/* no_idmsg_capab */
-	NULL	/* privmsg_fmt */
+	NULL,	/* privmsg_fmt */
+	0,	/* newserv_disconn: none. see enum in miau.h */
 };
 nicknames_type		nicknames;
 
@@ -507,6 +508,7 @@ dump_status(int a)
 	dump_status_char("logsuffix", cfg.logsuffix);
 #endif /* ifdef NEED_LOGGING */
 	dump_status_char("privmsg_fmt", cfg.privmsg_fmt);
+	dump_status_int("newserv_disconn", cfg.newserv_disconn);
 	dump_dump();
 
 	dump_string("connhosts:");
@@ -1190,8 +1192,8 @@ check_timers(void)
 				
 			case 2:
 				/* (single client, message, error, echo, no) */
-				client_drop(client_con, CLNT_STONED, ERROR, 1,
-						NULL);
+				client_drop(client_con, CLNT_STONED,
+						DISCONNECT_ERROR, 1, NULL);
 				/* error(CLNT_STONED); */
 				break;
 		}
@@ -2110,6 +2112,12 @@ miau_commands(char *command, char *param, connection_type *client)
 	}
 #endif /* ifdef DUMPSTATUS */
 
+	else if (xstrcmp(command, "STONED") == 0) {
+		server_drop("faked stoned server");
+		error("faked stoned server");
+		server_change(1, 0);
+	}
+
 	else if (xstrcmp(command, "JUMP") == 0) {
 		corr++;
 		/* Are there any other servers ? */
@@ -2167,7 +2175,7 @@ miau_commands(char *command, char *param, connection_type *client)
 		 */
 		/* (all clients, reason, notice, echo, no) */
 		drop_newclient(NULL);
-		client_drop(NULL, reason, DYING, 1, NULL);
+		client_drop(NULL, reason, DISCONNECT_DYING, 1, NULL);
 		server_drop(reason);
 		xfree(reason);
 		/*
@@ -2440,7 +2448,7 @@ run(void)
 						 */
 						client_drop(client_conn,
 								CLNT_DROPPED,
-								REPORT, 0,
+							DISCONNECT_REPORT, 0,
 								NULL);
 						/* report(CLNT_DROPPED); */
 					}

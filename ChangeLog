@@ -3,6 +3,9 @@
   * Fixed crash with channel modes with parameter(s) missing
   * Fixed "nothing goes to inbox after updating to 0.6.3"
   * miau now understands Undernet-style PART messages
+  * Option to disconnect clients upon connecting to server. Should help with
+    server reconnect issues with mIRC and certain IRC networks such as
+    Afternet.
   * Reset server timer when we receive data -- not just when PONG is received
   * Added option "privmsg_fmt". When multiple clients are attached, probably
     only the initiator of private chat will see the message flow correctly.

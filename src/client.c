@@ -70,17 +70,25 @@ client_drop(connection_type *client, char *reason, const int msgtype,
 		while (c_clients.clients->head != NULL) {
 			client_drop_real((connection_type *)
 					c_clients.clients->head->data, reason,
-					echo, msgtype == DYING);
+					echo, msgtype == DISCONNECT_DYING);
 		}
 	} else {
-		client_drop_real(client, reason, echo, msgtype == DYING);
+		client_drop_real(client, reason, echo,
+				msgtype == DISCONNECT_DYING);
 	}
 
-	if (msgtype == ERROR) {
-		error("%s", reason);
-	} else {
-		report("%s%s", msgtype == DYING ? CLNT_DIE : "", reason);
+	switch (msgtype) {
+		case DISCONNECT_ERROR:
+			error("%s", reason);
+			break;
+		case DISCONNECT_DYING:
+			report("%s%s", CLNT_DIE, reason);
+			break;
+		case DISCONNECT_REPORT:
+			report("%s", reason);
+			break;
 	}
+
 	/* Reporting number of clients is irrevelant if only one is allowed. */
 	if (cfg.maxclients != 1) {
 		report(CLNT_CLIENTS, c_clients.connected);
@@ -132,6 +140,10 @@ client_drop_real(connection_type *client, char *reason, const int echo,
 static void
 cmd_part_action(channel_type *chan, char *reason)
 {
+	/*
+	 * ":" is always there after channel name so this works even with
+	 * mIRC when connected to Undernet.
+	 */
 	irc_mwrite(&c_clients, ":%s!%s@%s PART %s :%s",
 			status.nickname, i_client.username, i_client.hostname,
 			chan->name, reason);
@@ -513,7 +525,7 @@ client_read(connection_type *client)
 			reason = NULL;
 		}
 		/* (single client, message, report, echo) */
-		client_drop(client, CLNT_LEFT, REPORT, 0, reason);
+		client_drop(client, CLNT_LEFT, DISCONNECT_REPORT, 0, reason);
 		pass = 0;
 	}
 

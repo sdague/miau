@@ -163,7 +163,14 @@ typedef struct {
 	char	*usermode;	/* User modes. Set on connect. */
 	int	no_identify_capab; /* suppress request of "CAPAB IDENTIFY-*" */
 	char	*privmsg_fmt;
+	int	newserv_disconn; /* Disconnect client on connect to server */
 } cfg_type;
+
+enum {	/* yet another horrible kludge */
+	NEWSERV_DISCONN_NONE = 0,
+	NEWSERV_DISCONN_MYINFO = 1,
+	NEWSERV_DISCONN_ALWAYS = 2
+};
 
 typedef struct {
 	int		reply;

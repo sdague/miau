@@ -1,5 +1,7 @@
 TODO:
 
+- check privlog, line 94. strcmp into strcasecmp
+
 - wildcard
 
 - forwardmsg = "never|detached|attached|always"

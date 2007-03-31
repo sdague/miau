@@ -751,6 +751,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 	char		*t;
 	int		isprivmsg = 0;
 	int		n;
+	int		newserv_disconn = 0;
 
 	t = strchr(origin, '!');
 	if (t != NULL) {
@@ -837,15 +838,26 @@ server_reply(const int command, char *original, char *origin, char *param1,
 			for (n = 0; n < RPL_ISUPPORT_LEN; n++) {
 				FREE(i_server.isupport[n]);
 			}
+			newserv_disconn = NEWSERV_DISCONN_ALWAYS;
 
 			break;
 
 		/* More registeration-time replies... */
 		case RPL_YOURHOST:
+			{
+				const char *t = i_server.greeting[0];
+				if (t != NULL && xstrcasecmp(param2, t) != 0) {
+					newserv_disconn =
+						NEWSERV_DISCONN_MYINFO;
+				}
+			}
 		case RPL_CREATED:
 		case RPL_MYINFO:
 			xfree(i_server.greeting[command - 1]);
 			i_server.greeting[command - 1] = xstrdup(param2);
+			if (newserv_disconn == 0) {
+				newserv_disconn = NEWSERV_DISCONN_ALWAYS;
+			}
 			break;
 		
 		/* Supported features */
@@ -856,6 +868,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 					break;
 				}
 			}
+			newserv_disconn = NEWSERV_DISCONN_ALWAYS;
 			break;
 
 		/* This server is restricted. */
@@ -1362,6 +1375,12 @@ server_reply(const int command, char *original, char *origin, char *param1,
 		qlog_write(isprivmsg, "%s", original);
 	}
 #endif /* ifdef QUICKLOG */
+
+	if (cfg.newserv_disconn == newserv_disconn
+			&& cfg.newserv_disconn != NEWSERV_DISCONN_NONE) {
+		drop_newclient(CLNT_SERVINFO);
+		client_drop(NULL, CLNT_SERVINFO, DISCONNECT_REPORT, 1, NULL);
+	}
 
 	xfree(work);
 	xfree(nick);
