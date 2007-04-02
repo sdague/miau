@@ -22,6 +22,7 @@ int
 main(
     )
 {
+	/*
 	MATCH("foo", "foo", 1);
 	MATCH("foo", "FOO", 1);
 	MATCH("foo", "bar", 0);
@@ -34,20 +35,24 @@ main(
 	MATCH("foobar", "foo*", 1);
 	MATCH("foobar", "FOO*", 1);
 	MATCH("foobar", "*BAR", 1);
-/*	MATCH("foobar", "*OBA*", 1);	limitations */
+	*/
+	MATCH("foobar", "*oba*", 1);
+	MATCH("foobar", "*ba*", 1);
+	/*
 	MATCH("foobar", "*BAAR", 0);
+	MATCH("foobar", "*BAR", 1);
 
-	MATCH("o:TOmmppa!Kage@b-216-253.cable.kpy.customers.dnainternet.fi/#serveri", "o:Tommppa!Kage@*.cable.kpy.customers.dnainternet.fi/#serveri", 1);
-//	MATCH("foobar", "foobar*", 1);
+	MATCH("foobar", "*foobar", 1);
+	MATCH("foobar", "foobar*", 1);
+	MATCH("foobara", "foobar*", 1);
+	MATCH("foobar", "foo*bar", 1);
 
 	MATCH("fov", "*v", 1);
 	MATCH("fov", "*ov", 1);
 
-//	MATCH("o:boing!~nothing@22-173-207-85.morava.adsl-llu.static.bluetone.cz/#oldmetal.cz", "o:boing!*othing@22-173-207-85.morava.adsl-llu.static.bluetone.cz/#oldmetal.cz", 1);
-//	MATCH("o:boing!~nothing@22-173-207-85.morava.adsl-llu.static.bluetone.cz/#oldmetal.cz", "o:boing!*othing@22-173-207-85.morava.adsl-llu.static.bluetone.cz/#oldmetal.cz", 1);
-
 	MATCH_R("foo@host", "foo@X", "X", -1, "host", 1);
 	MATCH_R("foo@host-goo", "foo@@@-goo", "@@", 2, "host", 1);
+	*/
 	
 	return 0;
 }

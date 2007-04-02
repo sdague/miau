@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2003-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2003-2007 Tommi Saviranta <wnd@iki.fi>
  *	(C) 1998-2002 Sebastian Kienzl <zap@riot.org>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,9 @@
  * @string:	String to match
  * @pattern:	Pattern to match against
  *
+ * Issues: This algorithm is non-greedy. It will not match string "foobar"
+ * against pattern "*ob*".
+ *
  * Return value: 1 if string matches patters, 0 if not.
  */
 int
@@ -52,11 +55,15 @@ match(const char *string, const char *pattern)
 
 	/* Then to the matching part. */
 	while (1) {
-		if (str[str_p] == '\0' && pat[pat_p] == '\0') {
-			xfree(str);
-			xfree(pat);
-			return 1;
+		if (str[str_p] == '\0') {
+			if ((pat[pat_p] == '*' && pat[pat_p + 1] == '\0')
+					|| pat[pat_p] == '\0') {
+				xfree(str);
+				xfree(pat);
+				return 1;
+			}
 		}
+
 		if (str[str_p] == '\0' || pat[pat_p] == '\0') {
 			xfree(str);
 			xfree(pat);
@@ -67,7 +74,7 @@ match(const char *string, const char *pattern)
 			str_p++;
 			pat_p++;
 		} else if (pat[pat_p] == '*') {
-			if (*str == pat[pat_p + 1]) {
+			if (str[str_p] == pat[pat_p + 1]) {
 				pat_p++;
 			} else if (pat[pat_p + 1] == str[str_p + 1]) {
 				str_p++;

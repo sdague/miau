@@ -11,6 +11,7 @@
     only the initiator of private chat will see the message flow correctly.
     When this option is set, given prefix is inserted into private messages
     echoed to other attached users. (E.g. "<he> <- <other_me> hello".)
+  * Wildcard '*' now matches to an empty string
   * Open only privlog/fd for "user" and "User"
 
 
