@@ -90,10 +90,6 @@ list_type *list_insert_at(list_type *list, list_type *dest, void *data);
 list_type *list_move_to(list_type *list, list_type *src, list_type *dest);
 */
 
-#ifdef USE_POOL
-void list_free(void);
-#endif /* ifdef USE_POOL */
-
 #ifdef DUMPSTATUS
 const char *list_dump(list_type *list);
 #endif /* DUMPSTATUS */

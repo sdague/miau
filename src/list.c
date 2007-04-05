@@ -1,6 +1,6 @@
-/* $Id$
+/*
  * -------------------------------------------------------
- * Copyright (C) 2004-2005 Tommi Saviranta <wnd@iki.fi>
+ * Copyright (C) 2004-2007 Tommi Saviranta <wnd@iki.fi>
  * -------------------------------------------------------
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,19 +31,6 @@ static list_type *insert_at_priv(list_type *list, list_type *pos,
 		list_type *node);
 #endif
 
-#ifdef USE_POOL
-static list_type *get_node();
-static void free_node(list_type *node);
-
-
-
-#define POOL_RESIZE	256
-static list_type	*pool = NULL;
-static list_type	**pool_free = NULL;
-static int		pool_size = 0;
-static int		free_ptr = 0;
-#endif /* ifdef USE_POOL */
-
 
 
 /*
@@ -58,11 +45,7 @@ list_add_head(list_type *list, void *data)
 {
 	list_type *new;
 	
-#ifdef USE_POOL
-	new = get_node();
-#else /* ifdef USE_POOL */
 	new = (list_type *) xmalloc(sizeof(list_type));
-#endif /* ifdef else USE_POOL */
 	new->data = data;
 	
 	new->prev = NULL;
@@ -91,11 +74,7 @@ list_add_tail(list_type *list, void *data)
 {
 	list_type *new;
 	
-#ifdef USE_POOL
-	new = get_node();
-#else /* ifdef USE_POOL */
 	new = (list_type *) xmalloc(sizeof(list_type));
-#endif /* ifdef else USE_POOL */
 	new->data = data;
 	
 	new->next = NULL;
@@ -135,11 +114,7 @@ list_insert_at(list_type *list, list_type *dest, void *data)
 		return list_add_tail(list, data);
 	}
 	
-#ifdef USE_POOL
-	new = get_node();
-#else /* ifdef USE_POOL */
 	new = (list_type *) xmalloc(sizeof(list_type));
-#endif /* ifdef else USE_POOL */
 	new->data = data;
 	
 	new->prev = dest->prev;
@@ -177,11 +152,7 @@ list_insert_at(list_type *list, list_type *pos, void *data)
 	}
 
 	/* Inserting for real. Proceed. */
-#ifdef USE_POOL
-	new = get_node();
-#else /* ifdef USE_POOL */
 	new = (list_type *) xmalloc(sizeof(llist_t));
-#endif /* ifdef else USE_POOL */
 	new->data = data;
 	
 	new->prev = pos->prev;
@@ -302,11 +273,7 @@ list_delete(list_type *list, list_type *node)
 		list->last = node->prev;
 	}
 
-#ifdef USE_POOL
-	free_node(node);
-#else /* ifdef USE_POOL */
 	xfree(node);
-#endif /* ifdef else USE_POOL */
 
 	return first;
 } /* list_type *list_delete(list_type *list, list_type *node) */
@@ -371,61 +338,6 @@ list_move_first_to(list_type *list, list_type *dest)
 
 	return new;
 } /* list_type *list_move_first_to(list_type *list, list_type *dest) */
-
-
-
-#ifdef USE_POOL
-static list_type *
-get_node(void)
-{
-	if (free_ptr == 0) {
-		int i;
-		pool = (list_type *) xrealloc(pool, (pool_size + POOL_RESIZE)
-				* sizeof(llist_t));
-printf("pool now %p...%p\n", (void *) pool, (void *) (pool + pool_size + POOL_RESIZE - 1));
-		/* The following is done exactly once! */
-		if (pool_free == NULL) {
-			pool_free = (list_type **) xmalloc(
-					(POOL_RESIZE + POOL_RESIZE / 2)
-					* sizeof(list_type *));
-		}
-		/* Update pool_free. */
-		for (i = 0; i < POOL_RESIZE; i++) {
-			pool_free[i] = pool + i + pool_size;
-		}
-		pool_size += POOL_RESIZE;
-		free_ptr = POOL_RESIZE;
-	}
-
-	free_ptr--;
-printf("use %p\n", (void *) pool_free[free_ptr]);
-	return pool_free[free_ptr];
-} /* static list_type *get_node(void) */
-
-
-
-static void
-free_node(list_type *node)
-{
-	pool_free[free_ptr] = node;
-	free_ptr++;
-
-	if (free_ptr >= POOL_RESIZE + POOL_RESIZE / 2) {
-		pool_size -= POOL_RESIZE;
-		pool = (list_type *) xrealloc(pool, pool_size * sizeof(llist_t));
-		free_ptr -= POOL_RESIZE;
-	}
-} /* static void free_node(list_type *node) */
-
-
-
-void
-list_free(void)
-{
-	xfree(pool_free);
-	xfree(pool);
-} /* void list_free(void) */
-#endif /* ifdef USE_POOL */
 
 
 

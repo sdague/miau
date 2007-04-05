@@ -499,13 +499,9 @@ test_list_speed(
 
 	printf("maximum length: %d\n", m);
 
-#ifdef USE_POOL
-	list_free();
-#else /* ifdef USE_POOL */
 	while (list != NULL) {
 		list = list_delete(list, list);
 	}
-#endif /* ifdef else USE_POOL */
 } /* void test_list_speed(int, int) */
 
 
