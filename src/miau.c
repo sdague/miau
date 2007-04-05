@@ -1209,23 +1209,24 @@ check_timers(void)
 	}
 
 	if (i_server.connected > 0) {
-		int	timeout = (i_server.connected == 2) ?
+		int timeout = (i_server.connected == 2) ?
 			cfg.stonedtimeout : 120;
+		int warn;
 
 		/*
 		 * If we have already registered our nick, timeout is
 		 * configured in miaurc (default 90 seconds). If we are
 		 * still registering our nick, timeout is 120 seconds.
 		 *
-		 * Anyway, if we haven't got a thing from the server in
-		 * last "cfg.stonedtimeout - 30" seconds (minumun 10 seconds),
-		 * we'll ping it. If it doesn't reply in time, we'll keep on
-		 * pinging it every five seconds until it responds, drops
-		 * connection or cfg.stonedtimeout seconds have passed.
+		 * Thanks to netsplits we cannot simply wait until, say, 30
+		 * seconds before timeout, but we'll have to contantly ping the
+		 * server... I hope pinging (at least) every 45 seconds is ok.
 		 */
-		switch (proceed_timer_safe(&c_server.timer,
-					(timeout - 30 >= 5) ? timeout - 30 : 5,
-					timeout, 5)) {
+		warn = (timeout / 2 > 45) ? 45 : timeout / 2;
+		if (warn < 5) {
+			warn = 5;
+		}
+		switch (proceed_timer_safe(&c_server.timer, warn, timeout, 5)) {
 			case 0:
 				/*
 				 * We are connected and we're not lagging -

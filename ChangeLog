@@ -6,12 +6,13 @@
   * Option to disconnect clients upon connecting to server. Should help with
     server reconnect issues with mIRC and certain IRC networks such as
     Afternet. [#1673149]
-  * Reset server timer when we receive data -- not just when PONG is received
   * Added option "privmsg_fmt". When multiple clients are attached, probably
     only the initiator of private chat will see the message flow correctly.
     When this option is set, given prefix is inserted into private messages
     echoed to other attached users. (E.g. "<he> <- <other_me> hello".)
   * Wildcard '*' now matches to an empty string
+  * Reset server timer when we receive data -- not just when PONG is received
+  * Ping server more aggressively (at least every 45 seconds)
   * Open only privlog/fd for "user" and "User"
 
 

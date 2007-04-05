@@ -1,5 +1,7 @@
 TODO:
 
+- #include miaurc (for general/global config)
+
 - forwardmsg = "never|detached|attached|always"
 
 - option to reduce qlog size when low on memory (it's not going to work out)
