@@ -1,5 +1,7 @@
 TODO:
 
+- quicklog should use ignores
+
 - #include miaurc (for general/global config)
 
 - forwardmsg = "never|detached|attached|always"

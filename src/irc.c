@@ -776,6 +776,7 @@ irc_connect(connection_type *connection, server_type *server, char *nick,
 	int		ri, attempts;
 
 	connection->timer = 0;
+	connection->offset = 0;
 
 	if ((connection->socket = sock_open()) < 0) {
 		return CONN_SOCK;

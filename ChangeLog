@@ -12,6 +12,7 @@
     echoed to other attached users. (E.g. "<he> <- <other_me> hello".)
   * Wildcard '*' now matches to an empty string
   * Reset server timer when we receive data -- not just when PONG is received
+  * Clear receive buffer before connecting to server. Oops.
   * Ping server more aggressively (at least every 45 seconds)
   * Open only privlog/fd for "user" and "User"
 
