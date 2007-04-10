@@ -156,7 +156,7 @@ qlog_replay(connection_type *client, time_t oldest)
 		oldest = time(NULL) - oldest;
 	}
 
-	/* Walk thru quicklog. */
+	/* Walk through quicklog. */
 	for (iter = qlog; iter != NULL; ) { /* handle next at the end */
 		qlogentry *entry;
 		next = iter->next;
