@@ -745,7 +745,7 @@
 #dccbindhost = "10.0.0.1"
 
 
-# privmsg_fmt = "format": Insert given prefix to certain private messages.
+# privmsg_format = "format": Insert given prefix to certain private messages.
 #
 # When set, given prefix is inserted into private messages echoed to other
 # attached users. This can be particulary useful when you often have multiple
@@ -781,7 +781,7 @@
 # Default: no prefix
 #
 # Example:
-#privmsg_fmt = "<- <%s> "
+#privmsg_format = "<- <%s> "
 
 
 # newserv_disconn = "selection": Disconnect client if connection to new

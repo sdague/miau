@@ -1,3 +1,8 @@
+0.6.5
+
+  * Fixed privmsg_format in documentation
+  * privmsg_format without "%s" in it will no longer be accepted
+
 0.6.4 - "What protocol?"
 
   * Fixed crash with channel modes with parameter(s) missing [#1644967]

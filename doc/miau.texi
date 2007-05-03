@@ -583,7 +583,7 @@ clients here.
 
 This option might not be compiled in.
 
-@item @command{privmsg_fmt = "format"}
+@item @command{privmsg_format = "format"}
 When set, given prefix is inserted into private messages echoed to other
 attached users. This can be particulary useful when you often have multiple
 clients attached, chat privately with people, and want all attached clients to
@@ -608,7 +608,7 @@ Query with you:
 <you> hi!
 @end example
 
-When privmsg_fmt is set to "@command{<- <%s> }", you1 will see this just like
+When privmsg_format is set to "@command{<- <%s> }", you1 will see this just like
 before, but you2 can see some improvement:
 
 Query with her:
@@ -617,7 +617,7 @@ Query with her:
 <her> <- <you> hi!
 @end example
 
-Note that if you use privmsg_fmt you MUST have "@command{%s}" somewhere in
+Note that if you use privmsg_format you MUST have "@command{%s}" somewhere in
 the prefix.  This marker will be replaced with your nick.
 
 Note that if private message is too long to fit in IRC-protocol defined message
