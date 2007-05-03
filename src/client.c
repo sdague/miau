@@ -368,10 +368,11 @@ pass_cmd(connection_type *client, char *cmd, char *par0, char *par1,
 		/* Echo the meesage to other clients. */
 		if (msg == 1) {
 			char tmp[IRC_MSGLEN + 1];
-			const char *cl_out = buf;
+			const char *cl_out = NULL;
 			llist_node *iter;
 
-			if (cfg.privmsg_fmt != NULL) {
+			if (cfg.privmsg_fmt != NULL &&
+					channel_is_name(par0) == 0) {
 				int i;
 				/* if the message is too long to fit the buffer
 				 * then it's a shame. sorry. */
@@ -391,7 +392,7 @@ pass_cmd(connection_type *client, char *cmd, char *par0, char *par1,
 					continue;
 				}
 
-				if (cfg.privmsg_fmt == NULL) {
+				if (cl_out == NULL) {
 					irc_write(conn, ":%s!%s %s",
 							status.nickname,
 							status.idhostname,

@@ -567,7 +567,7 @@ channel_simplify_name(const char *chan)
 /*
  * Check if name could be a channel name.
  *
- * Return non-zero is name could be a channel name.
+ * Return non-zero if name could be a channel name.
  */
 int
 channel_is_name(const char *name)

@@ -1,5 +1,6 @@
 0.6.5
 
+  * Fixed privmsg_format behaviour with channels
   * Fixed privmsg_format in documentation
   * privmsg_format without "%s" in it will no longer be accepted
 
