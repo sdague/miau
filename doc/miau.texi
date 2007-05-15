@@ -95,7 +95,7 @@ Stay in foreground (don't fork)
 Specifies a different directory than the default for miaurc, messages and log
 @item @option{-c}
 You will be prompted for a word to crypt. The output can be used as
-@command{password} in miaurc if you don't wanna have the password stored in
+@command{password} in miaurc if you don't want to have the password stored in
 clear text.  Note that you'll still have to authorize with the unencrypted
 password.
 
