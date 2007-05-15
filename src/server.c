@@ -910,7 +910,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				if (p != NULL) {
 					*p++ = '\0';
 				} else {
-					return;
+					break;
 				}
 				
 				chptr = channel_find(param2, LIST_ACTIVE);
@@ -935,7 +935,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				if (p != NULL) {
 					*p++ = '\0';
 				} else {
-					return;
+					break;
 				}
 				
 				topicwho = p;
@@ -944,7 +944,7 @@ server_reply(const int command, char *original, char *origin, char *param1,
 				if (p != NULL) {
 					*p++ = '\0';
 				} else {
-					return;
+					break;
 				}
 				
 				chptr = channel_find(param2, LIST_ACTIVE);

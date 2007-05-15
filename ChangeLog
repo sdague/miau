@@ -1,8 +1,11 @@
-0.6.5
+0.6.5 - "Fixed"
 
   * Fixed privmsg_format behaviour with channels
   * Fixed privmsg_format in documentation
   * privmsg_format without "%s" in it will no longer be accepted
+  * Fixed potential memory leak in topic-handling (would leak with invalid
+    replies from server)
+
 
 0.6.4 - "What protocol?"
 
