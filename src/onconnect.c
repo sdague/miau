@@ -74,7 +74,7 @@ void
 onconnect_do(void)
 {
 	LLIST_WALK_H(onconnect_actions.head, char *);
-		irc_write(&c_server, data);
+		irc_write(&c_server, "%s", data);
 	LLIST_WALK_F;
 } /* void onconnect_commit(void) */
 

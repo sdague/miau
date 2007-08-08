@@ -77,7 +77,7 @@ report(char *format, ...)
 
 	fprintf(stdout, "%s + %s\n", get_short_localtime(), buffer);
 #ifndef TESTING
-	irc_mnotice(&c_clients, status.nickname, buffer);
+	irc_mnotice(&c_clients, status.nickname, "%s", buffer);
 #endif /* ifndef TESTING */
 } /* void report(char *format, ...) */
 
@@ -96,6 +96,6 @@ error(char *format, ...)
 	
 	fprintf(stdout, "%s - %s\n", get_short_localtime(), buffer);
 #ifndef TESTING
-	irc_mnotice(&c_clients, status.nickname, buffer);
+	irc_mnotice(&c_clients, status.nickname, "%s", buffer);
 #endif /* ifndef TESTING */
 } /* void error(char *format, ...) */

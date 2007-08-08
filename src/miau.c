@@ -405,7 +405,7 @@ dump_dump(void)
 {
 	if (dumpdata[0] != '\0') {
 		fprintf(stderr, "%s\n", dumpdata);
-		irc_mnotice(&c_clients, status.nickname, dumpdata);
+		irc_mnotice(&c_clients, status.nickname, "%s", dumpdata);
 		dumpdata[0] = '\0';
 		foocount = 0;
 	}

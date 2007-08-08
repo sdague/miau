@@ -5,6 +5,7 @@
   * privmsg_format without "%s" in it will no longer be accepted
   * Fixed potential memory leak in topic-handling (would leak with invalid
     replies from server)
+  * Fixed several unsafe va_list calls.
 
 
 0.6.4 - "What protocol?"
