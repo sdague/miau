@@ -8,6 +8,7 @@
   * Fixed several unsafe va_list calls.
   * Fixed parser not to crash on certain invalid lines in miaurc such as
     'password = foo + "bar"'.
+  * Parser will now print only one error per erroneous line.
   * Added information about configure options to INSTALL.
 
 

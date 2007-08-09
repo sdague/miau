@@ -34,8 +34,9 @@
 
 static int	virgin = 1;	/* CFG_CHANNELS has effect only at start up. */
 
-int	line;			/* Line we're processing. */
-int	listid = CFG_NOLIST;	/* List ID. */
+static int last_err_line;
+static int line;			/* Line we're processing. */
+static int listid = CFG_NOLIST;		/* List ID. */
 
 
 
@@ -789,6 +790,7 @@ parse_cfg(const char *cfgfile)
 	buf = (char *) xmalloc(READBUFSIZE);
 
 	line = 1;
+	last_err_line = -1;
 	file = fopen(cfgfile, "r");
 	if (file == NULL) {
 		return -1;
@@ -836,5 +838,8 @@ parse_cfg(const char *cfgfile)
 void
 parse_error(void)
 {
-	error(PARSE_SE, line);
+	if (line != last_err_line) {
+		error(PARSE_SE, line);
+		last_err_line = line;
+	}
 } /* void parse_error(void) */
