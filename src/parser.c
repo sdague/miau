@@ -324,6 +324,10 @@ parse_param(char *data)
 		return;
 	}
 	val = trimquotes(val);
+	if (val == NULL) {
+		parse_error();
+		return;
+	}
 
 	if (xstrcmp(data, "realname") == 0) {		/* realname */
 		assign_param(&cfg.realname, val);

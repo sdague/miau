@@ -6,6 +6,8 @@
   * Fixed potential memory leak in topic-handling (would leak with invalid
     replies from server)
   * Fixed several unsafe va_list calls.
+  * Fixed parser not to crash on certain invalid lines in miaurc such as
+    'password = foo + "bar"'.
   * Added information about configure options to INSTALL.
 
 
