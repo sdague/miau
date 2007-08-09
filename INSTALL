@@ -6,6 +6,9 @@ Installing miau
 - Type 'make' to compile.
 - Type 'make install' to install miau.
 
+If make fails in "doc" or "misc" directories, you can probably still get the
+executable by going to "src" directory and running "make" there.
+
 On SunOS 5.8, in case make fails, try running gmake, it should work.
 
 
