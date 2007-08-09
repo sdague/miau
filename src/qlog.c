@@ -141,43 +141,48 @@ qlog_replay_footer(connection_type *client)
 
 
 /*
- * (Replay and) clean quicklog data.
+ * Replay quicklog data.
  */
 void
 qlog_replay(connection_type *client, time_t oldest)
 {
 	list_type *iter;
-	list_type *next;
 #ifdef QLOGSTAMP
 	char qlogbuf[IRC_MSGLEN];
 #endif /* QLOGSTAMP */
+
+	if (client == NULL) {
+#ifdef ENDUSERDEBUG
+		enduserdebug("qlog_replay(NULL, oldest)");
+#endif /* ifdef ENDUSERDEBUG */
+		return;
+	}
 
 	if (oldest != 0) {
 		oldest = time(NULL) - oldest;
 	}
 
 	/* Walk through quicklog. */
-	for (iter = qlog; iter != NULL; ) { /* handle next at the end */
+	for (iter = qlog; iter != NULL; iter = iter->next) {
 		qlogentry *entry;
-		next = iter->next;
 		entry = (qlogentry *) iter->data;
 
 		/* also skip too old entries */
-		if (entry->timestamp >= oldest && client != NULL) {
-#ifdef QLOGSTAMP
-			if (cfg.timestamp != TS_NONE) {
-				const char *out;
-				out = qlog_add_timestamp(entry, qlogbuf,
-						IRC_MSGLEN);
-				irc_write(client, "%s", out);
-			} else {
-				irc_write(client, "%s", entry->text);
-			}
-#else /* ifdef QLOGSTAMP */
-			irc_write(client, "%s", entry->text);
-#endif /* ifdef else QLOGSTAMP */
+		if (entry->timestamp < oldest) {
+			continue;
 		}
-		iter = next;
+
+#ifdef QLOGSTAMP
+		if (cfg.timestamp != TS_NONE) {
+			const char *out;
+			out = qlog_add_timestamp(entry, qlogbuf, IRC_MSGLEN);
+			irc_write(client, "%s", out);
+		} else {
+			irc_write(client, "%s", entry->text);
+		}
+#else /* ifdef QLOGSTAMP */
+		irc_write(client, "%s", entry->text);
+#endif /* ifdef else QLOGSTAMP */
 	}
 } /* void qlog_replay(connection_type *client, time_t oldest) */
 
