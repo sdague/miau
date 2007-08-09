@@ -6,6 +6,7 @@
   * Fixed potential memory leak in topic-handling (would leak with invalid
     replies from server)
   * Fixed several unsafe va_list calls.
+  * Added information about configure options to INSTALL.
 
 
 0.6.4 - "What protocol?"
