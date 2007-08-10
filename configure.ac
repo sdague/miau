@@ -1,4 +1,4 @@
-AC_INIT([miau], [0.6.5-pre1])
+AC_INIT([miau], [0.6.5-pre2])
 AC_CONFIG_SRCDIR([src/miau.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -44,17 +44,16 @@ AC_ARG_ENABLE([ipv6],
 	[enable IPv6 ONLY -support (no IPv4!)]),
 	[use_IPV6=$enableval], [use_IPV6=no])
 
-MY_ARG_ENABLE([dccbounce], [enable DCC-bouncing capability], [DCCBOUNCE])
-MY_ARG_ENABLE([automode], [enable automode -capability], [AUTOMODE])
+MY_ARG_ENABLE([empty-awaymsg], [allow empty AWAY messages], [EMPTYAWAY])
 MY_ARG_ENABLE([releasenick], [enable release nick -feature], [RELEASENICK])
 
-MY_ARG_ENABLE([mkpasswd], [enable mkpasswd-capability], [MKPASSWD])
-MY_ARG_ENABLE([uptime], [enable uptime-command], [UPTIME])
-MY_ARG_ENABLE([chanlog], [enable channel logging], [CHANLOG])
-MY_ARG_ENABLE([privlog], [enable private message logging], [PRIVLOG])
-MY_ARG_ENABLE([onconnect], [enable on-connect actions], [ONCONNECT])
-MY_ARG_ENABLE([empty-awaymsg], [allow empty AWAY messages], [EMPTYAWAY])
-
+MY_ARG_DISABLE([dccbounce], [disable DCC-bouncing capability], [DCCBOUNCE])
+MY_ARG_DISABLE([automode], [disable automode -capability], [AUTOMODE])
+MY_ARG_DISABLE([mkpasswd], [disable mkpasswd-capability], [MKPASSWD])
+MY_ARG_DISABLE([uptime], [disable uptime-command], [UPTIME])
+MY_ARG_DISABLE([chanlog], [disable channel logging], [CHANLOG])
+MY_ARG_DISABLE([privlog], [disable private message logging], [PRIVLOG])
+MY_ARG_DISABLE([onconnect], [disable on-connect actions], [ONCONNECT])
 MY_ARG_DISABLE([ctcp-replies], [disable ctcp-replies], [CTCPREPLIES])
 MY_ARG_DISABLE([ascii-art], [disable fancy ascii-art], [ASCIIART])
 MY_ARG_DISABLE([quicklog], [disable quicklog], [QUICKLOG])
@@ -64,10 +63,10 @@ MY_ARG_DISABLE([inbox], [disable message inbox], [INBOX])
 #	[QLOGTOMSGLOG])
 
 
-MY_ARG_ENABLE([enduserdebug], [enable debugging feature for end-user (debug)],
+MY_ARG_DISABLE([enduserdebug], [disable debugging feature for end-user (debug)],
 	[ENDUSERDEBUG])
 MY_ARG_ENABLE([pingstat], [enable ping-statistics (debug)], [PINGSTAT])
-MY_ARG_ENABLE([dumpstatus], [enable command to dump miau's status (debug)],
+MY_ARG_DISABLE([dumpstatus], [disable command to dump miau's status (debug)],
 		[DUMPSTATUS])
 
 AC_ARG_ENABLE([debug], AC_HELP_STRING([--enable-debug],

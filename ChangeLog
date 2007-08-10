@@ -9,6 +9,7 @@
   * Fixed parser not to crash on certain invalid lines in miaurc such as
     'password = foo + "bar"'.
   * Parser will now print only one error per erroneous line.
+  * Changed featues enabled by default in configure.ac.
   * Added information about configure options to INSTALL.
 
 
