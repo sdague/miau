@@ -390,6 +390,14 @@ quicklog (length defined with @command{qloglength}) will be replayed on attach.
 
 This option might not be compiled in.
 
+@item @command{qlog_no_my_quit = "state"}
+If set to @command{true}, quit messages about "me" will be suppressed when
+replaying quicklog. If you experience weird behaviour from your IRC client when
+replaying quicklog (e.g. channel tabs are disappearing), try enabling this
+option.
+
+This option might not be compiled in.
+
 @item @command{inbox = "state"}
 Enables logging private messages when no clients are connected to miau.
 

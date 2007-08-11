@@ -140,6 +140,58 @@ qlog_replay_footer(connection_type *client)
 
 
 
+static int
+is_my_quit(const char *msg)
+{
+	const char *quit, *end;
+	int len;
+#define TMP_LEN 64
+	char tmp[TMP_LEN + 1];
+	tmp[TMP_LEN] = '\0';
+
+	/* the cheapest test first... */
+
+	if (msg == NULL) {
+		return 0;
+	}
+
+	/* line must begin with a colon */
+	if (*msg != ':') {
+		return 0;
+	}
+
+	/* and it must be about me */
+	len = snprintf(tmp, TMP_LEN, "%s!", status.nickname);
+	if (strncmp(msg + 1, tmp, len) != 0) {
+		return 0;
+	}
+
+	/* and it must have "QUIT :" in it */
+	quit = strstr(msg, "QUIT :");
+	if (quit == NULL) {
+		return 0;
+	}
+
+	/* and "QUIT :" must come before the second colon in the message */
+	end = strchr(msg + 1, (int) ':');
+	if (end == NULL) {
+		return 0;
+	}
+	if (quit > end) {
+		return 0;
+	}
+
+	/*
+	 * We're fairly sure it's about us now, but we still cannot be 100%
+	 * sure. We could check username and hostname, but some servers have
+	 * tendency to mutilate them beyond recognition.
+	 */
+
+	return 1;
+} /* static int is_my_quit(const char *msg) */
+
+
+
 /*
  * Replay quicklog data.
  */
@@ -170,6 +222,12 @@ qlog_replay(connection_type *client, time_t oldest)
 		/* also skip too old entries */
 		if (entry->timestamp < oldest) {
 			continue;
+		}
+
+		if (cfg.qlog_no_my_quit == 1) {
+			if (is_my_quit(entry->text) == 1) {
+				continue;
+			}
 		}
 
 #ifdef QLOGSTAMP

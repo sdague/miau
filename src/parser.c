@@ -463,6 +463,8 @@ parse_param(char *data)
 		assign_boolean(&cfg.statelog, val);
 	} else if (xstrcmp(data, "noidentifycapab") == 0) {
 		assign_boolean(&cfg.no_identify_capab, val);
+	} else if (xstrcmp(data, "qlog_no_my_quit") == 0) {
+		assign_boolean(&cfg.qlog_no_my_quit, val);
 	} else if (xstrcmp(data, "privmsg_format") == 0) {
 		if (val != NULL && strstr(val, "%s") != NULL) {
 			assign_param_no_trim(&cfg.privmsg_fmt, val);

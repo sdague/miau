@@ -158,6 +158,7 @@ cfg_type cfg = {
 	NULL,	/* usermode */
 
 	0,	/* no_idmsg_capab */
+	0,	/* qlog_no_my_quit */
 	NULL,	/* privmsg_fmt */
 	0,	/* newserv_disconn: none. see enum in miau.h */
 };

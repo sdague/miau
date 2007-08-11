@@ -430,6 +430,23 @@
 #autoqlog = "30"
 
 
+# qlog_no_my_quit = "state": Suppress "my" QUIT messages when replaying
+#		quicklog.
+#
+# Setting qlog_no_my_quit to TRUE will suppress QUIT messages about me when
+# replaying quicklog.  If you experience weird behaviour from your IRC client
+# when replaying quicklog (e.g. channel tabs are disappearing), try enabling
+# this option. Since IRC server may change your hostname and/or username as
+# they wish, suppression may not work in all occasions.
+#
+# This option might not be compiled in.
+#
+# Default: false
+#
+# Example:
+#qlog_no_my_quit = "true"
+
+
 # inbox = "state": Enables logging private messages when no clients are
 #		connected to miau.
 #

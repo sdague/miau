@@ -162,6 +162,7 @@ typedef struct {
 	char	*home;
 	char	*usermode;	/* User modes. Set on connect. */
 	int	no_identify_capab; /* suppress request of "CAPAB IDENTIFY-*" */
+	int	qlog_no_my_quit; /* suppress QUIT messages for me in quicklog */
 	char	*privmsg_fmt;
 	int	newserv_disconn; /* Disconnect client on connect to server */
 } cfg_type;

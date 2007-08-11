@@ -11,6 +11,8 @@
   * Parser will now print only one error per erroneous line.
   * Changed featues enabled by default in configure.ac.
   * Added information about configure options to INSTALL.
+  * Added miaurc option "qlog_no_my_quit" to suppress user's own QUIT messages
+    when replaying quicklog.
 
 
 0.6.4 - "What protocol?"
