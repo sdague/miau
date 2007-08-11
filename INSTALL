@@ -96,12 +96,13 @@ Configure options
 
   --disable-quicklog
 	Disables "quicklog" functionality. Configuration options "qloglength",
-	"timestamp", "flushqlog", and "autoqlog" will not work if quicklog is
-	disabled.
+	"timestamp", "flushqlog", "autoqlog", and "qlog_no_my_quit" will not
+	work if quicklog is disabled.
 
   --disable-qlogstamp
 	Disables quicklog timestamping. Configuration option "timestamp" does
-	not work if qlogstamp is disabled.
+	not work if qlogstamp is disabled. Note that qlogstamp does nothing if
+	quicklog is disabled.
 
   --disable-inbox
 	Disables inbox functionality. When clients are not connected, and
