@@ -35,17 +35,19 @@ Configure options
 	Enable IPv6. Note that this disables IPv4-support for good. Also see
 	"Note about IPv6".
 
-  --enable-dccbounce
-	Enables DCC-bouncing capability. Configuration options "dccbounce" and
-	"dccbindhost" cannot be used without this. Most users do not need this.
+  --disable-dccbounce
+	Disables DCC-bouncing capability. Configuration options "dccbounce" and
+	"dccbindhost" cannot be used without this. Most users do not really
+	need this.
 
-  --enable-automode
-	Enables automode capability. When configured with enable-automode, miau
-	can give privileges to users when they join a channel. Configuration
-	options "automode" and "automodedelay" cannot be used without this.
+  --disable-automode
+	Disables automode capability. When configured with enable-automode,
+	miau can give privileges to users when they join a channel.
+	Configuration options "automode" and "automodedelay" cannot be used
+	without this.
 
-  --enable-mkpasswd
-	Enables capability to generate password hashes for "password" option.
+  --disable-mkpasswd
+	Disables capability to generate password hashes for "password" option.
 	This is an implementation for standard "mkpasswd" command. Most people
 	don't need this, but it can be helpfun on systems without "mkpasswd" or
 	equivalent.
@@ -56,24 +58,24 @@ Configure options
 	in to. People should avoid this like plague, and as such no more
 	information is given here. :-)
 
-  --enable-uptime
-	Enables online command "UPTIME". This command will print out time miau
+  --disable-uptime
+	Disables online command "UPTIME". This command will print out time miau
 	has been connected to an IRC server. Most people can live their lives
 	happily without this feature.
 
-  --enable-chanlog
-	Enables channel logging feature. Configuration option "chanlog" cannot
+  --disable-chanlog
+	Disables channel logging feature. Configuration option "chanlog" cannot
 	be used without this. Channel logging feature allows miau to log
 	channels directly via miau. Limitations apply, see misc/miaurc for
 	details.
 
-  --enable-privlog
-	Enable private message logging feature. Configuration option "privlog"
-	cannot be used without this. Private message feature allows miau to log
-	private messages directly via miau.
+  --disable-privlog
+	Disables private message logging feature. Configuration option
+	"privlog" cannot be used without this. Private message feature allows
+	miau to log private messages directly via miau.
 
-  --enable-onconnect
-	Enables predefined actions when miau connects to a server.
+  --disable-onconnect
+	Disables predefined actions when miau connects to a server.
 	Configuration option "onconnect" cannot be used without this. People
 	using "nickserv" that does not accept server password as nickserv
 	password probably want to enable this feature.
@@ -107,12 +109,12 @@ Configure options
 	are written in inbox. When client connects, miau will then notify user
 	about messages waiting in inbox.
 
-  --enable-enduserdebug
-	Allows miau to send debug information to connected client in case of
-	unexpected messages from IRC network, or when internal status indicates
-	something is wrong. Enable this if you want to help developer(s) to get
-	rid of remaining bugs in miau. So far experience has shown that
-	enduserdebug generates /very/ few messages if any.
+  --disable-enduserdebug
+	Prevents miau from sending debug information to connected client in
+	case of unexpected messages from IRC network, or when internal status
+	indicates something is wrong. Enable this if you want to help
+	developer(s) to get rid of remaining bugs in miau. So far experience
+	has shown that enduserdebug generates /very/ few messages if any.
 
   --enable-pingstat
 	Allow miau to collect information about sent PINGs and received PONGs.
@@ -120,9 +122,9 @@ Configure options
 	miau experiences lag from the server. Online command "PINGSTAT" will
 	not work without this.
 
-  --enable-dumpstatus
-	Enables online command "DUMP" and "USR2" signal handling. Receiving any
-	will make miau dump its internal status to connected clients and to
+  --disable-dumpstatus
+	Disables online command "DUMP" and "USR2" signal handling. Receiving
+	any will make miau dump its internal status to connected clients and to
 	stderr. This is often quite helpful when debugging internals of miau.
 
   --enable-debug
