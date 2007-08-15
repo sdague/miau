@@ -324,6 +324,11 @@ miau can notify user about this in a couple of ways.
 @item @command{privmsg}
 	Only send a private message to the user
 @end table
+Note that if your are experiencing network problems between miau and the IRC
+server, it is possible that QUIT message is never received yourself. This may
+lead to a situation where you see multiple entries of you on the channel. To
+fix this, you can either part/rejoin the channel, reconnect to miau, or set
+@command{chandiscon} to @command{part}.
 
 @item @command{getnick = "selection"}
 miau can try to reclaim your primary nick when it is lost. This option may be

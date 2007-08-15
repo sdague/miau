@@ -323,6 +323,12 @@
 # part:		part each channel. mIRC users probably don't want to use this.
 # privmsg:	send a private message to the user
 #
+# Note that if your are experiencing network problems between miau and the IRC
+# server, it is possible that QUIT message is never received yourself. This may
+# lead to a situation where you see multiple entries of you on the channel. To
+# fix this, you can either part/rejoin the channel, reconnect to miau, or set
+# "chandiscon" to "part".
+#
 # Default: part
 #
 # Example:
