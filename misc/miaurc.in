@@ -787,14 +787,14 @@
 # Query with you:
 #   <you> hi!
 #
-# When privmsg_fmt is set to "<- <%s> ", you1 will see this just like before,
+# When privmsg_format is set to "<- <%s> ", you1 will see this just like before,
 # but you2 can see some improvement:
 #
 # Query with her:
 #   <her> hello
 #   <her> <- <you> hi!
 #
-# Note that if you use privmsg_fmt you MUST have "%s" somewhere in the
+# Note that if you use privmsg_format you MUST have "%s" somewhere in the
 # prefix. This marker will be replaced with your nick.
 #
 # Note that if private message is too long to fit in IRC-protocol defined
