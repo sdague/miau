@@ -490,7 +490,7 @@ parse_msg_me(const char *origin, const char *nick, const char *hostname,
 	 */
 	if (inbox != NULL) {
 		/* termination + validity guaranteed */
-		fprintf(inbox, "%s(%s) %s\n",
+		fprintf(inbox, "%s <%s> %s\n",
 				get_short_localtime(), origin, param2 + 1);
 		fflush(inbox);
 	}

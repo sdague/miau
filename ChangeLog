@@ -13,6 +13,7 @@
   * Added information about configure options to INSTALL.
   * Added miaurc option "qlog_no_my_quit" to suppress user's own QUIT messages
     when replaying quicklog.
+  * Inbox format is not identical with and without qlog enabled...
   * Updated documentation about possible caveat with chandiscon.
 
 
