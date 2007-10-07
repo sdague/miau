@@ -370,7 +370,7 @@ qlog_flush(time_t oldest, int move_to_inbox)
 			char *message;
 
 			/* Get sender (split it) and beginning of payload. */
-			message = strchr(entry->text + 1, (int) ':');
+			message = strstr(entry->text + 1, " :");
 
 			if (message == NULL) {
 #ifdef ENDUSERDEBUG
@@ -393,7 +393,7 @@ qlog_flush(time_t oldest, int move_to_inbox)
 				fprintf(inbox, "%s <%s> %s\n",
 						get_timestamp(&entry->timestamp,
 							TIMESTAMP_SHORT),
-						entry->text + 1, message + 1);
+						entry->text + 1, message + 2);
 				fflush(inbox);
 			}
 		}
