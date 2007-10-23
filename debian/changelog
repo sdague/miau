@@ -1,84 +1,301 @@
-miau (0.6.5-1) unstable; urgency=low
+miau (0.6.5) unstable; urgency=low
 
-  * New release.
+  * Fixed privmsg_format behaviour with channels
+  * Fixed privmsg_format in documentation
+  * privmsg_format without "%s" in it will no longer be accepted
+  * Fixed potential memory leak in topic-handling (would leak with invalid
+    replies from server)
+  * Fixed several unsafe va_list calls.
+  * Fixed parser not to crash on certain invalid lines in miaurc such as
+    'password = foo + "bar"'.
+  * Parser will now print only one error per erroneous line.
+  * Changed featues enabled by default in configure.ac.
+  * Added information about configure options to INSTALL.
+  * Added miaurc option "qlog_no_my_quit" to suppress user's own QUIT messages
+    when replaying quicklog.
+  * Fixed qlog-to-inbox conversion with unresolved IPv6 addresses
+  * Inbox format is not identical with and without qlog enabled...
+  * Updated documentation about possible caveat with chandiscon.
+  * Moved recent ChangeLog to debian/changelog
 
- -- Tommi Saviranta <wnd@kikai.katei.fi>  Thu, 03 May 2007 18:19:14 +0300
+ -- Tommi Saviranta <wnd@iki.fi>  Tue, 23 Oct 2007 22:15:24 +0300
 
-miau (0.6.4-1) unstable; urgency=low
+miau (0.6.4) unstable; urgency=low
 
-  * Yet another update.
+  * Fixed crash with channel modes with parameter(s) missing [#1644967]
+  * Fixed "nothing goes to inbox after updating to 0.6.3"
+  * miau now understands Undernet-style PART messages [#1676231]
+  * Option to disconnect clients upon connecting to server. Should help with
+    server reconnect issues with mIRC and certain IRC networks such as
+    Afternet. [#1673149]
+  * Added option "privmsg_fmt". When multiple clients are attached, probably
+    only the initiator of private chat will see the message flow correctly.
+    When this option is set, given prefix is inserted into private messages
+    echoed to other attached users. (E.g. "<he> <- <other_me> hello".)
+  * Wildcard '*' now matches to an empty string
+  * Reset server timer when we receive data -- not just when PONG is received
+  * Clear receive buffer before connecting to server. Oops.
+  * Ping server more aggressively (at least every 45 seconds)
+  * Open only privlog/fd for "user" and "User"
 
  -- Tommi Saviranta <wnd@iki.fi>  Sat, 31 Mar 2007 13:56:17 +0300
 
-miau (0.6.3-1) unstable; urgency=low
+miau (0.6.3) unstable; urgency=low
 
-  * Another release.
+  * Issuing "QUICKLOG" command without parameter now prints quicklog headers
+  * Option "noidentifycapab" to suppress IDENTIFY-* requests
+  * Option autoqlog now defaults to -1. When autoqlog is set to -1, full
+    quicklog will be replayed (on attach).
+  * Fixed user-provided privlog ignore-list
+  * Now compiles with quicklog disabled
+  * Finally got rid of bzeros
+  * Fixed typo in misc/miaurc.in
+  * Major clean-up of src/server.c
 
  -- Tommi Saviranta <wnd@iki.fi>  Wed, 17 Jan 2007 23:04:04 +0200
 
-miau (0.6.2-1) unstable; urgency=low
+miau (0.6.2) unstable; urgency=low
 
-  * New release.
+  * Fixed crash with qlog-to-inbox feature if inbox failed to open
+  * miau no longer thinks it doesn't have The Nick after being disconnected
+    with correct nick, disconnected, given wrong nick at connect, then
+    reconnected with preferred nick.
+  * Channels are now reintroduces to the client before quicklog is replayed.
+  * Added command to replay specified amount of quicklog
+  * Added command FLUSHQLOG to flush specified time from quicklog
+  * Added configuration option to (not to) replay quicklog on attach
+  * Removed obsolete bits from README
 
  -- Tommi Saviranta <wnd@iki.fi>  Mon, 24 Jul 2006 20:39:59 +0300
 
-miau (0.6.1-1) unstable; urgency=low
+miau (0.6.1) unstable; urgency=low
 
-  * Another release with tons of bugs.
+  * Fixed snprintf size with forwardmsg in server.c
+  * Fool-proofed reading inbox
+  * Fixed jumping to certain server right after rehash
+  * Fixed handling of failing to open logfiles
+  * Fixed client-PING reply
+  * Fixed quicklog with timestamps in the beginning and qlogflush set to false
+  * Fixed not replaying quicklog if not on any channel
+  * Fixed issue with channel flag 'O'
+  * Parted channels are no longer joined at attach if they have no qlog
+    and flushqlog is set to FALSE.
+  * miau again accepts commands when connection to the server is lost
+  * Reply to PART and JOIN when not connected to the server
+  * Allow CTCP-reply right after start-up to keep some services happy
+  * Call setvbuf only if statelog is enabled
+  * stdout is no longer redirected in a file we cannot write to
+  * miau no longer creates LOGDIR if logging isn't compiled in or used
+  * Fixed buffer size in irc.c:irc_notice
+  * Free forwardmsg in miauc.c:escape
+  * Free memory if bind() fails (which causes miau to quit)
+  * Fixed one-byte memory leak with logsuffix
+  * Warn about failing to open a logfile. Not too often, though.
+  * Added an option to define time between forwardmsg commits
+  * Fixed rpl_malloc/rpl_realloc handling
+  * Changed hstrerror-handling
+  * Fixed getopt
+  * Optimized using va_lists in irc.c
+  * Realloc-optimization in channels.c, automode.c
+  * Changed logpostfix into logsuffix
+  * Code cleanup (yes, it was a horrible mess and it's still a horrible mess)
 
  -- Tommi Saviranta <wnd@iki.fi>  Wed, 29 Mar 2006 00:47:18 +0300
 
-miau (0.6.0.2-1) unstable; urgency=low
+miau (0.6.0.2) unstable; urgency=low
 
-  * Yet another release to fix some stupid bugs.
+  * Hopefully fix problems configure switches for once and for all.
+  * Fix quicklog timestamping.
+  * Change quicklog to use list.[ch] instead of obsolete llist.[ch]
 
  -- Tommi Saviranta <wnd@iki.fi>  Sat, 31 Dec 2005 16:08:31 +0200
 
-miau (0.6.0.1-1) unstable; urgency=low
+miau (0.6.0.1) unstable; urgency=low
 
-  * New release
+  * Don't compile irc.c with DEBUG by default :-P
 
  -- Tommi Saviranta <wnd@iki.fi>  Tue, 27 Dec 2005 17:07:35 +0200
 
-miau (0.6.0-1) unstable; urgency=low
+miau (0.6.0) unstable; urgency=low
 
-  * New release with tons of fixes (and new bugs I'd expect).
+  * Security review. Secured tons of sprintfs and strcats.
+  * Option "autoaway" to define when to set user away if ever
+  * Option "chandiscon" to define what to do with channels when server
+    drops the connection
+  * Option not to redirect stdout into logfile
+  * miau should finally get along with safe channels (#1245923)
+  * "miau" no longer thinks it was kicked off a channel when "miau_" is kicked
+  * Fix searching for channels
+  * Changed ignore-list to be case insensitive
+  * Fixed logging of modeless channels
+  * Fixed illegal memory access at parting channel when chanlog compiled in
+  * Fixed minor memory leak in rehash
+  * Fixed nick rotation
+  * Fixed sample-miaurc
+  * Fixed nick comparison to be case insensitive at PART & KICK
+  * Cleaned up client.c
+  * Removed duplicated code in several places
+  * Cleaned up extrn-stuff, includes, headers
+  * Reworked configure.ac. Expect trouble.
+  * Compiles on every single *NIX I could get my hands on.
+  * Fixed b0rken -c switch (crypt password)
+  * Fixed qlog timestamp duplication
+  * Fixed illegal memory access at nick generation (totally random)
+  * Use socklen_t (with automatic typedef for systems such as HPUX)
+  * No more -O2 by default. Portability...
+  * del_ignorebynumber (of ignore.c) now static, like prototype suggests.
+  * hstrerror should no longer cause trouble on Digital UNIX. Keep your
+    thumbs up!
+  * Removed traces of iconv and ENCODING stuff to make the thing compile on
+    systems without iconv stuff installed...
+  * Cast htonl to unsigned int before printfing %u.
+  * Fixed compiling with QLOG but without INBOX.
+  * Include unistd.h in dcc.h
 
  -- Tommi Saviranta <wnd@iki.fi>  Sun, 27 Nov 2005 15:31:02 +0200
 
-miau (0.5.4-1) unstable; urgency=low
+miau (0.5.4) unstable; urgency=low
 
+  * Channel keys defined in miaurc now have effect. Thanks to Ralf van der
+    Enden.
+  * Workaround for Chatzilla. Thanks to Oliver Eikemeier and James Ross.
+  * Fixed channel mode change parser.
+  * Fixed parser to handle CR-LF -linefeeds.
+  * Fixed strlen(NULL) in match.c
+  * Fixed double-freeing memory in free_resources
+  * Added miaurc-options "floodtimer" and "burstsize" for configuring
+    flood-protection.
+  * Added an option for defining how many times miau should try to rejoin the
+    channel. (Counter is reset on reconnect/attach.)
+  * Preparing for major internal changes + clean-up for future
+  * Fixed CTCP-replies, removed optional CTCP-replies
+  * Have CTCP-replies by default (as some servers/networks require this)
+  * No more entries in log about CTCP is client attached
+  * Sends proper QUIT-message at SIGTERM
+  * Source formatting...
+  * foo(void) instead of foo(), fixed prototypes for signal handlers
+  * Added stub for manual page
   * Reformatted description.
   * Removed misc:Depends from dependency-list
 
  -- Tommi Saviranta <wnd@iki.fi>  Fri, 20 May 2005 21:47:23 +0300
 
-miau (0.5.3-1) unstable; urgency=low
+miau (0.5.3) unstable; urgency=low
 
+  * Automatically generated logfilenames are now always in lower case.
+  * miau now leaves channels (if configured to do so) when client times out and
+    when client dropped connection.
+  * After timeouted connect, miau no longer freezes until send() times out.
+    How did I do this - after adding the timer?-)
+  * miau no longer joins channels defined in miaurc at start-up if
+    rejoin and leave are set to false.
+  * Only one error message after connecting timed out.
+  * No more skipping one server after connecting timed out.
+  * Fixed handling of event-messages when "leave" is set to true.
+  * Fixed memory-leak in chanlog_open(...). This occured only if global logtype
+    failed to open logfile for writing.
+  * Fixed proceed_timer_safe -- it was possible to make it never trigger return
+    code 2.
+  * Fixed bug that caused miau to free i_server.isupport[n] twice.
+  * Lots of portability-cleanup (strict typecasting, got rid of (most?)
+    "if (foo)"s etc.)
+  * Installing miau locally no longer overwrites old config.
+  * miau-rotatelog was removed from distribution package.
+  * miau-check now uses locally installed miau by default.
   * miau-rotatelog removed from distribution package. 
 
  -- Tommi Saviranta <wind@kikai.katei>  Sun,  2 May 2004 16:13:56 +0300
 
-miau (0.5.2-1) unstable; urgency=low
+miau (0.5.2) unstable; urgency=low
 
-  * New release.
+  * Fixed a bug that caused miau to segfault on rehash if bind was defined while
+    listenhost was not.
+  * Message for dropping new client no longer contains garbage. Funny thing that
+    neither valgrind nor electric fence caught this.
+  * Rehashing now complains about all missing and required items.
+  * Implemented timestamping for quicklog events (QLOGSTAMP).
+    Option in miaurc: "timestamp", defines location of timestamp in quicklog
+    events. May be one of "beginning", "end", or "none".
+  * Implemented channel logging like logging for private messages (PRIVLOG).
+    Channel log is now CHANLOG. "log" in miaurc is now "chanlog".
+  * Logging finally handles "\1ACTION ...\1"s properly.
+  * "getnick" option (in miaurc) now takes "never", "detached", "attached" and
+    "always" as an argument.
+  * Increased buffersize for error() and report(). Even server-error/kill should
+    now fit in it.
+  * Split log.[ch] into log.[ch], chanlog.[ch] and privlog.[ch].
+  * Some parts of parser.c rewritten.
+  * Improved dump_status() :-)
+  * Code-cleanup.
 
  -- Tommi Saviranta <wind@kikai.katei>  Thu,  1 Apr 2004 01:19:17 +0300
 
-miau (0.5.1-1) unstable; urgency=low
+miau (0.5.1) unstable; urgency=low
 
-  * New release.
+  * Quitting miau resulted in deadlock when logging was compiled in but not
+    defined in miaurc. Fixed.
+  * miau no longer tries to join channels when not connected.
+    (There was one occasion this check wasn't done...)
+  * When randomized nick was in use, error message told
+    "Nick 'foobar' unavailable - using 'foobar^^" while miau had nick
+    'foobar^'. Fixed.
+  * Away-status is now set and unset properly. miau used to set/unset
+    away-status even when it was not needed.
+  * Empty away-message ("AWAY :") is now, by default, understood as "remove
+    AWAY message". Empty AWAY messages can be allowed by giving
+    --enable-empty-awaymsg (EMPTYAWAY) to configure-script.
+  * If user is marked as being away, new client is told about this. Some IRC-
+    clients like irssi won't even try to remove away-status unless they think
+    user is away. This fixes this issue.
+  * No more detectable (not even those static) memory leaks!
+  * Number of connected clients is now both reported to clients and written
+    into log when number changes (and if more than one client is allowed).
+    Message order is also sensible now, first we tell what happened, then the
+    number of connected clients.
+  * When user issues DIE-command, reason is echoed to all clients.
+  * PINGSTAT and DUMP are also listed in list of miau's commands.
+  * miau no longer catches SIGKILL.
+  * Added Sebastian Kienzl and Lee Hardy into copyright-part of client.c and
+    server.c from where they were left out when miau.c got splitted.
+  * Minor code clean-ups.
 
  -- Tommi Saviranta <wind@kikai.katei>  Tue, 24 Feb 2004 17:09:26 +0200
 
-miau (0.5.0-mk2-1) unstable; urgency=low
+miau (0.5.0-mk2) unstable; urgency=low
 
+  * STATUSDUMP now dump to clients as well.
+  * New configure-option, --enable-statusdump (STATUSDUMP).
+  * Fixed --enable-local that got broken in 0.2.0... "Oops."
+  * Finally debianized for good.
+  * Code clean-up.
   * Finally properly debianized version.
 
  -- Tommi Saviranta <tsaviran@cs.helsinki.fi>  Tue, 13 Jan 2004 20:31:19 +0200
 
-miau (0.5.0-1) unstable; urgency=low
+miau (0.5.0) unstable; urgency=low
 
+  * Implemented flood protection for client and for miau's internal functions.
+    miau should no longer be able to flood itself out from IRC-server.
+  * auto-op was enhanced to auto-mode. miau can now commit up to three mode
+    changes per command. Also filenames autoop.[ch] were renamed accordingly to
+    automode.[ch] as well as AUTOOP was translated to AUTOMODE. I'm already
+    planning to change the format (in miaurc) of this feature to gain some
+    speed-up... Don't hold your breath, though.
+  * If miau drops from the server (which we were already in) it tries to
+    reconnect to it. If connection can't be established, miau moves to the
+    next server in the list.
+  * When defining permissions, "@@" can be used to define miau's public
+    hostname.
+  * Fixed bug in parser which caused entries in invalid list to be added to last
+    succesfully defined list.
+  * Should've fixed "qlog-for-this-channel-though-nothing-exists" -bug for good.
+  * Using quicklog takes much less CPU-time than before.
+  * Fixed illegal memory access in parser. (Check was done in wrong order.)
+  * Received ERROR-message is now (finally) sent as part-reason to clients.
+  * No longer "Received a CTCP ... (didn't reply)" -messages when compiling
+    CTCPREPLIES disabled.
+  * Code clean-up and optimization.
+  * Almost complete debian/-directory.
   * First debianized version.
 
  -- Tommi Saviranta <tsaviran@cs.helsinki.fi>  Mon,  1 Dec 2003 04:14:42 +0200

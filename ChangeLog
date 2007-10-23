@@ -16,6 +16,7 @@
   * Fixed qlog-to-inbox conversion with unresolved IPv6 addresses
   * Inbox format is not identical with and without qlog enabled...
   * Updated documentation about possible caveat with chandiscon.
+  * Last version with up-to-date ChangeLog
 
 
 0.6.4 - "What protocol?"
