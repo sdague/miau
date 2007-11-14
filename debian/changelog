@@ -1,3 +1,9 @@
+miau (0.6.6) unstable; urgency=low
+
+  * Cleaned up source.
+
+ -- Tommi Saviranta <wnd@iki.fi>  Wed, 14 Nov 2007 14:29:51 +0200
+
 miau (0.6.5) unstable; urgency=low
 
   * Fixed privmsg_format behaviour with channels

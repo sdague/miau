@@ -1,5 +1,7 @@
 TODO:
 
+- delayed onconnect, e.g. "send this five seconds after logging in"
+
 - quicklog should use ignores
 
 - #include miaurc (for general/global config)

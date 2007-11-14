@@ -92,75 +92,73 @@ void dump_status(int a);
 
 status_type 		status;
 cfg_type cfg = {
-	1,	/* statelog: write stdout into file */
+	.statelog = 1,		/* write stdout into file */
 #ifdef QUICKLOG
-	30,	/* qloglength: 30 minutes */
-	-1,	/* autoqlog: full quicklog */
+	.qloglength = 30,	/* 30 minutes */
+	.autoqlog = -1,		/* replay everything */
 #ifdef QLOGSTAMP
-	0,	/* timestamp: no timestamp */
+	.timestamp = 0,		/* don't timestamp quicklog */
 #endif /* ifdef QLOGSTAMP */
-	1,	/* flushqlog: flush */
+	.flushqlog = 1,		/* flush qlog at attach */
 #endif /* ifdef QUICKLOG */
 #ifdef DCCBOUNCE
-	0,	/* dccbounce: no */
+	.dccbounce = 0,		/* no dcc bounce */
+	.dccbindhost = NULL,	/* don't bind for dcc bounce */
 #endif /* ifdef DCCBOUNCE */
 #ifdef AUTOMODE
-	30,	/* automodedelay: 30 seconds */
+	.automodedelay = 30,	/* 30 seconds */
 #endif /* ifdef AUTOMODE */
 #ifdef INBOX
-	1,
+	.inbox = 1,		/* enable inbox */
 #endif /* ifdef INBOX */
-	0,	/* listenport: 0 */
-	2,	/* floodtimer */
-	5,	/* burstsize */
-	30,	/* jointries */
-	1,	/* getnick: disconnected */
-	60,	/* getnickinterval: 60 seconds */
-	0,	/* antiidle: no */
-	1,	/* nevergiveup: yes, never give up */
-	0,	/* jumprestricted: no */
-	90,	/* stonedtimeout: 90 seconds */
-	1,	/* rejoin: yes */
-	30,	/* connecttimeout: 30 seconds */
-	10,	/* reconnectdelay: 10 seconds */
-	0,	/* leave: no */
-	2,	/* chandiscon: part */
-	9,	/* maxnicklen: 9 chars */
-	3,	/* maxclients: 3 clients */
-	1,	/* usequitmsg: yes */
-	1,	/* autoaway: detach */
+	.listenport = 0,	/* no default */
+	.floodtimer = 2,	/* 2 seconds */
+	.burstsize = 5,		/* 5 messages per burst */
+	.jointries = 30,	/* try to join a channel 30 times */
+	.getnick = 1,		/* try to get nick while disconnected */
+	.getnickinterval = 60,	/* try to get nick every 60 seconds */
+	.antiidle = 0,		/* no anti-idle */
+	.nevergiveup = 1,	/* never give up connecting */
+	.jumprestricted = 0,	/* allow restricted servers */
+	.stonedtimeout = 90,	/* 90 seconds */
+	.rejoin = 1,		/* rejoin channels after disconnecting */
+	.connecttimeout = 30,	/* 30 seconds */
+	.reconnectdelay = 10,	/* 10 seconds */
+	.leave = 0,		/* don't leave channels on detach */
+	.chandiscon = 2,	/* part channels when disconnected */
+	.maxnicklen = 9,	/* 9 characters */
+	.maxclients = 3,	/* 3 clients */
+	.usequitmsg = 1,	/* use quit message as away message */
+	.autoaway = 1,		/* automatically set away at detach */
 #ifdef PRIVLOG
-	0,	/* privlog: no privlog */
+	.privlog = 0,		/* don't write private log */
 #endif /* ifdef PRIVLOG */
 
-	DEFAULT_NICKFILL,	/* nickfillchar */
+	.nickfillchar = DEFAULT_NICKFILL,
 	
 #ifdef NEED_LOGGING
-	NULL,			/* logsuffix */
+	.logsuffix = NULL,	/* no log suffix */
 #endif /* ifdef NEED_LOGGING */
-#ifdef DCCBOUNCE
-	NULL,			/* dccbindhost */
-#endif /* ifdef DCCBOUNCE */
 #ifdef NEED_CMDPASSWD
-	NULL,			/* cmdpasswd */
+	.cmdpasswd = NULL,	/* no default */
 #endif /* ifdef NEED_CMDPASSWD */
-	NULL,	/* username */
-	NULL,	/* realname */
-	NULL,	/* password */
-	NULL,	/* leavemsg */
-	NULL,	/* bind */
-	NULL,	/* listenhost */
-	NULL,	/* awaymsg */
-	NULL,	/* forwardmsg */
-	180,	/* forwardtime */
-	NULL,	/* channels */
-	NULL,	/* home */
-	NULL,	/* usermode */
+	.username = NULL,	/* no default */
+	.realname = NULL,	/* no default */
+	.password = NULL,	/* no default */
+	.leavemsg = NULL,	/* no default */
+	.bind = NULL,		/* no default */
+	.listenhost = NULL,	/* no default */
+	.awaymsg = NULL,	/* no default */
+	.forwardmsg = NULL,	/* no default */
+	.forwardtime = 180,	/* 180 seconds */
+	.channels = NULL,	/* no default */
+	.home = NULL,		/* no default */
+	.usermode = NULL,	/* no default */
 
-	0,	/* no_idmsg_capab */
-	0,	/* qlog_no_my_quit */
-	NULL,	/* privmsg_fmt */
-	0,	/* newserv_disconn: none. see enum in miau.h */
+	.no_identify_capab = 0,	/* allow CAPAB IDENTIFY-MSG */
+	.qlog_no_my_quit = 0,	/* don't strip my QUIT from quicklog */
+	.privmsg_fmt = NULL,	/* no privmsg_fmt */
+	.newserv_disconn = 0,	/* none. see enum in miau.h */
 };
 nicknames_type		nicknames;
 
