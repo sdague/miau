@@ -492,7 +492,7 @@ client_read(connection_type *client)
 		}
 #endif /* ifdef DCCBOUNCE */
 #ifdef NEED_LOGGING
-		else {
+		if (param2 != NULL && pass == 1) {
 			pass = cmd_privmsg(param1, param2);
 		}
 #endif /* ifdef NEED_LOGGING */

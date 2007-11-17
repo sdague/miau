@@ -1,8 +1,9 @@
 miau (0.6.6) unstable; urgency=low
 
+  * Fixed chanlog/privlog with user's ACTION when DCC-bouncing is compiled in.
   * Cleaned up source.
 
- -- Tommi Saviranta <wnd@iki.fi>  Wed, 14 Nov 2007 14:29:51 +0200
+ -- Tommi Saviranta <wnd@iki.fi>  Sat, 17 Nov 2007 21:26:34 +0200
 
 miau (0.6.5) unstable; urgency=low
 

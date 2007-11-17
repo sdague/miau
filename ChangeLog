@@ -1,3 +1,6 @@
+>= 0.6.6: See debian/changelog
+
+
 0.6.5 - "Fixed"
 
   * Fixed privmsg_format behaviour with channels
