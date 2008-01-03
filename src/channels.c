@@ -161,6 +161,15 @@ channel_add(const char *channel, const char *key, const int list)
 		chptr = NULL;
 	}
 
+	/*
+	 * Undernet doesn't echo channel password when password protected
+	 * channel is joined. We would have to record the pass when used
+	 * requests the channel. At the moment we don't do that, and
+	 * automatically rejoining password protected channel will fail unless
+	 * channel key was set while being on the channel and unless key was
+	 * defined in "channels" option in miaurc.
+	 */
+
 	/* Perhaps channel was not on passive/old_channels, after all. */
 	if (chptr == NULL) {
 		/* Create new node to channel list. */

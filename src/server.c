@@ -1469,6 +1469,7 @@ parse_modes(const char *channel, const char *original)
 				 * without that missing parameter.
 				 */
 				if (modetype == '+' && param != NULL) {
+					xfree(chptr->key);
 					chptr->key = xstrdup(param);
 				}
 				/* No need to clear unset key. */
