@@ -1,7 +1,7 @@
 Source: miau
 Section: net
 Priority: optional
-Maintainer: Tommi Saviranta <wnd@iki.fi>
+Maintainer: Sean Dague <sean@dague.net>
 Build-Depends: debhelper (>= 4.0.0)
 Standards-Version: 3.6.0
 

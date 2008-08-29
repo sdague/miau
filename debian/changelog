@@ -1,3 +1,9 @@
+miau (0.6.6ubuntu1) hardy; urgency=low
+
+  * Initial packaging attempt for ubuntu
+
+ -- Sean Dague <sean@dague.net>  Fri, 29 Aug 2008 08:39:24 -0400
+
 miau (0.6.6) unstable; urgency=low
 
   * Fixed memory leak with channel keys.
