@@ -1,3 +1,33 @@
+miau (0.6.6ubuntu6) hardy; urgency=low
+
+  * added build-depends for texinfo
+
+ -- Sean Dague <sean@dague.net>  Fri, 29 Aug 2008 10:44:54 -0400
+
+miau (0.6.6ubuntu5) hardy; urgency=low
+
+  * automake --copy so that we can build on ppa server
+
+ -- Sean Dague <sean@dague.net>  Fri, 29 Aug 2008 10:20:25 -0400
+
+miau (0.6.6ubuntu4) hardy; urgency=low
+
+  * don't make ppa generate the autoconf stuff for me
+
+ -- Sean Dague <sean@dague.net>  Fri, 29 Aug 2008 10:11:18 -0400
+
+miau (0.6.6ubuntu3) hardy; urgency=low
+
+  * specify path for autogen.sh
+
+ -- Sean Dague <sean@dague.net>  Fri, 29 Aug 2008 09:24:13 -0400
+
+miau (0.6.6ubuntu2) hardy; urgency=low
+
+  * Fixing rules so they build on ppa server
+
+ -- Sean Dague <sean@dague.net>  Fri, 29 Aug 2008 08:58:59 -0400
+
 miau (0.6.6ubuntu1) hardy; urgency=low
 
   * Initial packaging attempt for ubuntu

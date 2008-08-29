@@ -2,7 +2,7 @@ Source: miau
 Section: net
 Priority: optional
 Maintainer: Sean Dague <sean@dague.net>
-Build-Depends: debhelper (>= 4.0.0)
+Build-Depends: debhelper (>= 4.0.0), texinfo
 Standards-Version: 3.6.0
 
 Package: miau
